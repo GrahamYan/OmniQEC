@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "omniqec-paper-assistant-mock",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "ALLOWED_ORIGINS": "http://localhost:8000,http://127.0.0.1:8000",
+    "ASSISTANT_MODE": "mock",
+    "MODEL": "local-grounded-mock"
+  }
+}

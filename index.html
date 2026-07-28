@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="OmniQEC is an AI scientist for discovering practical quantum error-correcting codes through code-circuit-decoder co-design."
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="OmniQEC · Discovering practical quantum error-correcting codes"
+    />
+    <meta
+      property="og:description"
+      content="A preliminary research preview of OmniQEC, an AI scientist for physically grounded QEC code discovery."
+    />
+    <title>OmniQEC · Practical QEC code discovery</title>
+    <link rel="stylesheet" href="styles.css?v=20260728-3" />
+    <script src="script.js?v=20260728-3" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header class="site-header">
+      <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="OmniQEC home">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span>OmniQEC</span>
+        </a>
+        <div class="nav-links">
+          <a href="#overview">Overview</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#results">Results</a>
+          <a href="#validation">Validation</a>
+          <a href="#resources">Resources</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <section class="hero" id="top">
+        <div class="preview-banner reveal">
+          <span class="preview-label">Research preview · Work in progress</span>
+          <p>
+            Preliminary research preview · The manuscript is under active revision, and
+            the code and citation will be released with the formal version.
+          </p>
+        </div>
+
+        <div class="hero-heading reveal">
+          <p class="eyebrow">AI scientist for practical quantum error correction</p>
+          <h1>
+            OmniQEC: discovering practical quantum error-correcting codes by an AI
+            scientist
+          </h1>
+        </div>
+
+        <div class="hero-grid">
+          <div class="hero-copy reveal">
+            <p class="hero-summary">
+              OmniQEC turns QEC design into an iterative discovery process. An
+              LLM-based orchestrator couples rapid code-level exploration with
+              physically grounded circuit synthesis and decoder evaluation, allowing
+              promising qLDPC codes to be judged by how they actually perform on a
+              processor.
+            </p>
+
+            <div class="author-block">
+              <p class="authors">
+                Ge Yan<sup>1</sup>, Shanchuan Li<sup>1,2</sup>, Pengyue Ma<sup>1</sup>,
+                Qixin Zhang<sup>1</sup>, Pingchuan Ma<sup>3</sup>, Jianping Wang<sup>4</sup>,
+                Min-Hsiu Hsieh<sup>5</sup>, and
+                <a href="https://yuxuan-du.github.io" target="_blank" rel="noreferrer"
+                  >Yuxuan Du</a
+                ><sup>1,6,*</sup>
+              </p>
+              <p class="affiliations">
+                <sup>1</sup>Nanyang Technological University ·
+                <sup>2</sup>Tokyo University of Agriculture and Technology ·
+                <sup>3</sup>Zhejiang University of Technology ·
+                <sup>4</sup>City University of Hong Kong ·
+                <sup>5</sup>Hon Hai (Foxconn) Research Institute ·
+                <sup>6</sup>NTU School of Physical and Mathematical Sciences
+              </p>
+              <p class="correspondence"><sup>*</sup> Corresponding author</p>
+            </div>
+
+            <div class="hero-actions">
+              <a
+                class="button primary"
+                href="assets/OmniQEC-manuscript-preview.pdf"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Manuscript preview <span aria-hidden="true">↗</span>
+              </a>
+              <button class="button" id="open-assistant-hero" type="button">
+                Ask AI assistant <span aria-hidden="true">✦</span>
+              </button>
+              <span class="button disabled" aria-disabled="true">Code · Coming soon</span>
+            </div>
+          </div>
+
+          <aside class="hero-metrics reveal" aria-label="Study at a glance">
+            <article class="metric-card metric-sage">
+              <strong>4</strong>
+              <span>qLDPC construction families</span>
+            </article>
+            <article class="metric-card metric-blue">
+              <strong>3</strong>
+              <span>LLM orchestrator backends</span>
+            </article>
+            <article class="metric-card metric-lavender">
+              <strong>14</strong>
+              <span>physical-qubit budgets per backend</span>
+            </article>
+            <article class="metric-card metric-beige">
+              <strong>98 → 240</strong>
+              <span>key complete-implementation budgets</span>
+            </article>
+          </aside>
+        </div>
+
+        <figure class="hero-figure reveal">
+          <img
+            src="assets/omniqec-overview.webp"
+            alt="OmniQEC system: a user query is routed by an orchestrator through a fast code-search loop and a slow circuit-evaluation loop, with feedback guiding the next generation."
+            width="2769"
+            height="1679"
+          />
+          <figcaption>
+            OmniQEC coordinates a fast loop for generative search and inexpensive
+            code-level screening with a slow loop for circuit synthesis, decoding, and
+            logical-error evaluation.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="section" id="overview">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Why OmniQEC</p>
+          <h2>Beyond code-centric discovery</h2>
+          <p>
+            A quantum code that looks strong algebraically can still perform poorly
+            after hardware constraints, syndrome extraction, circuit noise, and
+            decoding are taken into account. OmniQEC closes this gap by making
+            implementation-level evidence part of the search itself.
+          </p>
+        </div>
+
+        <div class="comparison-grid">
+          <article class="comparison-card reveal">
+            <span class="card-index">01</span>
+            <p class="card-kicker">Conventional search</p>
+            <h3>Optimize a proxy</h3>
+            <p>
+              Candidates are ranked using algebraic quantities such as
+              <code>[[n,k,d]]</code> and the figure of merit
+              <code>kd²/n</code>. These are fast to compute, but they do not capture
+              the complete implementation.
+            </p>
+          </article>
+          <article class="comparison-card featured reveal">
+            <span class="card-index">02</span>
+            <p class="card-kicker">OmniQEC</p>
+            <h3>Optimize what the processor experiences</h3>
+            <p>
+              Promising candidates are compiled into syndrome-extraction circuits,
+              sampled under circuit-level noise, and ranked by decoder-estimated
+              logical error rate.
+            </p>
+          </article>
+          <article class="comparison-card reveal">
+            <span class="card-index">03</span>
+            <p class="card-kicker">The consequence</p>
+            <h3>Evidence reshapes the search</h3>
+            <p>
+              Circuit-level results return to the orchestrator, so later generations
+              can move away from proxy-optimal but operationally weak regions of the
+              design space.
+            </p>
+          </article>
+        </div>
+
+        <aside class="key-idea reveal">
+          <span>Core idea</span>
+          <p>
+            Practical QEC discovery is a code-circuit-decoder co-design problem, not a
+            code-parameter ranking problem.
+          </p>
+        </aside>
+      </section>
+
+      <section class="section workflow-section" id="workflow">
+        <div class="section-heading reveal">
+          <p class="eyebrow">How it works</p>
+          <h2>A self-evolving slow-fast discovery loop</h2>
+          <p>
+            Select a stage to see how a high-level design request becomes a ranked,
+            implementation-ready code package.
+          </p>
+        </div>
+
+        <div class="workflow-shell reveal">
+          <div class="workflow-tabs" role="tablist" aria-label="OmniQEC workflow stages">
+            <button
+              class="workflow-tab query active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              data-workflow="query"
+            >
+              <span>01</span>
+              User query
+            </button>
+            <button
+              class="workflow-tab orchestrator"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-workflow="orchestrator"
+            >
+              <span>02</span>
+              Orchestrator
+            </button>
+            <button
+              class="workflow-tab fast"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-workflow="fast"
+            >
+              <span>03</span>
+              Fast loop
+            </button>
+            <button
+              class="workflow-tab slow"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-workflow="slow"
+            >
+              <span>04</span>
+              Slow loop
+            </button>
+            <button
+              class="workflow-tab feedback"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-workflow="feedback"
+            >
+              <span>05</span>
+              Feedback
+            </button>
+          </div>
+
+          <article
+            class="workflow-detail detail-query"
+            id="workflow-detail"
+            role="tabpanel"
+            tabindex="0"
+          >
+            <p class="workflow-kicker" id="workflow-kicker">Design specification</p>
+            <h3 id="workflow-title">Start from practical constraints</h3>
+            <p id="workflow-description">
+              The user describes the desired code family, total qubit budget, weight
+              limit, connectivity, and optimization objective.
+            </p>
+            <ul id="workflow-points">
+              <li>Complete physical-qubit budget, not data qubits alone</li>
+              <li>Hardware and syndrome-extraction constraints</li>
+              <li>Target code family and circuit-level objective</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="results">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Main result</p>
+          <h2>A circuit-level performance frontier</h2>
+          <p>
+            Across four qLDPC construction families and three LLM backends, the best
+            discovered codes show steadily stronger logical-error suppression as the
+            complete physical-qubit budget increases.
+          </p>
+        </div>
+
+        <div class="result-story">
+          <figure class="result-figure reveal">
+            <img
+              src="assets/performance-frontier.webp"
+              alt="Scatter plot of circuit-level logical error suppression versus total physical qubits for codes discovered with Claude, GPT, and DeepSeek, with BB reference codes."
+              width="1418"
+              height="785"
+            />
+            <figcaption>
+              The discovered codes form a clear resource-performance frontier. Marker
+              size represents the inexpensive code-level proxy, illustrating that proxy
+              score and circuit-level rank can disagree.
+            </figcaption>
+          </figure>
+
+          <div class="result-copy reveal">
+            <article>
+              <span class="result-number">N = 98</span>
+              <h3>First BB crossover</h3>
+              <p>
+                All three backends discover implementations that surpass the
+                <code>[[72,12,6]]</code> BB reference, with the first improvement
+                appearing at 98 total physical qubits.
+              </p>
+            </article>
+            <article>
+              <span class="result-number">N = 240</span>
+              <h3>Stronger large-budget frontier</h3>
+              <p>
+                The strongest Claude and GPT campaigns exceed the larger
+                <code>[[144,12,12]]</code> BB reference within the explored budget.
+              </p>
+            </article>
+            <article>
+              <span class="result-number">kd²/n ≠ LER</span>
+              <h3>The proxy can mis-rank codes</h3>
+              <p>
+                Several codes with lower algebraic proxy scores deliver better
+                circuit-level logical error rates, motivating direct physical
+                evaluation.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section validation-section" id="validation">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Validation and ablation</p>
+          <h2>The advantage persists beyond a single search point</h2>
+          <p>
+            Physical-error sweeps and loop ablations test whether the discovered
+            advantage is robust and whether both feedback paths are necessary.
+          </p>
+        </div>
+
+        <figure class="wide-figure reveal">
+          <img
+            src="assets/validation-ablation.webp"
+            alt="Six-panel validation figure showing logical error rate sweeps for three LLM backends and ablations of slow and fast feedback loops."
+            width="1414"
+            height="890"
+          />
+          <figcaption>
+            Top: representative frontier codes retain lower logical error rates across
+            physical error probabilities. Bottom: removing slow-loop feedback or both
+            feedback paths weakens and destabilizes discovery.
+          </figcaption>
+        </figure>
+
+        <div class="validation-grid">
+          <article class="validation-card reveal">
+            <strong>29.23×</strong>
+            <span>lower LER at <code>p = 0.002</code> for the strongest candidate</span>
+          </article>
+          <article class="validation-card reveal">
+            <strong>Γ = 5.60</strong>
+            <span>representative fitted suppression exponent versus 3.79 for BB</span>
+          </article>
+          <article class="validation-card reveal">
+            <strong>Both loops</strong>
+            <span>are required for reliable, practically relevant discovery</span>
+          </article>
+        </div>
+
+        <article class="cost-story reveal">
+          <div class="cost-copy">
+            <p class="eyebrow">Practical cost</p>
+            <h3>Scaling code size does not dominate LLM usage</h3>
+            <p>
+              Token consumption changes only weakly with the physical-qubit budget.
+              Larger candidates primarily increase slow-loop circuit-evaluation time,
+              while LLM-side cost is governed more by backend behavior and pricing.
+            </p>
+          </div>
+          <figure>
+            <img
+              src="assets/llm-cost.webp"
+              alt="Stacked token usage bars and API cost lines across total-qubit budgets from 40 to 240."
+              width="732"
+              height="455"
+            />
+          </figure>
+        </article>
+      </section>
+
+      <section class="section resources-section" id="resources">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Research materials</p>
+          <h2>Preview now, complete release later</h2>
+          <p>
+            This page is being shared before the formal release. The manuscript may
+            change, and the source code and official citation will be added when the
+            work is finalized.
+          </p>
+        </div>
+
+        <div class="resource-grid">
+          <a
+            class="resource-card available reveal"
+            href="assets/OmniQEC-manuscript-preview.pdf"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span class="resource-status">Available preview</span>
+            <h3>Manuscript</h3>
+            <p>Read the current 13-page work-in-progress manuscript.</p>
+            <span class="resource-link">Open PDF ↗</span>
+          </a>
+          <article class="resource-card reveal" aria-label="Source code coming soon">
+            <span class="resource-status muted">Coming soon</span>
+            <h3>Source code</h3>
+            <p>The implementation will be linked here with the formal release.</p>
+          </article>
+          <article class="resource-card reveal" aria-label="Citation coming soon">
+            <span class="resource-status muted">Coming soon</span>
+            <h3>Citation</h3>
+            <p>Official BibTeX will be added after the manuscript is finalized.</p>
+          </article>
+        </div>
+
+        <div class="assistant-callout reveal">
+          <div>
+            <p class="eyebrow">Need a guided reading?</p>
+            <h3>Ask the OmniQEC paper assistant</h3>
+            <p>
+              Explore the architecture, slow-fast workflow, experiments, and findings
+              using answers grounded in the current manuscript.
+            </p>
+          </div>
+          <button class="button primary" id="open-assistant-resources" type="button">
+            Start a conversation <span aria-hidden="true">✦</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <div
+      class="assistant-widget"
+      data-production-endpoint=""
+      aria-live="polite"
+    >
+      <button
+        class="assistant-fab"
+        id="assistant-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="assistant-panel"
+      >
+        <span aria-hidden="true">✦</span> Ask OmniQEC
+      </button>
+
+      <section
+        class="assistant-panel"
+        id="assistant-panel"
+        aria-label="OmniQEC paper AI assistant"
+        aria-hidden="true"
+      >
+        <header class="assistant-header">
+          <div>
+            <p class="eyebrow">Grounded paper assistant</p>
+            <h2>Ask about OmniQEC</h2>
+          </div>
+          <div class="assistant-header-actions">
+            <button class="assistant-text-button" id="assistant-clear" type="button">
+              Clear
+            </button>
+            <button
+              class="assistant-close"
+              id="assistant-close"
+              type="button"
+              aria-label="Close assistant"
+            >
+              ×
+            </button>
+          </div>
+        </header>
+
+        <div class="assistant-status" id="assistant-status">
+          Connecting to the local grounded assistant…
+        </div>
+
+        <div
+          class="assistant-messages"
+          id="assistant-messages"
+          role="log"
+          aria-live="polite"
+          aria-relevant="additions"
+        >
+          <article class="assistant-message assistant-message-bot">
+            <p>
+              Ask about the slow-fast workflow, qLDPC code families, circuit-level
+              evaluation, performance frontier, or ablation results.
+            </p>
+            <div class="assistant-suggestions" aria-label="Suggested questions">
+              <button type="button" data-question="What is the main idea of OmniQEC?">
+                Main idea
+              </button>
+              <button type="button" data-question="Why does OmniQEC need a slow loop?">
+                Why a slow loop?
+              </button>
+              <button type="button" data-question="What are the main experimental results?">
+                Main results
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <form class="assistant-form" id="assistant-form">
+          <label class="sr-only" for="assistant-input">Question about OmniQEC</label>
+          <textarea
+            id="assistant-input"
+            name="message"
+            rows="2"
+            maxlength="900"
+            placeholder="Ask a question about the current manuscript…"
+          ></textarea>
+          <div class="assistant-form-footer">
+            <span id="assistant-char-count">0 / 900</span>
+            <button class="button primary small" id="assistant-send" type="submit">
+              Send
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <p>
+        OmniQEC research preview · Nanyang Technological University · Work in progress
+      </p>
+      <a href="#top">Back to top ↑</a>
+    </footer>
+  </body>
+</html>

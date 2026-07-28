@@ -1,0 +1,21 @@
+{
+  "name": "omniqec-paper-assistant",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --config wrangler.mock.jsonc --port 8787",
+    "dev:ai": "wrangler dev --config wrangler.jsonc --port 8787",
+    "types": "wrangler types src/worker-configuration.d.ts --config wrangler.jsonc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "dry-run": "wrangler deploy --dry-run --config wrangler.jsonc --outdir dist"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.18.8",
+    "@types/node": "^24.2.1",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.0",
+    "wrangler": "^4.114.0"
+  }
+}
