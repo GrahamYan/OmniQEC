@@ -1,0 +1,122 @@
+{
+ "code_hash": "57cd30c23489137e782a012a",
+ "code_hash8": "57cd30c2",
+ "family": "BB",
+ "n": 30,
+ "k": 2,
+ "d": 5,
+ "w": 4,
+ "parameters_printed_in_tables": true,
+ "construction": {
+  "G": "C3×C5",
+  "A": "x y + x^2 y^2",
+  "B": "x + y",
+  "as_printed_in": ["Table IX"],
+  "spec": {
+   "A": [[1, 1], [2, 2]],
+   "B": [[1, 0], [0, 1]],
+   "ell": 3,
+   "family": "bb",
+   "m": 5
+  }
+ },
+ "parity_check_matrices": {
+  "Hx": {
+   "shape": [15, 30],
+   "row_supports": [
+    [6, 12, 16, 20],
+    [7, 13, 17, 21],
+    [8, 14, 18, 22],
+    [9, 10, 19, 23],
+    [5, 11, 15, 24],
+    [2, 11, 21, 25],
+    [3, 12, 22, 26],
+    [4, 13, 23, 27],
+    [0, 14, 24, 28],
+    [1, 10, 20, 29],
+    [1, 7, 15, 26],
+    [2, 8, 16, 27],
+    [3, 9, 17, 28],
+    [4, 5, 18, 29],
+    [0, 6, 19, 25]
+   ]
+  },
+  "Hz": {
+   "shape": [15, 30],
+   "row_supports": [
+    [4, 10, 23, 29],
+    [0, 11, 24, 25],
+    [1, 12, 20, 26],
+    [2, 13, 21, 27],
+    [3, 14, 22, 28],
+    [0, 9, 19, 28],
+    [1, 5, 15, 29],
+    [2, 6, 16, 25],
+    [3, 7, 17, 26],
+    [4, 8, 18, 27],
+    [5, 14, 18, 24],
+    [6, 10, 19, 20],
+    [7, 11, 15, 21],
+    [8, 12, 16, 22],
+    [9, 13, 17, 23]
+   ]
+  }
+ },
+ "appearances": [
+  {
+   "table": "Table IX",
+   "task": "Memory",
+   "N": 60,
+   "backend_or_method": "Claude",
+   "rank": 1,
+   "p_LER": "8.83e-04",
+   "p_LER_value": 0.000883,
+   "pooled": false,
+   "upper_bound": false,
+   "ci95": [0.000782, 0.000996],
+   "ci95_printed_in_table": false,
+   "p_LER_printed_in_table": true
+  },
+  {
+   "table": "tab_fig4a_cross",
+   "task": "Memory",
+   "N": 60,
+   "backend_or_method": "Claude",
+   "rank": 1,
+   "p_LER_by_task": {
+    "Memory": {
+     "p_LER": "8.83e-04",
+     "p_LER_value": 0.000883,
+     "pooled": false,
+     "upper_bound": false,
+     "ci95": [0.000782, 0.000996],
+     "ci95_printed_in_table": true,
+     "p_LER_printed_in_table": true
+    },
+    "CNOT": {
+     "p_LER": "1.12e-03",
+     "p_LER_value": 0.00112,
+     "pooled": false,
+     "upper_bound": false,
+     "ci95": [0.00103, 0.0012],
+     "ci95_printed_in_table": true,
+     "p_LER_printed_in_table": true
+    }
+   }
+  },
+  {
+   "table": "tab_champion_stats",
+   "task": "Memory",
+   "N": 60,
+   "backend_or_method": "Claude",
+   "rank": 1,
+   "p_LER": "8.83e-04",
+   "p_LER_value": 0.000883,
+   "pooled": false,
+   "upper_bound": false,
+   "ci95": [0.000782, 0.000996],
+   "ci95_printed_in_table": true,
+   "p_LER_printed_in_table": true
+  }
+ ]
+}

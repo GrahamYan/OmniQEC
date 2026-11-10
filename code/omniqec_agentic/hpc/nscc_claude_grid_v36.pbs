@@ -1,0 +1,1534 @@
+#!/usr/bin/env bash
+# Fig.2 budget grid on NSCC driven by a Claude SUBSCRIPTION seat (CLIProxyAPI),
+# telescoping_structural_v3_6 protocol (docs/06, user decision 2026-09-03):
+# ONE decoder everywhere -- telescoping_cpu (preset telescoping_cpu_v1), the
+# Mitten paper's open-source telescoping decoder (arXiv:2607.28795,
+# github.com/a7b/yarn, vendored at third_party/telescoping-decoder, import
+# name telescoping_decoder) in its CPU configuration: S1/S2 (GPU flooding BP /
+# GPU relay-BP) OFF, S3-A/B/C (CPU relay stages, package variant tables) ON
+# on the GARI system of the TWO-BASIS detector error model, S4 (Gurobi IP
+# certification) OFF, and an undecoded shot (stage NC, nc_policy "fail")
+# COUNTS AS A LOGICAL ERROR -- no BPOSD, no fallback of any kind -- with
+# T_c=12 search
+# rounds, fixed T=12 final audit, 4-seed d_search, (k, d_search) structural
+# retention (reducer structural_proxy_pareto_v2_coordcap, <= 2 realizations
+# per coordinate) with a 4S+2R slow queue (2026-09-10; was 3S+1R), early stop pilot10x_v1 (2026-09-11: pilot 2000 shots/basis in 250-shot shards, stop at 10x the hall-of-fame best, else the full search shots),
+# d>=3 gate, A4-A5 plpr, the paper SI C noise model (uniform_paper_v1,
+# p=0.005, NO idle noise) and the SEC policy twobasis_nonint_v1 with v3.6
+# multi-seed certification (sec_cert_seeds=3, iters scale 4.0, top-4 refined
+# with 2000 iterations; code default, no launcher flag).
+#
+# v3.6 BUDGET POLICY (docs/06 §1.4, user decision 2026-09-03): every code at
+# one budget point gets the same shots; large points relax them. There are NO
+# per-stage time limits any more (the S3 stages are iteration bounded).
+# config.budget_policy(n_budget) -> {large_budget, search_shots, final_shots}:
+#   n_budget <= 288 : search 20,000 / final 200,000 shots per basis
+#   n_budget >= 300 : search  5,000 / final  50,000 shots per basis
+# The policy is applied INSIDE build_protocol_snapshot from --budget and frozen
+# in the snapshot (keys n_budget / budget_policy / decoder / telescoping), so this
+# launcher passes NEITHER --slow-shots NOR --final-shots: run-campaign derives
+# both from --budget, --strict-turns refuses any other value, and the
+# validator re-derives them from the report's qubit_budget. There is no
+# FINAL_SHOTS_OVERRIDE any more (a canary runs the real policy shots with
+# TURNS reduced and VALIDATE_FORMAL=0).
+# The decode-shard watchdog is a FLOOR plus MODELS: max(DECODE_SHARD_TIMEOUT_S,
+# DECODE_SHOT_BUDGET_S x shots x max(1, DEM columns / 60,000), shots x the
+# telescoping_cpu worst-case shot = TELESCOPING_COST_S_PER_COLUMN_ITER x 1.3 x
+# columns x worst_case_iterations; evaluation/pool.py) (B5); the pool caps its width by
+# memory (M4: floor(OMNIQEC_TOTAL_MEM_BYTES / OMNIQEC_WORKER_RSS_BYTES)) and
+# records each shard's ru_maxrss; the SEC synthesis runs once per candidate
+# (M5: distance job and further builds wait for the noise-0 build).
+#
+# v3.5 (bposd_structural_v3_5, BPOSD product_sum/50/osd_cs/10) is HISTORY:
+# its launcher trio (nscc_claude_grid_v35.pbs / submit_claude_v35_grid.sh /
+# claude_v35_status.sh) is not part of the open-source tree, its V35_DEFAULTS_OK
+# self-check fails under v3.6 code (profile_id changed), and a v3.5 checkpoint is refused on
+# --resume by name (state.assert_resumable_protocol: bposd_structural profile,
+# decoder bposd, no budget_policy key). v3.5 artifacts are NOT poolable with
+# v3.6 results (different decoder), which is why the out dir carries the _v36
+# suffix. The v3.4 / v3.3 / pre-v3.3 launchers are history too (R17).
+# The self-built relay_cascade_gari cascade (cascade_structural_v3_6, the
+# first v3.6 draft) was retired the same day BEFORE any NSCC launch: its
+# profile prefix is refused on --resume like bposd_structural, and no _v36
+# directory ever froze it.
+#
+# Execution geometry (unchanged since v3.4): search 16 / final 128 shards,
+# 8 s/shot budget, watchdogs 3600/1800/1800, TIMEOUT_RETRIES=0,
+# TRANSIENT_RETRIES=1, 127 workers on a 128-core node, OMP_NUM_THREADS=1 in
+# every worker; every FATAL_STOP branch is unchanged.
+# FATAL_STOP reasons this script can write (FATAL_STOP.json "reason"):
+#   measurement_blocked        non-timeout incompleteness in a slow queue
+#   final_all_infeasible       every finalist decode_infeasible in the final
+#   strict_retries_exhausted   STRICT_RETRY_MAX strict aborts, no turn gained
+#   non_quota_campaign_failure any other non-zero run-campaign exit
+#   formal_validation_failed   campaign_report.json rejected by the validator
+#   reasoning_saturated        (PRESET) turn 0 cannot finish, the reasoning fills the output, and
+#                              the reasoning-saturation rule has no lower level for this arm/model
+#   reasoning_saturation_unconfirmed  (PRESET) the saturation message without the turn-0 evidence
+# Every one of them is a human decision: an afterany successor refuses to
+# touch the checkpoint while the marker exists. decode_infeasible stays a
+# terminal candidate verdict (v3.6: the candidate gets ONE final-stage retry
+# with the final budgets, B5), never a point stop; so does decoder_unsupported
+# (v3.6.1: the telescoping decoder cannot be built for the candidate's DEM --
+# identical detector support with different logical support, i.e. circuit
+# distance 2; measured 2026-09-05 on seed_0004 at GPT b360, where it was
+# mis-filed as measurement_blocked and stopped the point).
+#
+#   J1=$(qsub omniqec_agentic/hpc/nscc_claude_grid_v36.pbs)
+#   J2=$(qsub -W depend=afterany:$J1 omniqec_agentic/hpc/nscc_claude_grid_v36.pbs)
+#   J3=$(qsub -W depend=afterany:$J2 omniqec_agentic/hpc/nscc_claude_grid_v36.pbs)
+#
+# POINTS runs strictly left-to-right; the default is DESCENDING (big codes
+# first). Completed points (campaign_report.json present) are skipped, so a
+# chain link resumes wherever the previous link stopped.
+#
+# 128-core note: q2's resources_max.ncpus is 64 — a 128-core job must go to the
+# ROUTING queue `normal`, which files it into q4 (whole-node) by ncpus. Do not
+# hard-pin -q q2 for these jobs. slow_workers freezes into the protocol
+# snapshot at turn 1, so EVERY later chain link for these points must also be
+# a job of the SAME core count.
+#
+# 64 OR 128 CORES (2026-09-04, utilisation finding): a turn's wall clock is
+# ~10 min of serial LLM calls, a build wave (SEC synthesis/certification, at
+# most 4 processes = the slow-queue cap) and a decode wave that fills the
+# node for only 3-20 min, so a 128-core node was 3 % (b360) / 23 % (b288)
+# busy. Two remedies, both protocol-neutral (slow_workers is a resume key,
+# not a validator field; SEC values are frozen, their execution is not):
+#   * OMNIQEC_SEC_WORKERS = WORKERS / 4 (exported below) lets each build
+#     process fan its (order, seed) ISD probes over a process pool
+#     (sec/twobasis_rank.py, bit-identical to the sequential loop);
+#   * NCPUS=64 (submitters: -l select=1:ncpus=64) halves the SU rate for a
+#     point that has not started yet; the frozen check below refuses to
+#     resume a 127-worker point with 63 workers and vice versa.
+#
+# TO RUN ONE POINT PER JOB:  qsub -v POINTS=144 ...
+#
+# TWO ARMS, ONE LAUNCHER (2026-09-04). ARM=claude (default) is the Claude
+# subscription arm above. ARM=gpt runs the ChatGPT subscription arm through
+# the SAME protocol, geometry, self-checks and FATAL_STOP branches; only four
+# things change: the model (GPT_MODEL, default gpt-5.6-sol -- the id the
+# Codex OAuth login exposes, asserted against /v1/models at startup so a
+# guessed id fails by name), the run-dir prefix (runs/fig2_gptsub_b<N>_<tag>),
+# the log prefix (runs/logs/gpt_grid_<tag>.*) and the endpoint lookup: when
+# ~/.cli-proxy-api/gpt_endpoint.env exists (OPENAI_BASE_URL ending in /v1 +
+# OPENAI_API_KEY -- e.g. the Cloudflare Worker route (hpc/worker_deepseek) to a
+# CLIProxyAPI on a workstation) the job is a pure HTTP client of
+# it; otherwise the shared login-node CLIProxyAPI is used exactly as for
+# Claude (that instance serves both providers once it holds a codex login).
+#
+# THIRD ARM (2026-09-10). ARM=deepseek runs the DeepSeek arm on NSCC through
+# the SAME protocol and self-checks, as a pure HTTP client of OpenRouter
+# (--provider openrouter, model DEEPSEEK_MODEL, default deepseek/deepseek-v4-pro
+# -- the id the earlier DeepSeek-arm runs used, so runs/fig2_deepseek_b<N>_<tag> and the
+# merged CSV keep one arm name). No CLIProxyAPI, no OAuth grant, no quota
+# window: the key lives in ~/.config/omniqec/openrouter.env (OPENROUTER_API_KEY,
+# optional OPENROUTER_BASE_URL ending in /v1 -- openrouter.ai directly, or the
+# Cloudflare Worker's /<token>/openrouter/v1 route when the cluster cannot
+# reach openrouter.ai; the URL may carry a path token and is never echoed).
+# Submit with ARM=deepseek submit_claude_v36_grid.sh (independent per-point
+# chains: pay-per-token has no one-campaign-at-a-time limit) and read with
+# deepseek_v36_status.sh.
+#
+# SERIAL CHAIN (the GPT arm's quota allows ONE campaign at a time): submit
+# ONE afterany chain whose every link carries the whole point list
+# (submit_gpt_v36_serial.sh passes POINTS=360:288:...:60 -- colon-joined
+# because a qsub -v value must not contain spaces; the list is normalised
+# below). Each link walks the list left to right, resumes the first
+# unfinished point from its checkpoint and only moves on when that point is
+# complete, so at most one campaign is ever running. FATAL_POLICY=skip makes
+# a FATAL_STOP on one point a SKIP (logged, marker kept for the human) rather
+# than the end of the link, so one stuck point cannot strand the eleven
+# behind it; the default FATAL_POLICY=stop keeps the per-point Claude chains'
+# behaviour (a dead point burns its spare links for free).
+#
+# THERE IS NO LOCK ON THE OUT DIR beyond flock. Two jobs pointed at the same
+# budget point would both open runs/fig2_claudesub_b<N>_v36/checkpoint.sqlite3
+# and corrupt it. So when running points in parallel, EVERY submission must
+# name a single point with -v POINTS=<n>, and no parallel job may target a
+# point that a still-running default-POINTS chain could still walk to.
+#
+# QUOTA STALLS ARE EXPECTED, NOT FAILURES. When the window is exhausted the
+# upstream returns 429, --strict-turns refuses to fall back, and run-campaign
+# exits non-zero with its checkpoint intact. This script treats that as "wait",
+# not "fail": it polls the provider with the campaign's own probe until service
+# returns, then resumes from the checkpoint. Any OTHER failure still aborts, so
+# a real bug does not get retried forever.
+#
+# ONE-TIME SETUP (login node, Claude/GPT subscription arms only):
+#   curl -fsSL https://raw.githubusercontent.com/router-for-me/cliproxyapi-installer/refs/heads/master/cliproxyapi-installer | bash
+#   cd ~/cliproxyapi && ./cli-proxy-api -claude-login -no-browser
+# (open the printed URL in a browser, paste the localhost callback URL back);
+# the credential lands in ~/.cli-proxy-api/ on the shared home filesystem.
+# The Python environment and the vendored decoder: hpc/requirements_fig2_nscc.txt.
+#
+# SITE SETTINGS. The PBS project is a placeholder: submit with
+# qsub -P <PROJECT> (the submitters pass PROJ=<PROJECT> as -P), which overrides
+# the directive below. The queue, the miniforge3 module and the conda env name
+# below are the settings of the cluster the paper's runs used; adapt them to yours.
+#PBS -P <PROJECT>
+#PBS -q normal
+#PBS -N omni_claude_v36
+#PBS -l select=1:ncpus=128:mem=100gb
+#PBS -l walltime=24:00:00
+#PBS -j oe
+
+set -euo pipefail
+
+module load miniforge3/23.10
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate omniqec2
+# The telescoping S3 kernels are two C sources the package compiles once per
+# cache directory (gcc -O3 -ffast-math -shared -fPIC; prebuilt below). Same
+# gcc module the beam decoder build used (hpc/requirements_fig2_nscc.txt);
+# a gcc already on PATH is an acceptable fallback, no compiler at all is not
+# (the prebuild step fails the job by name).
+module load gcc 2>/dev/null || echo "module load gcc unavailable; relying on the gcc on PATH for the telescoping kernels" >&2
+
+# REPO_ROOT may point at a second checkout (submitters pass it through -v):
+# a running tree must never receive new .py files (workers import at spawn),
+# so a code update is deployed to ~/OmniQEC_b and the NEXT links run there
+# against the same OUT_ROOT (docs: "解码切分与换核数").
+REPO_ROOT="${REPO_ROOT:-$HOME/OmniQEC}"
+CLIPROXY_DIR="${CLIPROXY_DIR:-$HOME/cliproxyapi}"
+# 2026-11-06: PRESET names the final protocols of the paper (docs/final_protocol_20261106.md):
+#   fig2_final  memory task, structural profile telescoping_structural_v3_8
+#   fig3_final  CNOT task (cnot_dense), structural profile telescoping_structural_v3_7_cnot_v2
+# Both: T = 12 for every code (ROUNDS_POLICY=fixed_Tc), slow-loop check-weight gate w <= 8 and no
+# construction-time cap, the paper's early stop (paper_d3_wilson10x_ref_maxerr30_v1) and final stage
+# (paper_top5_cumulative_v1, docs/paper_alignment_measurement.md), the models claude-opus-5 /
+# gpt-5.6-sol / deepseek/deepseek-v4-pro at their default reasoning setting, and the
+# reasoning-saturation rule below (REASONING_FLAG). A preset sets those keys, refuses a contradicting
+# value of any of them and refuses the other protocol variants (MAX_CHECK_WEIGHT_HARD,
+# REFERENCE_CODES_JSON). With VALIDATE_FORMAL=1 the finished point is validated against the validator
+# profile of the same name.
+# 2026-11-10 (paper alignment): the paper's two additional search configurations run ON a preset, with
+# the same program-generation and circuit-evaluation settings and one change each:
+#   ABLATION=no_slow | no_feedback      the w/o slow and w/o slow & fast configurations of Table VIII
+#                                       (Fig. 10; Memory: PRESET=fig2_final, CNOT: PRESET=fig3_final)
+#   EXACT_CHECK_WEIGHT=w (w <= 8)       the fixed-weight CNOT searches of Fig. 4 c (appendix D5, w = 4..7,
+#                                       PRESET=fig3_final only); the slow-loop gate becomes w as well, and
+#                                       run-campaign selects the paper's fixed-weight final stage
+#                                       (paper_fig4c_top6_confirm_v1: six finalists at 25 000 shots per basis,
+#                                       no top-up, the three best reported). Validate it afterwards with
+#                                       validate_fig2_campaign.py --profile fig3_final --exact-check-weight w.
+# Both are protocol variants (VALIDATE_FORMAL=0); the run tag defaults to the preset's tag plus
+# _no_slow / _no_feedback / _w<w>, so a variant never writes into the preset's own run directories.
+PRESET="${PRESET:-}"
+VALIDATOR_PROFILE="v3_7"
+preset_key() {  # NAME VALUE: set NAME unless it already holds another value
+  local current="${!1:-}"
+  if [[ -n "$current" && "$current" != "$2" ]]; then
+    echo "PRESET=$PRESET sets $1=$2 (got $1=$current)" >&2; exit 2
+  fi
+  printf -v "$1" '%s' "$2"
+}
+if [[ -n "$PRESET" ]]; then
+  if [[ -n "${MAX_CHECK_WEIGHT_HARD:-}${REFERENCE_CODES_JSON:-}" ]]; then
+    echo "PRESET=$PRESET takes no MAX_CHECK_WEIGHT_HARD / REFERENCE_CODES_JSON" >&2; exit 2
+  fi
+  PRESET_VARIANT=""
+  if [[ -n "${ABLATION:-}" && "${ABLATION:-}" != "full" ]]; then
+    [[ "$ABLATION" =~ ^(no_slow|no_feedback)$ ]] || { echo "ABLATION must be full, no_slow or no_feedback (got $ABLATION)" >&2; exit 2; }
+    PRESET_VARIANT="_$ABLATION"
+  fi
+  if [[ -n "${EXACT_CHECK_WEIGHT:-}" ]]; then
+    [[ -z "$PRESET_VARIANT" ]] || { echo "PRESET=$PRESET runs ABLATION or EXACT_CHECK_WEIGHT, not both" >&2; exit 2; }
+    [[ "$PRESET" == "fig3_final" ]] || { echo "EXACT_CHECK_WEIGHT is the fixed-weight CNOT search: PRESET=fig3_final (got $PRESET)" >&2; exit 2; }
+    [[ "$EXACT_CHECK_WEIGHT" =~ ^[3-8]$ ]] || { echo "PRESET=$PRESET takes EXACT_CHECK_WEIGHT 3..8 (the w_max <= 8 constraint; got $EXACT_CHECK_WEIGHT)" >&2; exit 2; }
+    PRESET_VARIANT="_w$EXACT_CHECK_WEIGHT"
+  fi
+  case "$PRESET" in
+    fig2_final) preset_key TASK memory; preset_key PROTOCOL_PROFILE v3_8; RUN_TAG="${RUN_TAG:-f2final$PRESET_VARIANT}" ;;
+    fig3_final) preset_key TASK cnot_dense; preset_key PROTOCOL_PROFILE v3_7; RUN_TAG="${RUN_TAG:-f3final$PRESET_VARIANT}" ;;
+    *) echo "PRESET must be fig2_final or fig3_final (got $PRESET)" >&2; exit 2 ;;
+  esac
+  # The slow-loop gate is w <= 8; an exact-weight search holds its own w there (run-campaign refuses any other).
+  preset_key ROUNDS_POLICY fixed_Tc; preset_key PROMOTION_MAX_CHECK_WEIGHT "${EXACT_CHECK_WEIGHT:-8}"
+  # 2026-11-10 (paper alignment): the early stop is the paper's (Appendix D3), run-campaign's default when no
+  # --racing-max-errors is passed; the final stage is the paper's top-5 cumulative confirmation (Table VII), or
+  # with EXACT_CHECK_WEIGHT the fixed-weight one (Fig. 4 c), which the exact contract selects in run-campaign.
+  [[ -z "${RACING_MAX_ERRORS:-}" ]] || { echo "PRESET=$PRESET runs the paper's early stop: RACING_MAX_ERRORS must be empty (got $RACING_MAX_ERRORS)" >&2; exit 2; }
+  RACING_MAX_ERRORS=""
+  preset_key CLAUDE_MODEL claude-opus-5; preset_key GPT_MODEL gpt-5.6-sol; preset_key DEEPSEEK_MODEL deepseek/deepseek-v4-pro
+  VALIDATOR_PROFILE="$PRESET"
+  [[ "$RUN_TAG" != "v37" ]] || { echo "PRESET=$PRESET writes its own run directories: RUN_TAG must not be v37" >&2; exit 2; }
+fi
+CLAUDE_MODEL="${CLAUDE_MODEL:-claude-opus-5}"
+GPT_MODEL="${GPT_MODEL:-gpt-5.6-sol}"
+DEEPSEEK_MODEL="${DEEPSEEK_MODEL:-deepseek/deepseek-v4-pro}"
+# Which arm this link runs (header: TWO ARMS, ONE LAUNCHER; THIRD ARM).
+# PROVIDER is the run-campaign / validator --provider: the two subscription
+# arms speak OpenAI-compatible HTTP to CLIProxyAPI, the DeepSeek arm speaks
+# to OpenRouter through llm/openrouter.py.
+ARM="${ARM:-claude}"
+case "$ARM" in
+  claude) ARM_PREFIX="claudesub"; ARM_LABEL="Claude";   LLM_MODEL="$CLAUDE_MODEL"; PROVIDER="openai" ;;
+  gpt)    ARM_PREFIX="gptsub";    ARM_LABEL="ChatGPT";  LLM_MODEL="$GPT_MODEL"; PROVIDER="openai" ;;
+  # 2026-10-20: the OpenRouter arm can carry another model (DEEPSEEK_MODEL=openai/gpt-5.6-sol for the
+  # Fig.3 OpenRouter-GPT comparison); OPENROUTER_ARM_PREFIX / _LABEL then name its run directory and logs.
+  deepseek) ARM_PREFIX="${OPENROUTER_ARM_PREFIX:-deepseek}"; ARM_LABEL="${OPENROUTER_ARM_LABEL:-DeepSeek}"; LLM_MODEL="$DEEPSEEK_MODEL"; PROVIDER="openrouter" ;;
+  *) echo "ARM must be claude, gpt or deepseek (got ARM=$ARM)" >&2; exit 2 ;;
+esac
+# DESCENDING by request: big codes first, then small. Order = run order
+# (the 13 Fig.2 points; submit_claude_v36_grid.sh names one point per chain,
+# submit_gpt_v36_serial.sh passes the whole list colon-joined).
+POINTS="${POINTS:-360 288 260 240 220 200 180 160 140 120 98 80 60}"
+POINTS="${POINTS//:/ }"
+# stop (default, per-point chains): a FATAL_STOP marker ends this link.
+# skip (serial chains): log it and walk on to the next point (header).
+FATAL_POLICY="${FATAL_POLICY:-stop}"
+[[ "$FATAL_POLICY" == "stop" || "$FATAL_POLICY" == "skip" ]] || { echo "FATAL_POLICY must be stop or skip (got $FATAL_POLICY)" >&2; exit 2; }
+# Deployment/canary controls. RUN_TAG changes only artifact/log paths; formal
+# output uses the default v36 tag. A reduced-turn canary must explicitly
+# disable formal validation so it cannot be mistaken for Fig.2. There is no
+# final-shot override in v3.6: the budget policy is the protocol.
+TURNS="${TURNS:-30}"   # 60 -> 30 on 2026-09-05 (user decision; a running 60-turn point is lowered on resume)
+RUN_TAG="${RUN_TAG:-v37}"
+VALIDATE_FORMAL="${VALIDATE_FORMAL:-1}"
+[[ "$RUN_TAG" =~ ^[A-Za-z0-9_.-]+$ ]] || { echo "invalid RUN_TAG=$RUN_TAG" >&2; exit 2; }
+[[ "$TURNS" =~ ^[1-9][0-9]*$ ]] || { echo "TURNS must be a positive integer" >&2; exit 2; }
+[[ "$VALIDATE_FORMAL" == "0" || "$VALIDATE_FORMAL" == "1" ]] || { echo "VALIDATE_FORMAL must be 0 or 1" >&2; exit 2; }
+if [[ -n "${FINAL_SHOTS_OVERRIDE:-}" ]]; then
+  echo "FINAL_SHOTS_OVERRIDE is not a v3.6 knob: shots per basis come from config.budget_policy(--budget) and are frozen in the protocol snapshot" >&2
+  exit 2
+fi
+if (( VALIDATE_FORMAL )) && [[ -n "$PRESET" ]] && (( TURNS != 30 )); then
+  echo "PRESET=$PRESET with VALIDATE_FORMAL=1 requires TURNS=30" >&2
+  echo "for a canary set VALIDATE_FORMAL=0 explicitly" >&2
+  exit 2
+fi
+if (( VALIDATE_FORMAL )) && [[ -z "$PRESET" ]] && { [[ "$RUN_TAG" != "v37" ]] || (( TURNS != 30 )); }; then
+  echo "formal validation requires RUN_TAG=v37 and TURNS=30" >&2
+  echo "for a canary set VALIDATE_FORMAL=0 explicitly" >&2
+  exit 2
+fi
+# Where the per-point run directories live. Default is this account's own
+# tree; a takeover account resuming ANOTHER account's checkpoints passes the
+# location it migrated them to (after rebase_run_dir.py) — or, if the original
+# owner opened their tree for cross-account writes, the owner's absolute path.
+# The checkpoint freezes absolute paths, so OUT_ROOT must name the directory
+# the checkpoints were rebased to, not merely somewhere the files got copied.
+OUT_ROOT="${OUT_ROOT:-$REPO_ROOT/runs}"
+# Experiment variant (2026-09-09): REFERENCE_CODES_JSON = a reference_codes_v1
+# file (path relative to REPO_ROOT or absolute) whose codes are shown to the
+# generator and the orchestrator every turn and frozen into the protocol
+# snapshot. A declared PROTOCOL VARIANT: RUN_TAG must not be v36 and the
+# formal validator must be off (it refuses the key anyway).
+REFERENCE_CODES_JSON="${REFERENCE_CODES_JSON:-}"
+REFERENCE_ARGS=()
+if [[ -n "$REFERENCE_CODES_JSON" ]]; then
+  [[ "$REFERENCE_CODES_JSON" = /* ]] || REFERENCE_CODES_JSON="$REPO_ROOT/$REFERENCE_CODES_JSON"
+  [[ -f "$REFERENCE_CODES_JSON" ]] || { echo "REFERENCE_CODES_JSON=$REFERENCE_CODES_JSON does not exist" >&2; exit 2; }
+  if (( VALIDATE_FORMAL )) || [[ "$RUN_TAG" == "v37" ]]; then
+    echo "REFERENCE_CODES_JSON is a protocol variant: pass VALIDATE_FORMAL=0 and a RUN_TAG other than v36" >&2; exit 2
+  fi
+  REFERENCE_ARGS=(--reference-codes-json "$REFERENCE_CODES_JSON")
+fi
+# 2026-09-24: FINAL_SHARD_CAP_S = hard ceiling (seconds) of the FINAL-stage
+# decode-shard watchdog. A runtime key (like slow_workers), so a resumed
+# checkpoint accepts it; empty = the v3.6/v3.7 behaviour (no ceiling). The
+# final stage also resumes per candidate now: a link killed at walltime keeps
+# every candidate it finished, the next link measures only the rest.
+FINAL_SHARD_CAP_S="${FINAL_SHARD_CAP_S:-}"
+FINAL_CAP_ARGS=()
+if [[ -n "$FINAL_SHARD_CAP_S" ]]; then
+  [[ "$FINAL_SHARD_CAP_S" =~ ^[0-9]+(\.[0-9]+)?$ ]] || { echo "FINAL_SHARD_CAP_S must be a number of seconds (got $FINAL_SHARD_CAP_S)" >&2; exit 2; }
+  FINAL_CAP_ARGS=(--final-shard-timeout-cap-s "$FINAL_SHARD_CAP_S")
+fi
+# 2026-09-25: SEARCH_SHARD_CAP_S = the same ceiling for the per-turn slow
+# queue (the frozen pilot10x_maxerr100_v3 policy has no decoder-cost cap, so
+# one non-converging candidate could hold a link for a day and the next link
+# replayed the turn into the same stall). Keep it above the honest budget:
+# 8 s/shot x (25000/16 = 1563 shots) x DEM scale.
+SEARCH_SHARD_CAP_S="${SEARCH_SHARD_CAP_S:-}"
+if [[ -n "$SEARCH_SHARD_CAP_S" ]]; then
+  [[ "$SEARCH_SHARD_CAP_S" =~ ^[0-9]+(\.[0-9]+)?$ ]] || { echo "SEARCH_SHARD_CAP_S must be a number of seconds (got $SEARCH_SHARD_CAP_S)" >&2; exit 2; }
+  FINAL_CAP_ARGS+=(--search-shard-timeout-cap-s "$SEARCH_SHARD_CAP_S")
+fi
+# 2026-09-26: FIXED_PROGRAM_COUNT=1 freezes the per-generation program count
+# at 24 even for a protocol VARIANT (which cannot run --strict-turns): the
+# Fig.3 opus-5-5 orchestrator lowered it to 8 every turn while Fable kept 24.
+FIXED_PROGRAM_COUNT="${FIXED_PROGRAM_COUNT:-}"
+if [[ "$FIXED_PROGRAM_COUNT" == "1" ]]; then
+  FINAL_CAP_ARGS+=(--fixed-program-count)
+fi
+# 2026-09-29: PROMOTION_MAX_CHECK_WEIGHT=8 keeps w >= 9 candidates out of the
+# slow loop (runtime key; slots are backfilled, rejections recorded in
+# slow_queue_composition.json). RACING_MAX_ERRORS=30 selects the large-code
+# early-stop variant pilot10x_maxerr30_v3 (the >= 288 points only, user
+# decision); 100 or empty = the frozen pilot10x_maxerr100_v3.
+PROMOTION_MAX_CHECK_WEIGHT="${PROMOTION_MAX_CHECK_WEIGHT:-}"
+if [[ -n "$PROMOTION_MAX_CHECK_WEIGHT" ]]; then
+  [[ "$PROMOTION_MAX_CHECK_WEIGHT" =~ ^[0-9]+$ ]] || { echo "PROMOTION_MAX_CHECK_WEIGHT must be an integer (got $PROMOTION_MAX_CHECK_WEIGHT)" >&2; exit 2; }
+  FINAL_CAP_ARGS+=(--promotion-max-check-weight "$PROMOTION_MAX_CHECK_WEIGHT")
+fi
+RACING_MAX_ERRORS="${RACING_MAX_ERRORS:-}"
+if [[ -n "$RACING_MAX_ERRORS" ]]; then
+  [[ "$RACING_MAX_ERRORS" =~ ^(30|100)$ ]] || { echo "RACING_MAX_ERRORS must be 30 or 100 (got $RACING_MAX_ERRORS)" >&2; exit 2; }
+  FINAL_CAP_ARGS+=(--racing-max-errors "$RACING_MAX_ERRORS")
+fi
+# 2026-10-12: TASK=cnot_dense runs the Fig.3 Phase B task-aware search (the slow
+# loop measures the two-block transversal-CNOT circuit, one CNOT per QEC round;
+# 3S+4R slow queue with the lightest-endpoint slot; not-competitive prompt
+# block). A protocol VARIANT: needs VALIDATE_FORMAL=0 and a RUN_TAG other than
+# v37. Everything else (fast loop, parents, shots, racing, finals, --strict-turns)
+# is the Fig.2 v3.7.1 protocol, so the arms stay comparable point by point.
+TASK="${TASK:-memory}"
+if [[ "$TASK" != "memory" ]]; then
+  [[ "$TASK" == "cnot_dense" ]] || { echo "TASK must be memory or cnot_dense (got $TASK)" >&2; exit 2; }
+  if [[ -z "$PRESET" ]] && { (( VALIDATE_FORMAL )) || [[ "$RUN_TAG" == "v37" ]]; }; then
+    echo "TASK=$TASK is a protocol variant: pass VALIDATE_FORMAL=0 and a RUN_TAG other than v37" >&2; exit 2
+  fi
+  FINAL_CAP_ARGS+=(--task "$TASK")
+fi
+# 2026-10-14: MAX_CHECK_WEIGHT_HARD=N (Phase B, remaining points): a code whose max
+# check weight exceeds N is rejected at construction (structural check
+# max_check_weight_exceeded), never enters the archive / proxy frontier / parents,
+# and the Generator contract says so. The first three Phase B points ran with the
+# promotion-level gate only (PROMOTION_MAX_CHECK_WEIGHT); both measure the same
+# set of codes. A protocol variant like TASK: needs VALIDATE_FORMAL=0.
+MAX_CHECK_WEIGHT_HARD="${MAX_CHECK_WEIGHT_HARD:-}"
+if [[ -n "$MAX_CHECK_WEIGHT_HARD" ]]; then
+  [[ "$MAX_CHECK_WEIGHT_HARD" =~ ^[0-9]+$ ]] || { echo "MAX_CHECK_WEIGHT_HARD must be an integer (got $MAX_CHECK_WEIGHT_HARD)" >&2; exit 2; }
+  if (( VALIDATE_FORMAL )); then
+    echo "MAX_CHECK_WEIGHT_HARD=$MAX_CHECK_WEIGHT_HARD is a protocol variant: pass VALIDATE_FORMAL=0" >&2; exit 2
+  fi
+  FINAL_CAP_ARGS+=(--max-check-weight "$MAX_CHECK_WEIGHT_HARD")
+fi
+# 2026-10-23: EXACT_CHECK_WEIGHT=N (Fig.4 c): the code's maximum X/Z check weight
+# must EQUAL N -- lighter and heavier codes are structural rejects
+# (check_weight_mismatch), the slow-queue and final gates hold the same value and
+# the Generator contract line says so. Replaces MAX_CHECK_WEIGHT_HARD /
+# PROMOTION_MAX_CHECK_WEIGHT (a different value in either is refused by the CLI).
+# A protocol variant: needs VALIDATE_FORMAL=0. CAMPAIGN_ID=<id> records the
+# planning identity in the protocol snapshot (no effect on the search).
+EXACT_CHECK_WEIGHT="${EXACT_CHECK_WEIGHT:-}"
+if [[ -n "$EXACT_CHECK_WEIGHT" ]]; then
+  [[ "$EXACT_CHECK_WEIGHT" =~ ^[0-9]+$ ]] || { echo "EXACT_CHECK_WEIGHT must be an integer (got $EXACT_CHECK_WEIGHT)" >&2; exit 2; }
+  if (( VALIDATE_FORMAL )); then
+    echo "EXACT_CHECK_WEIGHT=$EXACT_CHECK_WEIGHT is a protocol variant: pass VALIDATE_FORMAL=0" >&2; exit 2
+  fi
+  FINAL_CAP_ARGS+=(--exact-check-weight "$EXACT_CHECK_WEIGHT")
+fi
+CAMPAIGN_ID="${CAMPAIGN_ID:-}"
+if [[ -n "$CAMPAIGN_ID" ]]; then
+  [[ "$CAMPAIGN_ID" =~ ^[A-Za-z0-9_.-]+$ ]] || { echo "invalid CAMPAIGN_ID=$CAMPAIGN_ID" >&2; exit 2; }
+  FINAL_CAP_ARGS+=(--campaign-id "$CAMPAIGN_ID")
+fi
+# 2026-10-15: ROUNDS_POLICY=fixed_Tc (Fig.3 formal run): every candidate is measured
+# at T = 12 rounds (11 transversal CNOTs) whatever its d_search, so the task is the
+# same fixed-depth circuit for every code. The formal Fig.2 policy max_Tc_d
+# (T = max(12, d_search)) is the default. A protocol variant: needs VALIDATE_FORMAL=0.
+# 2026-11-10: run-campaign's own default is now fixed_Tc (the paper, R = 12), so a set value is always
+# passed explicitly; an empty value leaves the default.
+ROUNDS_POLICY="${ROUNDS_POLICY:-}"
+if [[ -n "$ROUNDS_POLICY" ]]; then
+  [[ "$ROUNDS_POLICY" == "fixed_Tc" || "$ROUNDS_POLICY" == "max_Tc_d" ]] || { echo "ROUNDS_POLICY must be max_Tc_d or fixed_Tc (got $ROUNDS_POLICY)" >&2; exit 2; }
+  if [[ "$ROUNDS_POLICY" != "max_Tc_d" ]] && (( VALIDATE_FORMAL )) && [[ -z "$PRESET" ]]; then
+    echo "ROUNDS_POLICY=$ROUNDS_POLICY is a protocol variant: pass VALIDATE_FORMAL=0" >&2; exit 2
+  fi
+  FINAL_CAP_ARGS+=(--rounds-policy "$ROUNDS_POLICY")
+fi
+# 2026-10-23: ABLATION=no_slow | no_feedback (appendix S3). no_slow = fast-loop-only
+# (no slow-loop measurement during the search; the generator sees the structural
+# layer only); no_feedback = every turn from the task/constraint prompt alone (no
+# archive, parents, planner, reflector or measurement). The frozen final stage
+# measures the structural front's slot order. A protocol variant: needs
+# VALIDATE_FORMAL=0 and a RUN_TAG other than v37; recorded in the snapshot (ablation).
+ABLATION="${ABLATION:-}"
+if [[ -n "$ABLATION" && "$ABLATION" != "full" ]]; then
+  [[ "$ABLATION" =~ ^(no_slow|no_feedback)$ ]] || { echo "ABLATION must be full, no_slow or no_feedback (got $ABLATION)" >&2; exit 2; }
+  if (( VALIDATE_FORMAL )) || [[ "$RUN_TAG" == "v37" ]]; then
+    echo "ABLATION=$ABLATION is a protocol variant: pass VALIDATE_FORMAL=0 and a RUN_TAG other than v37" >&2; exit 2
+  fi
+  FINAL_CAP_ARGS+=(--ablation "$ABLATION")
+fi
+# 2026-10-17: PROTOCOL_PROFILE=v3_8 selects telescoping_structural_v3_8
+# (variant generations + endpoint family rules; run-campaign
+# --protocol-profile). The formal validator of this launcher certifies v3_7
+# only, so a v3_8 run must be launched with VALIDATE_FORMAL=0 and validated
+# afterwards with `validate_fig2_campaign.py --profile v3_8`.
+PROTOCOL_PROFILE="${PROTOCOL_PROFILE:-v3_7}"
+[[ "$PROTOCOL_PROFILE" =~ ^(v3_7|v3_8)$ ]] || { echo "PROTOCOL_PROFILE must be v3_7 or v3_8 (got $PROTOCOL_PROFILE)" >&2; exit 2; }
+if [[ "$PROTOCOL_PROFILE" != "v3_7" ]]; then
+  if (( VALIDATE_FORMAL )) && [[ -z "$PRESET" ]]; then
+    echo "PROTOCOL_PROFILE=$PROTOCOL_PROFILE is a declared protocol variant: launch it with VALIDATE_FORMAL=0 and a RUN_TAG other than v37" >&2
+    exit 2
+  fi
+  FINAL_CAP_ARGS+=(--protocol-profile "$PROTOCOL_PROFILE")
+fi
+# v3.6 measures with ONE decoder at ONE configuration; racing = the frozen early-stop policy pilot10x_maxerr100_v2 (2026-09-11 evening; pilot10x_v1 ran the first turns of tier 1 and stays a formal policy)
+# (fixed shots). Neither is overridable here: a different decoder set is a
+# different protocol, and --strict-turns refuses it at startup.
+DECODERS="telescoping_cpu"
+# Consecutive in-place retries of a strict-turn abort that buy no audited turn
+# before the point is given up on.
+STRICT_RETRY_MAX="${STRICT_RETRY_MAX:-4}"
+# v3.5 noise protocol. Both are frozen protocol fields (snapshot noise_profile
+# / noise_values; --strict-turns and the validator accept exactly these), not
+# knobs: uniform_paper_v1 is the OmniQEC paper SI C model (single uniform p,
+# depolarizing after reset/CX, flip before measurement, NO idle noise).
+readonly NOISE_PROFILE="uniform_paper_v1"
+readonly P_VALUE="0.005"
+# Frozen v3.4 execution geometry, unchanged in v3.6. None of these is
+# overridable: they are
+# protocol fields (snapshot + validator), not performance knobs.
+#   SHOT_SHARDS        search: 4 candidates x 2 bases x 16 shards = 128 jobs
+#                      of 1250 shots (20k shots/basis) per decode wave.
+#   FINAL_SHOT_SHARDS  final audit: 128 shards/basis, so a 200k-shot basis is
+#                      1562 shots per shard instead of v3.3's 12,500.
+#   DECODE_SHOT_BUDGET_S  per-shot wall budget; the effective shard watchdog
+#                      is max(DECODE_SHARD_TIMEOUT_S, budget x shots x
+#                      max(1, DEM columns / 60,000), shots x telescoping_cpu
+#                      worst-case shot model) (v3.6 B5) — 10,000 s (search,
+#                      <= 288) / 12,500 s (final) at factor 1 for the flat
+#                      term — so DECODE_SHARD_TIMEOUT_S is the FLOOR and the
+#                      per-shot terms are MODELS, no longer a flat cap.
+#   TIMEOUT_RETRIES=0  a deterministic watchdog timeout is not replayed (v3.3
+#                      burned 32 shards x 2 x 1800 s replaying the same one).
+#   TRANSIENT_RETRIES=1  one identical replay for a killed worker (OOM
+#                      SIGKILL, subprocess_error) or a lost DEM (dem_load_error).
+readonly SHOT_SHARDS=16
+readonly FINAL_SHOT_SHARDS=128
+readonly DECODE_SHOT_BUDGET_S=8
+readonly BUILD_TIMEOUT_S=3600
+readonly DECODE_SHARD_TIMEOUT_S=1800
+readonly DISTANCE_TIMEOUT_S=1800
+readonly TIMEOUT_RETRIES=0
+readonly TRANSIENT_RETRIES=1
+# v3.6 worker environment (M4): every decode/build/distance worker is a
+# single-threaded subprocess (the pool owns the parallelism; BLAS must not
+# spawn threads; the telescoping S3 stages run INSIDE the decode shard
+# process, n_procs=1, no extra child), and the pool caps its width by the memory
+# PBS granted: floor(OMNIQEC_TOTAL_MEM_BYTES / OMNIQEC_WORKER_RSS_BYTES)
+# = floor(100 GiB / 768 MiB) = 133 >= 127 workers. Lower the RSS allowance
+# only after reading ru_maxrss in the shard records (claude_v36_status.sh).
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export OMNIQEC_TOTAL_MEM_BYTES="${OMNIQEC_TOTAL_MEM_BYTES:-$((100 * 1024 * 1024 * 1024))}"
+export OMNIQEC_WORKER_RSS_BYTES="${OMNIQEC_WORKER_RSS_BYTES:-$((768 * 1024 * 1024))}"
+# Telescoping S3 kernel cache, inherited by EVERY worker (and the package's
+# S3 child processes): the package compiles its two C kernels into
+# $XDG_CACHE_HOME/telescoping_decoder on first use, keyed on source +
+# compiler + flags with an atomic rename. Pinned to a directory on the shared
+# filesystem that this account writes and every compute node sees (runs/ is
+# never touched by the deployment rsync), and PREBUILT ONCE in the prologue
+# below, so no shard ever compiles. Override with -v XDG_CACHE_HOME=... only
+# to another shared-filesystem path (never a node-local /tmp).
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$REPO_ROOT/runs/.cache}"
+# How long to wait between probes while the quota window refills. The window is
+# 5h rolling, but the exact start is unknown, so we poll rather than guess.
+QUOTA_POLL_S="${QUOTA_POLL_S:-900}"
+# Cap on ONE quota wait (seconds; 0 = wait until the walltime reserve, the
+# original behaviour). A serial GPT chain idling 128 cores through a multi-day
+# ChatGPT window would burn ~3072 SU per link for nothing: with a cap the link
+# gives the node back and the NEXT link re-probes after its own queue wait.
+QUOTA_MAX_WAIT_S="${QUOTA_MAX_WAIT_S:-0}"
+[[ "$QUOTA_MAX_WAIT_S" =~ ^[0-9]+$ ]] || { echo "QUOTA_MAX_WAIT_S must be a non-negative integer" >&2; exit 2; }
+QUOTA_GIVE_UP=0
+# Stop starting new work this close to the walltime wall: a point that cannot
+# reach a checkpoint before the kill is wasted compute. The afterany chain picks
+# it up instead.
+WALL_RESERVE_S="${WALL_RESERVE_S:-3600}"
+# The link's wall budget in seconds. MUST be passed via -v to match -l walltime
+# whenever a link is submitted with anything other than the default 24h --
+# qalter cannot change this (captured at qsub time), so short links must be
+# freshly qsub'd, never qalter'd, or the reserve logic overshoots the real
+# wall and PBS kills the link mid-turn.
+WALL_S="${WALL_S:-86400}"
+JOB_START=$SECONDS
+
+LOG_ROOT="$REPO_ROOT/runs/logs"
+mkdir -p "$LOG_ROOT"
+JOB_TAG="${PBS_JOBID:-manual}"
+JOB_TAG="${JOB_TAG//[^A-Za-z0-9_.-]/_}"
+exec > >(tee -a "$LOG_ROOT/${ARM}_grid_${RUN_TAG}.${JOB_TAG}.log") 2>&1
+
+cd "$REPO_ROOT"
+export PYTHONPATH="$REPO_ROOT${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONUNBUFFERED=1
+
+# --- CLIProxyAPI ------------------------------------------------------------
+# TWO MODES. Concurrent per-job instances all refresh the ONE Claude OAuth
+# grant, and the provider's refresh-token reuse detection then revokes the
+# whole grant ("OAuth access token has been revoked", 2026-08-26 — it killed
+# b60's chains while the other points coasted on unexpired access tokens).
+# So when nscc_cliproxy_shared.sh has published a shared endpoint (one
+# instance on the login node = one refresher), every job MUST use it; the
+# per-job instance remains only as the fallback for strictly serial runs.
+# THIRD MODE, ARM=gpt only: a gateway endpoint file names an OpenAI-compatible
+# base URL (ending in /v1) plus the key it expects -- the Cloudflare Worker
+# route to a CLIProxyAPI on a workstation when the cluster cannot reach the Codex
+# backend itself, or the shared login-node instance written out long-hand.
+# The job is then a pure HTTP client (no binary, no credential here). The
+# URL may carry a path token, so it is never echoed: only its host is.
+# FOURTH MODE, ARM=deepseek only (header: THIRD ARM): OpenRouter, no
+# CLIProxyAPI at all. The env file carries the KEY; the model is the
+# launcher's contract with the out-dir name and the validator, so a model
+# line in the file is reported and ignored.
+OPENROUTER_ENV_FILE="${OPENROUTER_ENV_FILE:-$HOME/.config/omniqec/openrouter.env}"
+OPENROUTER_MODE=0
+if [[ "$ARM" == "deepseek" ]]; then
+  [[ -f "$OPENROUTER_ENV_FILE" ]] || {
+    echo "ARM=deepseek needs $OPENROUTER_ENV_FILE (OPENROUTER_API_KEY, optional OPENROUTER_BASE_URL ending in /v1)" >&2; exit 4; }
+  _launch_model="$LLM_MODEL"
+  # shellcheck source=/dev/null
+  source "$OPENROUTER_ENV_FILE"   # OPENROUTER_API_KEY, optional OPENROUTER_BASE_URL / OPENROUTER_MAX_TOKENS
+  [[ -n "${OPENROUTER_API_KEY:-}" ]] || { echo "malformed $OPENROUTER_ENV_FILE: OPENROUTER_API_KEY is empty" >&2; exit 4; }
+  OPENROUTER_BASE_URL="${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}"
+  [[ "$OPENROUTER_BASE_URL" == */v1 ]] || { echo "OPENROUTER_BASE_URL in $OPENROUTER_ENV_FILE must end in /v1" >&2; exit 4; }
+  if [[ -n "${OPENROUTER_MODEL:-}" && "$OPENROUTER_MODEL" != "$_launch_model" ]]; then
+    echo "WARNING: OPENROUTER_MODEL=$OPENROUTER_MODEL from $OPENROUTER_ENV_FILE is ignored (launch value DEEPSEEK_MODEL=$_launch_model)" >&2
+  fi
+  OPENROUTER_HOST="$(sed -E 's#^[a-z]+://([^/]+).*#\1#' <<<"$OPENROUTER_BASE_URL")"
+  OPENROUTER_MODE=1
+  echo "using OpenRouter endpoint at $OPENROUTER_HOST (from $OPENROUTER_ENV_FILE)"
+fi
+GPT_ENDPOINT_FILE="${GPT_ENDPOINT_FILE:-$HOME/.cli-proxy-api/gpt_endpoint.env}"
+# curl --resolve pins for the gateway host (filled from OMNIQEC_DNS_PINS below;
+# stays empty for the OpenRouter / shared / per-job modes).
+CURL_RESOLVE=()
+# 2026-09-11: the Claude arm may take the same gateway route (a Worker or
+# Funnel URL to a CLIProxyAPI holding a Claude login elsewhere) through
+# ~/.cli-proxy-api/claude_endpoint.env; when that file is absent it keeps
+# using the shared login-node instance exactly as before.
+CLAUDE_ENDPOINT_FILE="${CLAUDE_ENDPOINT_FILE:-$HOME/.cli-proxy-api/claude_endpoint.env}"
+GATEWAY_MODE=0
+ARM_ENDPOINT_FILE=""
+[[ "$ARM" == "gpt" && -f "$GPT_ENDPOINT_FILE" ]] && ARM_ENDPOINT_FILE="$GPT_ENDPOINT_FILE"
+[[ "$ARM" == "claude" && -f "$CLAUDE_ENDPOINT_FILE" ]] && ARM_ENDPOINT_FILE="$CLAUDE_ENDPOINT_FILE"
+if [[ -n "$ARM_ENDPOINT_FILE" ]]; then
+  # shellcheck source=/dev/null
+  source "$ARM_ENDPOINT_FILE"   # OPENAI_BASE_URL, OPENAI_API_KEY (+ optional OMNIQEC_DNS_PINS)
+  # 2026-09-11: NSCC's resolvers drop the gateway's Tailscale Funnel name for
+  # minutes at a time. OMNIQEC_DNS_PINS="host=ip1,ip2" in the endpoint file
+  # gives the client (llm/dns_sticky.py) and this launcher's curl checks a
+  # last-resort address; TLS still verifies the hostname.
+  [[ -n "${OMNIQEC_DNS_PINS:-}" ]] && export OMNIQEC_DNS_PINS
+  [[ -n "${OPENAI_BASE_URL:-}" && -n "${OPENAI_API_KEY:-}" ]] || {
+    echo "malformed $ARM_ENDPOINT_FILE: needs OPENAI_BASE_URL (ending in /v1) and OPENAI_API_KEY" >&2; exit 4; }
+  [[ "$OPENAI_BASE_URL" == */v1 ]] || { echo "OPENAI_BASE_URL in $ARM_ENDPOINT_FILE must end in /v1" >&2; exit 4; }
+  GATEWAY_HOST="$(sed -E 's#^[a-z]+://([^/]+).*#\1#' <<<"$OPENAI_BASE_URL")"
+  GATEWAY_MODE=1
+  echo "using $ARM_LABEL gateway endpoint at $GATEWAY_HOST (from $ARM_ENDPOINT_FILE)"
+  # curl gets the same pin as the client: one --resolve per pinned address of
+  # the gateway host (curl tries them in order). Empty when no pin is set.
+  if [[ -n "${OMNIQEC_DNS_PINS:-}" ]]; then
+    n_pins=0
+    for _pin in ${OMNIQEC_DNS_PINS//;/ }; do
+      [[ "${_pin%%=*}" == "$GATEWAY_HOST" ]] || continue
+      IFS=',' read -r -a _ips <<<"${_pin#*=}"
+      for _ip in "${_ips[@]}"; do
+        [[ -n "$_ip" ]] || continue
+        CURL_RESOLVE+=(--resolve "$GATEWAY_HOST:443:$_ip"); n_pins=$(( n_pins + 1 ))
+      done
+    done
+    (( n_pins )) && echo "dns pin for $GATEWAY_HOST: $n_pins address(es) from OMNIQEC_DNS_PINS"
+  fi
+fi
+SHARED_ENDPOINT_FILE="$HOME/.cli-proxy-api/shared_endpoint.env"
+SHARED_MODE=0
+if (( ! GATEWAY_MODE && ! OPENROUTER_MODE )) && [[ -f "$SHARED_ENDPOINT_FILE" ]]; then
+  # shellcheck source=/dev/null
+  source "$SHARED_ENDPOINT_FILE"   # CLIPROXY_HOST, CLIPROXY_PORT
+  [[ -n "${CLIPROXY_HOST:-}" && -n "${CLIPROXY_PORT:-}" ]] || {
+    echo "malformed $SHARED_ENDPOINT_FILE" >&2; exit 4; }
+  SHARED_MODE=1
+  echo "using SHARED CLIProxyAPI at $CLIPROXY_HOST:$CLIPROXY_PORT (single refresher)"
+fi
+
+# A shared-mode job is an HTTP client of the login-node instance: it needs
+# neither the binary nor a local credential. Requiring them anyway would force
+# every collaborator account to hold a copy of the OAuth json — the exact
+# multi-refresher layout the shared instance exists to prevent.
+if (( ! SHARED_MODE && ! GATEWAY_MODE && ! OPENROUTER_MODE )); then
+  [[ -x "$CLIPROXY_DIR/cli-proxy-api" ]] || { echo "CLIProxyAPI not installed at $CLIPROXY_DIR" >&2; exit 4; }
+  compgen -G "$HOME/.cli-proxy-api/*.json" > /dev/null || { echo "no Claude credential in ~/.cli-proxy-api — run -claude-login first" >&2; exit 4; }
+fi
+
+if (( ! SHARED_MODE && ! GATEWAY_MODE && ! OPENROUTER_MODE )); then
+# One proxy for the whole job, on a free port. The port lives in the config file
+# rather than a flag, so two jobs sharing a compute node would otherwise have the
+# second one fail to bind and then quietly answer through the first job's proxy,
+# mixing two campaigns onto one credential.
+PORT="$(python - <<'PY'
+import socket
+s = socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1]); s.close()
+PY
+)"
+JOB_CONFIG="$LOG_ROOT/.cliproxy.${JOB_TAG}.yaml"
+sed -E -e "s/^port:.*/port: $PORT/" -e 's/^host:.*/host: "127.0.0.1"/' \
+  "$CLIPROXY_DIR/config.yaml" > "$JOB_CONFIG"
+chmod 600 "$JOB_CONFIG"
+fi
+
+# CLIPROXY_KEY (from shared_endpoint.env) wins: on a collaborator account the
+# local config.yaml carries THEIR codex key, not the shared instance's inbound
+# key, so grepping it would produce well-formed 401s against the login node.
+if (( OPENROUTER_MODE )); then
+  API_KEY="$OPENROUTER_API_KEY"
+elif (( GATEWAY_MODE )); then
+  API_KEY="$OPENAI_API_KEY"
+else
+  API_KEY="${CLIPROXY_KEY:-$(grep -m1 -oE 'sk-[A-Za-z0-9]+' "$CLIPROXY_DIR/config.yaml" 2>/dev/null)}"
+fi
+[[ -n "$API_KEY" ]] || { echo "no api-key: set CLIPROXY_KEY in $SHARED_ENDPOINT_FILE or put the inbound sk- key in $CLIPROXY_DIR/config.yaml" >&2; exit 4; }
+
+CLIPROXY_PID=""
+cleanup() {
+  [[ -n "$CLIPROXY_PID" ]] && kill "$CLIPROXY_PID" 2>/dev/null || true
+  [[ -n "${JOB_CONFIG:-}" ]] && rm -f "$JOB_CONFIG"
+}
+# SIGTERM is how PBS ends a link (walltime, qdel; SIGKILL follows after the
+# kill delay). A trap that only cleans up lets bash RESUME the script after
+# the signal: run-campaign has just died with rc=143, which the retry loop
+# below would file as non_quota_campaign_failure -- a FATAL_STOP for a point
+# that merely got killed -- and a serial chain would then walk on to the NEXT
+# point and open its checkpoint at 127 workers (measured 2026-09-05: a qdel
+# spawned runs/fig2_gptsub_b260_v36 out of a b360 link).
+# So a signal ends the link at once; the next afterany link resumes the
+# checkpoint.
+on_signal() {
+  echo "[link] $(date '+%F %T') caught SIGTERM/SIGINT (walltime or qdel) — leaving the checkpoint to the next chain link, no FATAL_STOP" >&2
+  cleanup
+  exit 143
+}
+trap cleanup EXIT
+trap on_signal INT TERM
+
+# Restartable, because a restart is the cure for one specific failure. Every
+# concurrent job runs its own proxy against ONE shared OAuth credential, and a
+# refresh rotates the token: whichever instance refreshes last writes the live
+# token back to ~/.cli-proxy-api, and any instance still holding the previous
+# one gets 401 "OAuth access token has been revoked" on every call from then on.
+# The grant is fine and the file on disk is fine -- only this process's memory
+# is stale. Re-reading the file fixes it. Measured 2026-08-26: that killed all
+# three of b60's chain links while the other four points kept working.
+start_cliproxy() {
+  if [[ -n "$CLIPROXY_PID" ]]; then
+    kill "$CLIPROXY_PID" 2>/dev/null || true
+    wait "$CLIPROXY_PID" 2>/dev/null || true
+    CLIPROXY_PID=""
+  fi
+  ( cd "$CLIPROXY_DIR" && umask 077 && exec ./cli-proxy-api -config "$JOB_CONFIG" ) \
+    >> "$LOG_ROOT/cliproxy.${JOB_TAG}.log" 2>&1 &
+  CLIPROXY_PID=$!
+  local ready=0 _
+  for _ in $(seq 1 30); do
+    sleep 2
+    kill -0 "$CLIPROXY_PID" 2>/dev/null || {
+      echo "CLIProxyAPI died on startup:" >&2
+      tail -20 "$LOG_ROOT/cliproxy.${JOB_TAG}.log" >&2
+      return 1
+    }
+    if curl -sf --max-time 5 "http://127.0.0.1:$PORT/v1/models" \
+         -H "Authorization: Bearer $API_KEY" -o /dev/null; then
+      ready=1; break
+    fi
+  done
+  (( ready )) || {
+    echo "CLIProxyAPI did not become ready on port $PORT" >&2
+    tail -20 "$LOG_ROOT/cliproxy.${JOB_TAG}.log" >&2
+    return 1
+  }
+  return 0
+}
+
+if (( OPENROUTER_MODE )); then
+  openrouter_ok=0
+  for _ in 1 2 3; do
+    if curl -sf --max-time 20 "$OPENROUTER_BASE_URL/models" \
+         -H "Authorization: Bearer $API_KEY" -o /dev/null; then openrouter_ok=1; break; fi
+    sleep 10
+  done
+  if (( ! openrouter_ok )); then
+    echo "OpenRouter endpoint at $OPENROUTER_HOST is unreachable from $(hostname) (3 tries)" >&2
+    echo "(direct openrouter.ai blocked from the compute nodes? point OPENROUTER_BASE_URL at the Worker's /<token>/openrouter/v1 route, hpc/worker_deepseek)" >&2
+    exit 4
+  fi
+elif (( GATEWAY_MODE )); then
+  # Three tries: a Worker + tunnel hop has transient 5xx; a firewall reset or
+  # a dead tunnel fails all three and names the host.
+  gateway_ok=0
+  for _ in 1 2 3; do
+    if curl -sf --max-time 20 ${CURL_RESOLVE[@]+"${CURL_RESOLVE[@]}"} "$OPENAI_BASE_URL/models" \
+         -H "Authorization: Bearer $API_KEY" -o /dev/null; then gateway_ok=1; break; fi
+    sleep 10
+  done
+  if (( ! gateway_ok )); then
+    echo "$ARM_LABEL gateway at $GATEWAY_HOST is unreachable from $(hostname) (3 tries)" >&2
+    echo "(is the CLIProxyAPI behind the gateway up, and the tunnel/Worker pointed at it? hpc/start_cliproxy_tunnel.sh)" >&2
+    exit 4
+  fi
+elif (( SHARED_MODE )); then
+  # 2026-10-01: the login node hosting the shared instance sat at load ~300
+  # and answered /v1/models in ~60 s; every link of three chains failed this
+  # 10 s probe and exited within seconds of starting. Probe three times with a
+  # longer timeout, then poll like the gateway branch (SHARED_WAIT_MAX_S,
+  # default 2 h; 0 = the old immediate exit) before giving the node back.
+  shared_ok=0
+  for _ in 1 2 3; do
+    if curl -sf --max-time 30 "http://$CLIPROXY_HOST:$CLIPROXY_PORT/v1/models" \
+         -H "Authorization: Bearer $API_KEY" -o /dev/null; then shared_ok=1; break; fi
+    sleep 10
+  done
+  shared_waited=0
+  if (( ! shared_ok )); then
+    SHARED_WAIT_MAX_S="${SHARED_WAIT_MAX_S:-7200}"
+    [[ "$SHARED_WAIT_MAX_S" =~ ^[0-9]+$ ]] || { echo "SHARED_WAIT_MAX_S must be a non-negative integer" >&2; exit 2; }
+    echo "[shared] $(date '+%F %T') CLIProxyAPI at $CLIPROXY_HOST:$CLIPROXY_PORT is unreachable from $(hostname) (3 tries) — polling every 5 min for up to $(( SHARED_WAIT_MAX_S / 60 )) min" >&2
+    while (( shared_waited < SHARED_WAIT_MAX_S )); do
+      sleep 300
+      shared_waited=$(( shared_waited + 300 ))
+      if curl -sf --max-time 30 "http://$CLIPROXY_HOST:$CLIPROXY_PORT/v1/models" \
+           -H "Authorization: Bearer $API_KEY" -o /dev/null; then
+        shared_ok=1
+        echo "[shared] $(date '+%F %T') reachable again after $(( shared_waited / 60 )) min"
+        break
+      fi
+      echo "[shared] $(date '+%F %T') still unreachable after $(( shared_waited / 60 )) min" >&2
+    done
+  fi
+  if (( ! shared_ok )); then
+    echo "shared CLIProxyAPI at $CLIPROXY_HOST:$CLIPROXY_PORT is unreachable from $(hostname) (3 tries + $(( shared_waited / 60 )) min of polling)" >&2
+    echo "(start it with nscc_cliproxy_shared.sh start, or rm $SHARED_ENDPOINT_FILE to fall back to per-job instances)" >&2
+    exit 4
+  fi
+else
+  start_cliproxy || exit 4
+fi
+
+# --provider claude is NOT usable: the anthropic SDK is not in the pinned
+# requirements and that path has never been exercised. CLIProxyAPI's
+# OpenAI-compatible endpoint plus llm/openai_compat.py is the tested route.
+if (( OPENROUTER_MODE )); then
+  # llm/openrouter.py reads these three (plus OPENROUTER_MAX_TOKENS if set).
+  export OPENROUTER_BASE_URL OPENROUTER_API_KEY
+  export OPENROUTER_MODEL="$LLM_MODEL"
+  [[ -z "${OPENROUTER_MAX_TOKENS:-}" ]] || export OPENROUTER_MAX_TOKENS
+  MODELS_URL="$OPENROUTER_BASE_URL/models"
+else
+  if (( GATEWAY_MODE )); then
+    export OPENAI_BASE_URL   # from the endpoint file, already ends in /v1
+  elif (( SHARED_MODE )); then
+    export OPENAI_BASE_URL="http://$CLIPROXY_HOST:$CLIPROXY_PORT/v1"
+  else
+    export OPENAI_BASE_URL="http://127.0.0.1:$PORT/v1"
+  fi
+  export OPENAI_API_KEY="$API_KEY"
+  export OPENAI_MODEL="$LLM_MODEL"
+  MODELS_URL="$OPENAI_BASE_URL/models"
+fi
+
+# The GPT arm's model id is whatever the Codex login exposes, never a guess:
+# a wrong id would 404 on every call, and the strict-turn retry loop would
+# then burn the link on a "protocol failure" that is really a typo. Assert
+# it against /v1/models before the first turn (the Claude arm's id has been
+# in use since v3.2 and is left alone).
+# 2026-09-11: the Worker -> tunnel hop answers HTTP 530 "error code: 1016"
+# (Cloudflare origin DNS error) on roughly one request in four; a single
+# fetch here burnt a whole chain link on a transient. Only a SUCCESSFUL
+# listing that lacks the model is a configuration error; a failed or
+# non-JSON fetch is retried (6 tries, 15 s apart) and then reported as
+# unreachable, not as "model not served".
+if [[ "$ARM" != "claude" ]]; then
+  models_listed=""
+  for _ in 1 2 3 4 5 6; do
+    models_listed="$(curl -sf --max-time 20 ${CURL_RESOLVE[@]+"${CURL_RESOLVE[@]}"} "$MODELS_URL" -H "Authorization: Bearer $API_KEY" \
+       | python -c "
+import json, sys
+try:
+    ids = sorted(str(m.get('id')) for m in (json.load(sys.stdin).get('data') or []))
+except Exception:
+    sys.exit(2)   # empty / non-JSON body: transient gateway failure, not a verdict
+want = sys.argv[1]
+if want not in ids:
+    print('model %s is not served by this endpoint; it lists: %s' % (want, ', '.join(ids) or '(nothing)'), file=sys.stderr)
+    sys.exit(1)
+print('model %s is listed by the endpoint' % want)
+" "$LLM_MODEL" 2>"$LOG_ROOT/models_probe.${JOB_TAG}.err")" && break
+    rc=$?
+    if (( rc == 1 )); then
+      # 2026-10-19: the gateway's CLIProxyAPI model registry dropped gpt-5.6-sol from
+      # /v1/models (between 07:26 and 08:13) while the upstream still serves it -- a real call
+      # answers 200 with model=gpt-5.6-sol. An unlisted id is accepted only when one real
+      # 16-token completion answers with exactly that model; a typo still fails here.
+      if curl -sf --max-time 120 ${CURL_RESOLVE[@]+"${CURL_RESOLVE[@]}"} "$OPENAI_BASE_URL/chat/completions" \
+           -H "Authorization: Bearer $API_KEY" -H "Content-Type: application/json" \
+           -d "{\"model\":\"$LLM_MODEL\",\"max_tokens\":16,\"messages\":[{\"role\":\"user\",\"content\":\"Reply with OK.\"}]}" \
+         | python -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+except Exception:
+    sys.exit(1)
+sys.exit(0 if d.get('model') == sys.argv[1] and d.get('choices') else 1)
+" "$LLM_MODEL"; then
+        models_listed="model $LLM_MODEL is not listed by /v1/models, but a real completion answered with model=$LLM_MODEL -- accepted"
+        break
+      fi
+      cat "$LOG_ROOT/models_probe.${JOB_TAG}.err" >&2
+      echo "$ARM model $LLM_MODEL is not in this endpoint's /v1/models and a real completion did not answer with it -- pass GPT_MODEL= / DEEPSEEK_MODEL=<an id from that list> (never guess a model id)" >&2
+      exit 4
+    fi
+    echo "[probe] $(date '+%F %T') /v1/models fetch failed (transient gateway error), retrying" >&2
+    sleep 15
+  done
+  if [[ -z "$models_listed" ]]; then
+    echo "$ARM endpoint $MODELS_URL did not return a model list in 6 tries -- gateway unreachable, not a model-id problem" >&2
+    exit 4
+  fi
+  echo "$models_listed"
+  rm -f "$LOG_ROOT/models_probe.${JOB_TAG}.err"
+fi
+
+# Deployment freshness. A partial rsync leaves cli.py new and llm/factory.py old,
+# and the resulting ImportError is a NON-quota failure -- so the retry loop
+# correctly refuses it, and an afterany chain then burns every link on the same
+# error within seconds. Fail here instead, with a message that names the cause.
+if ! python -c "
+from omniqec_agentic.llm.factory import resolve_model_name, SUPPORTED_LLM_PROVIDERS
+from omniqec_agentic.hpc.validate_fig2_campaign import DEFAULT_DECODERS
+from omniqec_agentic.hpc.validate_fig2_campaign import FORMAL_FINAL_SHOT_SHARDS
+import omniqec_agentic.cli
+"; then
+  echo "stale deployment on this cluster: re-deploy the full tree" >&2
+  exit 4
+fi
+# Protocol defaults. The v3.6 identity lives in CODE DEFAULTS (decoder,
+# telescoping fields, budget policy, structural profile_id, SEC policy,
+# validator constants) plus the VENDORED COMMIT of the telescoping package.
+# A deployment whose code still defaults to v3.5 / BPOSD (or to the retired
+# cascade draft) would import cleanly above, run, and FREEZE the wrong
+# protocol into a snapshot under a _v36 path -- so assert the defaults by
+# name before the first turn. Same remedy as above.
+if ! python -c "
+from pathlib import Path
+from omniqec_agentic.config import DEFAULT_SEC_POLICY, TELESCOPING_PROTOCOL_FIELDS, TELESCOPING_VENDORED_COMMIT, DecoderName, StructuralSearchConfig, TelescopingDecoderConfig, VerificationConfig, budget_policy
+from omniqec_agentic.hpc.validate_fig2_campaign import FORMAL_DECODER, FORMAL_FINAL_SHOT_SHARDS, FORMAL_NOISE_PROFILE, FORMAL_P, FORMAL_SHOT_SHARDS, PROTOCOL_PROFILE
+from omniqec_agentic.hpc.validate_fig2_campaign import FORMAL_SEC_POLICY
+from omniqec_agentic.verification.noise import NoiseSweepConfig
+from omniqec_agentic.workflow.state import FORMAL_PROFILE, assert_resumable_protocol
+assert NoiseSweepConfig().profile.value == 'uniform_paper_v1', NoiseSweepConfig().profile
+assert StructuralSearchConfig().profile_id == 'telescoping_structural_v3_7', StructuralSearchConfig().profile_id
+assert PROTOCOL_PROFILE == 'telescoping_structural_v3_7' == FORMAL_PROFILE, PROTOCOL_PROFILE
+assert StructuralSearchConfig().reducer_id == 'structural_proxy_pareto_v3_weight', StructuralSearchConfig().reducer_id
+assert StructuralSearchConfig().elites_limit == 24 and StructuralSearchConfig().min_promotion_k == 2, StructuralSearchConfig()
+assert FORMAL_NOISE_PROFILE == 'uniform_paper_v1', FORMAL_NOISE_PROFILE
+assert float(FORMAL_P) == 0.005, FORMAL_P
+v = VerificationConfig()
+assert v.decoders == (DecoderName.TELESCOPING,) and DecoderName.TELESCOPING.value == 'telescoping_cpu' == FORMAL_DECODER, v.decoders
+telescoping = TelescopingDecoderConfig().to_dict()
+assert telescoping == TELESCOPING_PROTOCOL_FIELDS, telescoping
+assert telescoping['preset'] == 'telescoping_cpu_v1' and telescoping['nc_policy'] == 'fail', telescoping
+assert telescoping['s3_system'] == 'gari' and not (telescoping['s1_enabled'] or telescoping['s2_enabled'] or telescoping['s4_enabled']), telescoping
+assert (v.build_timeout_s, v.decode_shard_timeout_s, v.distance_timeout_s) == (3600, 1800, 1800)
+assert v.decode_shot_budget_s == 8.0 and v.timeout_retries == 0 and v.transient_retries == 1
+assert FORMAL_SHOT_SHARDS == 16 and FORMAL_FINAL_SHOT_SHARDS == 128
+assert budget_policy(288) == {'large_budget': False, 'search_shots': 25000, 'final_shots': 25000}, budget_policy(288)
+assert budget_policy(360) == {'large_budget': False, 'search_shots': 25000, 'final_shots': 25000}, budget_policy(360)
+assert budget_policy(400) == {'large_budget': True, 'search_shots': 5000, 'final_shots': 50000}, budget_policy(400)
+sc = StructuralSearchConfig()
+assert (sc.slow_candidate_cap, sc.structural_slow_slots, sc.runtime_slow_slots) == (6, 2, 4), (sc.slow_candidate_cap, sc.structural_slow_slots, sc.runtime_slow_slots)
+assert sc.runtime_order == 'expected_plpr_v1' and (sc.parent_cap, sc.structural_parents, sc.runtime_parents, sc.diversity_parents) == (16, 6, 6, 4), sc
+assert v.max_check_weight is None, ('v3.7 has no check-weight cap', v.max_check_weight)
+assert (sc.final_structural, sc.final_runtime) == (2, 4) and v.promote_top == 6, (sc.final_structural, sc.final_runtime, v.promote_top)
+from omniqec_agentic import ranking
+assert ranking.MIN_PROMOTION_DISTANCE == 5 and ranking.QUALITY_METRIC_ID == 'kd2_v1', (ranking.MIN_PROMOTION_DISTANCE, ranking.QUALITY_METRIC_ID)
+from omniqec_agentic.config import formal_racing, RACING_POLICY_ID
+r = formal_racing(25000)
+assert r.enabled and r.policy_id == RACING_POLICY_ID == 'pilot10x_maxerr100_v3' and r.max_errors_in_pilot, r
+assert r.cost_cap_s_per_shot_per_qubit is None, ('v4 decoder-cost cap withdrawn 2026-09-15', r)
+assert r.max_errors == 100, r
+assert (r.shots_pilot, r.batch, r.shots_confirm, r.shots_max, r.epsilon, r.baseline_arm, r.max_errors) == (2000, 250, 25000, 25000, 9.0, False, 100), r
+assert formal_racing(5000).shots_confirm == 5000
+import telescoping_decoder
+vendored = Path(telescoping_decoder.__file__).resolve().parent.parent / 'VENDORED_COMMIT'
+assert vendored.is_file(), f'{telescoping_decoder.__file__}: not the editable install of third_party/telescoping-decoder (no VENDORED_COMMIT next to the package)'
+assert TELESCOPING_VENDORED_COMMIT in vendored.read_text(encoding='utf-8'), (str(vendored), TELESCOPING_VENDORED_COMMIT)
+assert DEFAULT_SEC_POLICY.sec_policy_id == 'twobasis_nonint_v1' == FORMAL_SEC_POLICY, DEFAULT_SEC_POLICY
+assert (DEFAULT_SEC_POLICY.sec_candidates, DEFAULT_SEC_POLICY.sec_cert_iters) == (16, 400)
+assert (DEFAULT_SEC_POLICY.sec_cert_seeds, DEFAULT_SEC_POLICY.sec_refine_top, DEFAULT_SEC_POLICY.sec_refine_iters) == (3, 4, 2000)
+assert v.sec_policy == DEFAULT_SEC_POLICY, v.sec_policy
+try:
+    assert_resumable_protocol({'protocol_profile': 'bposd_structural_v3_5', 'decoder': 'bposd'})
+except ValueError:
+    pass
+else:
+    raise AssertionError('a v3.5 checkpoint must be refused on resume')
+print('V37_DEFAULTS_OK')
+"; then
+  echo "protocol defaults on this cluster are not telescoping_structural_v3_7 / telescoping_cpu / uniform_paper_v1 / twobasis_nonint_v1, or the vendored telescoping-decoder is missing / not at the pinned commit: re-run the full rsync and pip install -e ./third_party/telescoping-decoder (hpc/requirements_fig2_nscc.txt) and do NOT submit" >&2
+  exit 4
+fi
+python -m omniqec_agentic.cli check-slow-deps
+
+# 2026-11-06 reasoning-saturation rule (PRESET runs; omniqec_agentic/reasoning_fallback.py,
+# docs/final_protocol_20261106.md): every arm starts at the model's default reasoning setting. When
+# turn 0 of a point cannot finish because a generation's every completion attempt returned an empty
+# answer after the whole output budget (the reasoning filled the output), the arm's flag below is
+# raised and every point of this arm and RUN_TAG restarts from scratch at the medium level; the run
+# it replaces is kept under $OUT_ROOT/aborted_reasoning/. A run still at the default level stops at
+# its next turn once the flag exists. Defined for the Claude arm; elsewhere the point stops
+# (FATAL_STOP reasoning_saturated) for a human decision.
+REASONING_FLAG=""
+REASONING_VALIDATOR_ARGS=()
+if [[ -n "$PRESET" ]]; then
+  REASONING_FLAG="$OUT_ROOT/reasoning_fallback_${ARM_PREFIX}_${RUN_TAG}.json"
+  export OMNIQEC_REASONING_FALLBACK_FLAG="$REASONING_FLAG"
+  REASONING_VALIDATOR_ARGS=(--reasoning-fallback-flag "$REASONING_FLAG")
+fi
+apply_reasoning_flag() {  # LLM_MODEL follows the arm's flag (no-op without PRESET or flag)
+  [[ -n "$REASONING_FLAG" ]] || return 0
+  local model
+  model="$(python -m omniqec_agentic.reasoning_fallback model --flag "$REASONING_FLAG" --model "$LLM_MODEL")" || return 1
+  if [[ "$model" != "$LLM_MODEL" ]]; then
+    echo "[reasoning] $ARM_LABEL arm runs at $model from here on (reasoning-saturation rule, $REASONING_FLAG)"
+    LLM_MODEL="$model"
+    if (( OPENROUTER_MODE )); then export OPENROUTER_MODEL="$LLM_MODEL"; else export OPENAI_MODEL="$LLM_MODEL"; fi
+  fi
+}
+restart_point_fresh() {  # REASON: move $OUT_DIR aside, recreate it, re-take its lock, record the switch
+  RETIRED="$(python -m omniqec_agentic.reasoning_fallback retire --run-dir "$OUT_DIR" --out-root "$OUT_ROOT")" || {
+    echo "[reasoning] b$BUDGET cannot move $OUT_DIR aside" >&2; exit 2; }
+  echo "[reasoning] b$BUDGET $1: run moved to $RETIRED; restarting from scratch at $LLM_MODEL"
+  mkdir -p "$OUT_DIR"
+  if (( HELD_LOCK )); then
+    exec 9> "$OUT_DIR/.nscc.lock"
+    flock -n 9 || { echo "[reasoning] b$BUDGET cannot lock the new $OUT_DIR" >&2; exit 2; }
+  fi
+  python -m omniqec_agentic.reasoning_fallback record --flag "$REASONING_FLAG" --run-dir "$OUT_DIR" \
+    --model "$LLM_MODEL" --retired "$RETIRED" || { echo "[reasoning] b$BUDGET cannot write the record" >&2; exit 2; }
+}
+apply_reasoning_flag || { echo "cannot read the reasoning flag $REASONING_FLAG" >&2; exit 2; }
+
+# --- telescoping S3 kernels: prebuild ONCE, before any worker exists --------
+# python -m telescoping_decoder.build compiles checkserial_bp / relay_mem_bp
+# into $XDG_CACHE_HOME/telescoping_decoder (exported above; a prebuilt pair
+# can also be pointed to with CHECKSERIAL_BP_SO / RELAY_MEM_BP_SO). Without
+# this every one of the 127 workers would race to compile at its first shot,
+# and a missing compiler would surface as 127 shard errors instead of one
+# named failure here.
+mkdir -p "$XDG_CACHE_HOME"
+if ! python -m telescoping_decoder.build; then
+  echo "telescoping S3 kernel prebuild FAILED (python -m telescoping_decoder.build; cache $XDG_CACHE_HOME/telescoping_decoder, CC=${CC:-gcc})" >&2
+  echo "either the vendored package is not installed (pip install -e ./third_party/telescoping-decoder) or no C compiler is available (module load gcc); the install steps are at the top of the NSCC requirements list in hpc/ -- do NOT submit until it passes" >&2
+  exit 4
+fi
+echo "telescoping S3 kernels ready in $XDG_CACHE_HOME/telescoping_decoder"
+
+ALLOCATED_CPUS="${NCPUS:-128}"
+# 2026-10-16: 127 is accepted too -- a 127-core request routes to NSCC's q3
+# (65..127 cores), whose per-user running-job limit is separate from q4's;
+# the node is the same 128-core node with one core left idle, WORKERS = 126.
+if [[ ! "$ALLOCATED_CPUS" =~ ^[0-9]+$ ]] || { (( ALLOCATED_CPUS != 128 )) && (( ALLOCATED_CPUS != 127 )) && (( ALLOCATED_CPUS != 64 )); }; then
+  echo "v3.6 launcher runs on 128, 127 or 64 allocated CPUs (whole q4 node, q3 node minus one core, or q2 node); got NCPUS=$ALLOCATED_CPUS" >&2
+  exit 2
+fi
+readonly WORKERS=$((ALLOCATED_CPUS - 1))
+# One build process per slow candidate (cap 4): give each a quarter of the
+# workers for its certification probes. Inherited by the build subprocess
+# through the pool's environment (evaluation/pool.py run_worker_request).
+export OMNIQEC_SEC_WORKERS="${OMNIQEC_SEC_WORKERS:-$(( WORKERS / 4 ))}"
+# 2026-09-11: the fast loop's (program, seed) evaluations run in this many
+# forked processes (memory/archive.py evaluate_batch; results identical to
+# the sequential loop). The whole node: the LLM call and the slow pool never
+# overlap with it, construct/proxy workers are light, and the 10 s construct
+# timeouts of randomised programs are what the wall clock is made of.
+export OMNIQEC_FAST_WORKERS="${OMNIQEC_FAST_WORKERS:-$WORKERS}"
+# Shard splitting (2026-09-05): each decode shard's shots are cut into this
+# many shot-range jobs so every worker helps with a BP-hostile candidate's
+# 32 shards instead of 32 workers carrying the whole turn (bit-identical:
+# evaluation/pool.py shard_split_factor). 8 on a 128-core node, 4 on 64.
+# Persistent decode workers (2026-09-14, evaluation/worker_pool.py): long-lived
+# --serve processes take ~4-shot chunks (OMNIQEC_SHARD_SPLIT unset -> 64 chunks
+# per shard) so heavy-tailed shots no longer idle the node; bit-identical to the
+# one-shot path. 0 restores the subprocess-per-part scheduler with the old
+# 8/4-part split; an explicit OMNIQEC_SHARD_SPLIT is honoured in both modes.
+export OMNIQEC_PERSISTENT_WORKERS="${OMNIQEC_PERSISTENT_WORKERS:-1}"
+if [[ "$OMNIQEC_PERSISTENT_WORKERS" == "1" ]]; then
+  [[ -n "${OMNIQEC_SHARD_SPLIT:-}" ]] && export OMNIQEC_SHARD_SPLIT
+else
+  export OMNIQEC_SHARD_SPLIT="${OMNIQEC_SHARD_SPLIT:-$(( ALLOCATED_CPUS >= 128 ? 8 : 4 ))}"
+fi
+
+echo "=========================================================================="
+echo "job=${PBS_JOBID:-manual} node=$(hostname) cpus=$ALLOCATED_CPUS workers=$WORKERS"
+if (( OPENROUTER_MODE )); then
+  echo "arm=$ARM model=$LLM_MODEL via OpenRouter endpoint $OPENROUTER_HOST ($ARM_LABEL, pay-per-token API, provider=$PROVIDER) fatal_policy=$FATAL_POLICY quota_max_wait_s=$QUOTA_MAX_WAIT_S"
+elif (( GATEWAY_MODE )); then
+  echo "arm=$ARM model=$LLM_MODEL via gateway endpoint $GATEWAY_HOST ($ARM_LABEL subscription through CLIProxyAPI) fatal_policy=$FATAL_POLICY quota_max_wait_s=$QUOTA_MAX_WAIT_S"
+elif (( SHARED_MODE )); then
+  echo "arm=$ARM model=$LLM_MODEL via SHARED CLIProxyAPI $CLIPROXY_HOST:$CLIPROXY_PORT ($ARM_LABEL subscription) fatal_policy=$FATAL_POLICY quota_max_wait_s=$QUOTA_MAX_WAIT_S"
+else
+  echo "arm=$ARM model=$LLM_MODEL via CLIProxyAPI 127.0.0.1:$PORT ($ARM_LABEL subscription) fatal_policy=$FATAL_POLICY quota_max_wait_s=$QUOTA_MAX_WAIT_S"
+fi
+echo "protocol=telescoping_structural_v3_7 points=[$POINTS] turns=$TURNS noise_profile=$NOISE_PROFILE p=$P_VALUE decoders=[$DECODERS] racing=pilot10x_maxerr100_v3(pilot 2000, 250-shot shards, stop at 10x hof best after the pilot or once every basis has 100 errors, checked from the first shard; no decoder-cost cap) shot_shards=$SHOT_SHARDS final_shot_shards=$FINAL_SHOT_SHARDS"
+[[ "$PROTOCOL_PROFILE" == "v3_7" ]] || echo "!!! structural profile override: PROTOCOL_PROFILE=$PROTOCOL_PROFILE (telescoping_structural_v3_8 = v3.7 + variant generations + endpoint family rules; run-campaign prints the exact fields) !!!"
+echo "decoder: telescoping_cpu = telescoping_cpu_v1 (S1/S2 GPU off, S3-A/B/C on the GARI system, S4 off, NC = logical error; kernels in $XDG_CACHE_HOME/telescoping_decoder)"
+echo "budget policy: <=360 -> 25000/25000 shots; >=400 -> 5000/50000 shots per basis (config.budget_policy, applied from --budget; no per-stage time limits); rounds T=max(12, d_search); slow queue 4S+2R = 6/turn, promotion floor d_search>=5; fast loop 24 x 4 generations x 40 seeds"
+echo "timeouts (floor + model): build=max(${BUILD_TIMEOUT_S}s, SEC certification model) decode_shard=max(${DECODE_SHARD_TIMEOUT_S}s, ${DECODE_SHOT_BUDGET_S}s/shot x shots x max(1, columns/60000), shots x telescoping_cpu worst-case shot) distance=${DISTANCE_TIMEOUT_S}s timeout_retries=$TIMEOUT_RETRIES transient_retries=$TRANSIENT_RETRIES"
+echo "workers: OMP_NUM_THREADS=$OMP_NUM_THREADS total_mem=$OMNIQEC_TOTAL_MEM_BYTES worker_rss=$OMNIQEC_WORKER_RSS_BYTES sec_workers_per_build=$OMNIQEC_SEC_WORKERS persistent_workers=$OMNIQEC_PERSISTENT_WORKERS shard_split=${OMNIQEC_SHARD_SPLIT:-auto} fast_workers=$OMNIQEC_FAST_WORKERS"
+[[ -z "$PRESET" ]] || echo "!!! PRESET=$PRESET (final protocol, docs/final_protocol_20261106.md): TASK=$TASK ROUNDS_POLICY=$ROUNDS_POLICY PROTOCOL_PROFILE=$PROTOCOL_PROFILE gate w<=$PROMOTION_MAX_CHECK_WEIGHT racing max_errors=$RACING_MAX_ERRORS model=$LLM_MODEL reasoning flag $REASONING_FLAG; validator profile $VALIDATOR_PROFILE !!!"
+if (( ! VALIDATE_FORMAL )); then
+  echo "!!! PROTOCOL VARIANT / CANARY: RUN_TAG=$RUN_TAG TURNS=$TURNS TASK=$TASK ABLATION=${ABLATION:-full}; formal validation disabled !!!"
+  [[ -z "$REFERENCE_CODES_JSON" ]] || echo "!!! reference codes: $REFERENCE_CODES_JSON (frozen into the protocol snapshot) !!!"
+fi
+echo "=========================================================================="
+
+# v3.6: shots per basis are the budget policy's (logged here, derived again
+# by run-campaign from --budget and by the validator from the report).
+policy_shots() {
+  python - "$1" <<'PYPOL'
+import sys
+from omniqec_agentic.config import budget_policy
+p = budget_policy(int(sys.argv[1]))
+print(f"{p['search_shots']} {p['final_shots']}")
+PYPOL
+}
+
+turns_done() {
+  local n
+  n="$(grep -l '"status": "complete"' "$1"/turns/turn_*/turn_audit.json 2>/dev/null | wc -l | tr -d ' ')" || true
+  printf '%s\n' "${n:-0}"
+}
+
+# Stats at every stall and every completion, so a 3-link chain leaves a readable
+# trail of where the quota actually went.
+report_stats() {
+  local out="$1" label="$2"
+  local done_turns; done_turns="$(turns_done "$out")"
+  local tok="n/a"
+  if [[ -f "$out/progress.csv" ]]; then
+    tok="$(python - "$out/progress.csv" <<'PY' 2>/dev/null || echo n/a
+import csv, sys
+rows = list(csv.DictReader(open(sys.argv[1])))
+tot = sum(int(r.get("tok_total") or 0) for r in rows)
+print(f"{tot:,}")
+PY
+)"
+  fi
+  echo "[stats] $(date '+%F %T') $label turns=${done_turns}/${TURNS} tokens=${tok} elapsed=$(( (SECONDS - JOB_START) / 60 ))min"
+}
+
+# A fatal point-level failure must survive the current PBS process. Successor
+# links use afterany by design, so an exit code alone would let the next link
+# re-enter run-campaign and call the Generator again. The marker is written
+# atomically and is intentionally only cleared by a human after diagnosis.
+write_fatal_stop() {
+  local out_dir="$1" reason="$2" detail="$3" attempt_log="${4:-}"
+  local marker="$out_dir/FATAL_STOP.json"
+  python - "$marker" "$reason" "$detail" "$attempt_log" "$RUN_TAG" \
+      "$BUDGET" "${PBS_JOBID:-manual}" <<'PY'
+from __future__ import annotations
+
+import datetime as dt
+import json
+import os
+import sys
+from pathlib import Path
+
+marker = Path(sys.argv[1])
+if marker.exists():
+    raise SystemExit(0)
+payload = {
+    "schema": "omniqec_fatal_stop_v1",
+    "created_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+    "reason": sys.argv[2],
+    "detail": sys.argv[3],
+    "attempt_log": sys.argv[4] or None,
+    "run_tag": sys.argv[5],
+    "budget": int(sys.argv[6]),
+    "pbs_job_id": sys.argv[7],
+    "recovery": "inspect artifacts, fix the cause, then manually remove FATAL_STOP.json",
+}
+tmp = marker.with_name(f".{marker.name}.tmp.{os.getpid()}")
+tmp.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+os.replace(tmp, marker)
+PY
+  echo "[point] b$BUDGET persistent fatal-stop marker: $marker" >&2
+}
+
+# FATAL_POLICY=stop: exit the link here (the afterany successors then burn
+# for free on the marker). FATAL_POLICY=skip: return, and the caller breaks
+# out of the point's retry loop so the for loop walks on to the next point.
+fatal_link_exit() { [[ "$FATAL_POLICY" == "skip" ]] || exit 1; }
+
+# A quota stall looks like an upstream 429/rate-limit/quota message. Anything
+# else -- a build error, a bad spec, an audit rejection -- must NOT be retried,
+# or a real bug burns the whole chain re-running the same broken turn.
+# 2026-09-12: the bare `429` matched the DIGITS of a plpr in a [slow] line
+# (plpr=0.01638896824911429) and turned a strict-turn abort into a 15-minute
+# quota poll; bare `quota` would match family_quota in a plan echo the same
+# way. Status codes must stand alone (not inside a number) and quota needs
+# its verb.
+looks_like_quota() {
+  grep -qiE 'rate.?limit|Error code: (429|5[0-9][0-9])|(^|[^0-9.])429([^0-9]|$)|quota (exceeded|exhausted|reached|limit)|usage.?limit|too many requests|auth_unavailable|no auth available|insufficient.?credits|insufficient.?balance' "$1" 2>/dev/null
+}
+
+# --strict-turns aborts name their own remedy -- "retry this turn from
+# checkpoint" -- because the next attempt re-samples the orchestrator. Before
+# this, they counted as non-quota failures: one transient connection blip, or
+# one plan still invalid after the 4-round repair budget, ended the job and
+# burned a whole 24h link to recover a single turn.
+# A rotated-out token. Distinct from a quota stall: waiting does not help, and
+# it is not a bug in the campaign either -- it needs the proxy restarted.
+looks_like_revoked() {
+  grep -qiE 'has been revoked|authentication_error|Error code: 401' "$1" 2>/dev/null
+}
+
+looks_like_strict_abort() {
+  grep -qE 'strict campaign forbids fallback turns|strict turn [0-9]+ audit failed|strict campaign requires a complete LLM proposal batch|strict campaign audit failed|strict final measurement audit failed' \
+    "$1" 2>/dev/null
+}
+
+wait_for_quota() {
+  local waited=0
+  echo "[quota] $(date '+%F %T') exhausted; polling every $((QUOTA_POLL_S / 60))min until service returns"
+  while :; do
+    if (( SECONDS - JOB_START > WALL_S - WALL_RESERVE_S )); then
+      echo "[quota] walltime reserve reached after ${waited}s of waiting — leaving the rest to the next chain link"
+      return 1
+    fi
+    sleep "$QUOTA_POLL_S"
+    waited=$((waited + QUOTA_POLL_S))
+    if python -m omniqec_agentic.hpc.probe_llm "$PROVIDER" > /dev/null 2>&1; then
+      echo "[quota] $(date '+%F %T') service returned after $((waited / 60))min"
+      return 0
+    fi
+    echo "[quota] still limited after $((waited / 60))min"
+    if (( QUOTA_MAX_WAIT_S > 0 && waited >= QUOTA_MAX_WAIT_S )); then
+      echo "[quota] QUOTA_MAX_WAIT_S=$QUOTA_MAX_WAIT_S reached — giving the node back; the next chain link re-probes after its queue wait"
+      QUOTA_GIVE_UP=1
+      return 1
+    fi
+  done
+}
+
+for BUDGET in $POINTS; do
+  [[ "$BUDGET" =~ ^[1-9][0-9]*$ ]] || { echo "invalid budget point: $BUDGET" >&2; exit 2; }
+  read -r SEARCH_SHOTS FINAL_SHOTS < <(policy_shots "$BUDGET") || {
+    echo "cannot resolve the budget policy for b$BUDGET" >&2; exit 2; }
+  # v3.6: the protocol profile is part of the path. The v3.5 runs'
+  # fig2_claudesub_b<N>_v35 checkpoints froze a BPOSD snapshot (profile
+  # bposd_structural_v3_5, no budget_policy key), which --resume refuses by
+  # name; a separate _v36 directory makes that a clean start instead of a
+  # crash loop, and keeps the old runs' artifacts intact (not poolable).
+  OUT_DIR="$OUT_ROOT/fig2_${ARM_PREFIX}_b${BUDGET}_${RUN_TAG}"
+  # Reasoning-saturation rule (PRESET): the point runs at the arm's current model; a run frozen at
+  # another one (the default level, after the arm switched) is restarted from scratch below,
+  # whatever its state -- it is kept under aborted_reasoning/, never resumed or validated.
+  RETIRE_PENDING=0
+  RETIRED=""
+  if [[ -n "$REASONING_FLAG" ]]; then
+    apply_reasoning_flag || { echo "cannot read the reasoning flag $REASONING_FLAG" >&2; exit 2; }
+    python -m omniqec_agentic.reasoning_fallback stale --flag "$REASONING_FLAG" --run-dir "$OUT_DIR" && RETIRE_PENDING=1
+  fi
+  mkdir -p "$OUT_DIR"
+  FATAL_MARKER="$OUT_DIR/FATAL_STOP.json"
+
+  # Do this before even constructing RESUME_ARGS. In particular, do not open
+  # checkpoint.sqlite3 and do not invoke run-campaign/Generator while a fatal
+  # decision from an earlier afterany link remains unresolved.
+  if [[ -e "$FATAL_MARKER" ]] && (( ! RETIRE_PENDING )); then
+    if [[ "$FATAL_POLICY" == "skip" ]]; then
+      echo "[point] b$BUDGET FATAL_STOP is present — SKIPPING this point (FATAL_POLICY=skip); the marker stays for a human, the chain walks on" >&2
+      sed -n '1,20p' "$FATAL_MARKER" >&2 || true
+      continue
+    fi
+    echo "[point] b$BUDGET FATAL_STOP is present — refusing to touch the checkpoint or call Generator" >&2
+    echo "[point] inspect $FATAL_MARKER; remove it manually only after fixing the recorded cause" >&2
+    sed -n '1,80p' "$FATAL_MARKER" >&2 || true
+    exit 1
+  fi
+
+  if [[ -e "$OUT_DIR/campaign_report.json" ]] && (( ! RETIRE_PENDING )); then
+    echo "[point] b$BUDGET already complete — skipping"
+    continue
+  fi
+
+  if (( QUOTA_GIVE_UP )); then
+    echo "[point] quota wait capped earlier in this link — b$BUDGET left to the next chain link"
+    break
+  fi
+  if (( SECONDS - JOB_START > WALL_S - WALL_RESERVE_S )); then
+    echo "[point] walltime reserve reached — b$BUDGET left to the next chain link"
+    break
+  fi
+
+  # slow_workers WAS a frozen protocol key (a 64-cpu link could not resume a
+  # 128-cpu point: "differing keys: [slow_workers]", which cost a whole b80
+  # chain on 2026-08-26). Since 2026-09-05 it is a RUNTIME key: every recorded
+  # number is a pure function of (seed, shard, shot), so --resume accepts a
+  # different worker count, records the override in protocol_snapshot.json
+  # (runtime_overrides) and runs at THIS job's count. A point may therefore
+  # move between 64- and 128-core links freely; the note below is informational.
+  # One job per out dir. Nothing stopped two chains being submitted for the same
+  # point, and two run-campaign processes sharing one checkpoint.sqlite3 corrupt
+  # it -- which cost a b80 restart on 2026-08-26. The no-scheduler launcher has always had
+  # this; this side did not.
+  # Guard on flock's existence rather than calling it blind: without util-linux
+  # every `flock -n 9` would fail as "command not found", every point would be
+  # treated as owned by someone else, and the job would spin doing nothing.
+  HELD_LOCK=0
+  if command -v flock > /dev/null; then
+    exec 9> "$OUT_DIR/.nscc.lock"
+    if flock -n 9; then
+      HELD_LOCK=1
+    else
+      echo "[point] b$BUDGET 已被另一个作业持有 — 跳过" >&2
+      exec 9>&-
+      continue
+    fi
+  else
+    echo "[point] b$BUDGET WARNING: 没有 flock，无法阻止第二个作业写同一个 checkpoint" >&2
+  fi
+
+  if (( RETIRE_PENDING )); then
+    restart_point_fresh "frozen at the default level after the arm moved to $LLM_MODEL"
+  elif [[ -n "$REASONING_FLAG" ]]; then
+    python -m omniqec_agentic.reasoning_fallback record --flag "$REASONING_FLAG" --run-dir "$OUT_DIR" --model "$LLM_MODEL" \
+      || { echo "[reasoning] b$BUDGET cannot write the record" >&2; exit 2; }
+  fi
+
+  POINT_WORKERS="$WORKERS"
+  SNAP="$OUT_DIR/protocol_snapshot.json"
+  if [[ -f "$SNAP" ]]; then
+    FROZEN="$(python - "$SNAP" <<'PYSNAP' 2>/dev/null || true
+import json, sys
+print((json.load(open(sys.argv[1])) or {}).get("slow_workers", ""))
+PYSNAP
+)"
+    if [[ -n "$FROZEN" && "$FROZEN" != "$POINT_WORKERS" ]]; then
+      echo "[point] b$BUDGET last ran with slow_workers=$FROZEN; this job allocates $ALLOCATED_CPUS CPUs = $POINT_WORKERS workers (runtime override, recorded in protocol_snapshot.json)"
+    fi
+  fi
+
+  echo "--------------------------------------------------------------------------"
+  echo "[point] b$BUDGET  policy: search_shots/basis=$SEARCH_SHOTS final_shots/basis=$FINAL_SHOTS decoder=$DECODERS shot_shards=$SHOT_SHARDS final_shot_shards=$FINAL_SHOT_SHARDS workers=$POINT_WORKERS out=$OUT_DIR"
+  report_stats "$OUT_DIR" "b$BUDGET start"
+
+  seen_turns="$(turns_done "$OUT_DIR")"
+  strict_stall=0
+  while :; do
+    RESUME_ARGS=()
+    [[ -e "$OUT_DIR/checkpoint.sqlite3" ]] && RESUME_ARGS=(--resume)
+    ATTEMPT_LOG="$LOG_ROOT/${ARM_PREFIX}_b${BUDGET}_${RUN_TAG}.${JOB_TAG}.attempt.log"
+
+    rc=0
+    # v3.6: no --racing*, no --decoders bposd/lsd — both are rejected at
+    # startup by --strict-turns under current code. telescoping_cpu is the
+    # CLI default; passing it explicitly states what this script launched.
+    # NO --slow-shots and NO --final-shots: both derive from --budget through
+    # config.budget_policy inside run-campaign / build_protocol_snapshot and
+    # are frozen into the snapshot (budget_policy key); --strict-turns refuses
+    # any explicit deviation. The three v3.4 flags (--final-shot-shards /
+    # --decode-shot-budget-s / --transient-retries) and the v3.5 noise pair
+    # (--noise-profile uniform_paper_v1 --p 0.005) are frozen into the
+    # snapshot and checked by the validator; the noise pair is the CLI
+    # default too, but it is passed explicitly so the log and this script
+    # state the protocol without depending on defaults.
+    # shellcheck disable=SC2086
+    python -m omniqec_agentic.cli run-campaign \
+      --budget "$BUDGET" \
+      --out "$OUT_DIR" \
+      --noise-profile "$NOISE_PROFILE" \
+      --p "$P_VALUE" \
+      --turns "$TURNS" \
+      --proposal-count 24 \
+      --generations-per-turn 4 \
+      --rng-seeds-per-program 40 \
+      --provider "$PROVIDER" \
+      --decoders $DECODERS \
+      --shot-shards "$SHOT_SHARDS" \
+      --build-timeout-s "$BUILD_TIMEOUT_S" \
+      --decode-shard-timeout-s "$DECODE_SHARD_TIMEOUT_S" \
+      --distance-timeout-s "$DISTANCE_TIMEOUT_S" \
+      --timeout-retries "$TIMEOUT_RETRIES" \
+      --final-shot-shards "$FINAL_SHOT_SHARDS" \
+      --decode-shot-budget-s "$DECODE_SHOT_BUDGET_S" \
+      --transient-retries "$TRANSIENT_RETRIES" \
+      --strict-turns \
+      --slow-workers "$POINT_WORKERS" \
+      "${REFERENCE_ARGS[@]}" \
+      "${FINAL_CAP_ARGS[@]}" \
+      "${RESUME_ARGS[@]}" 9>&- 2>&1 | tee "$ATTEMPT_LOG" || rc=${PIPESTATUS[0]}
+
+    if (( rc == 0 )); then
+      echo "[point] b$BUDGET campaign finished"
+      break
+    fi
+    # Death by signal (128 + signo: 137 SIGKILL from the OOM killer or PBS,
+    # 143 SIGTERM) is not a protocol verdict on the point: no FATAL_STOP, the
+    # next link resumes the checkpoint. (A SIGTERM aimed at this job is
+    # normally caught by on_signal above before we get here.)
+    if (( rc >= 128 )); then
+      echo "[point] b$BUDGET run-campaign died by signal $(( rc - 128 )) (rc=$rc) — no FATAL_STOP; the next chain link resumes from the checkpoint" >&2
+      break
+    fi
+
+    report_stats "$OUT_DIR" "b$BUDGET stalled(rc=$rc)"
+
+    # A measurement_blocked turn has already exhausted retries of the SAME
+    # frozen shards/queue. Re-entering run-campaign would call the Generator
+    # again and selectively replace hard-to-decode codes, recreating the bias
+    # v3.3 removes. Stop with artifacts intact for human diagnosis.
+    # v3.4: decode_infeasible is NOT a stop. A candidate whose only defect is
+    # watchdog timeouts under the frozen per-shot budget is a terminal,
+    # recorded outcome (excluded from ranking/final, never re-queued); the
+    # slow queue reports ok and run-campaign keeps going, so this branch is
+    # never reached for it. Count them with claude_v36_status.sh.
+    if grep -qiE "measurement_blocked|cycle status is .measurement_blocked." "$ATTEMPT_LOG" 2>/dev/null; then
+      write_fatal_stop "$OUT_DIR" "measurement_blocked" \
+        "fixed-shot measurement exhausted its identical-shard retry budget" \
+        "$ATTEMPT_LOG"
+      echo "[point] b$BUDGET MEASUREMENT BLOCKED — stopping this job; artifacts/checkpoint preserved, Generator will NOT be called again" >&2
+      tail -40 "$ATTEMPT_LOG" >&2
+      fatal_link_exit; break
+    fi
+
+    # v3.4.1: when EVERY finalist is decode_infeasible the final stage has
+    # nothing to measure and graph._audit_final_measurements fails with
+    # "no successful final measurement rows". That RuntimeError is wrapped in
+    # "strict final measurement audit failed", which looks_like_strict_abort
+    # matches -- and the retry branch below would then replay the whole
+    # deterministic final stage (hours per attempt) STRICT_RETRY_MAX times
+    # for the same answer. It is a human decision (budget/geometry), not a
+    # transient: stop at once with artifacts preserved. Must stay BEFORE
+    # the looks_like_strict_abort branch.
+    if grep -qF "no successful final measurement rows" "$ATTEMPT_LOG" 2>/dev/null; then
+      write_fatal_stop "$OUT_DIR" "final_all_infeasible" \
+        "every finalist exceeded the decode budget in the final stage; nothing to measure — human decision needed (budget/geometry), artifacts preserved" \
+        "$ATTEMPT_LOG"
+      echo "[point] b$BUDGET FINAL STAGE ALL decode_infeasible — stopping this job without strict replays; artifacts/checkpoint preserved, Generator will NOT be called again" >&2
+      tail -40 "$ATTEMPT_LOG" >&2
+      fatal_link_exit; break
+    fi
+
+    # Reasoning-saturation rule (PRESET). BEFORE the quota and strict-abort branches: the saturation
+    # message arrives wrapped in the strict-abort text, which would otherwise retry the same turn.
+    if [[ -n "$REASONING_FLAG" ]] && grep -qE "reasoning saturated at the start of the run|reasoning fallback requested for this arm" "$ATTEMPT_LOG" 2>/dev/null; then
+      if grep -qF "reasoning saturated at the start of the run" "$ATTEMPT_LOG"; then
+        reasoning_rc=0
+        python -m omniqec_agentic.reasoning_fallback raise --flag "$REASONING_FLAG" --arm "$ARM" --run-tag "$RUN_TAG" \
+          --model "$LLM_MODEL" --point "b$BUDGET" --run-dir "$OUT_DIR" --job "$JOB_TAG" --log "$ATTEMPT_LOG" || reasoning_rc=$?
+        if (( reasoning_rc == 3 )); then
+          write_fatal_stop "$OUT_DIR" "reasoning_saturated" \
+            "turn 0 cannot finish: every completion attempt of a generation spent the whole output budget on reasoning at model=$LLM_MODEL, and the reasoning-saturation rule has no lower level for this arm/model -- human decision" \
+            "$ATTEMPT_LOG"
+          fatal_link_exit; break
+        elif (( reasoning_rc != 0 )); then
+          write_fatal_stop "$OUT_DIR" "reasoning_saturation_unconfirmed" \
+            "the attempt log names a saturated turn 0 but the run directory holds no turn-0 generation whose attempts were all saturated (rc=$reasoning_rc)" \
+            "$ATTEMPT_LOG"
+          fatal_link_exit; break
+        fi
+      fi
+      apply_reasoning_flag || { echo "cannot read the reasoning flag $REASONING_FLAG" >&2; exit 2; }
+      restart_point_fresh "reasoning-saturation rule"
+      seen_turns=0
+      strict_stall=0
+      continue
+    fi
+
+    if looks_like_quota "$ATTEMPT_LOG" || looks_like_quota "$LOG_ROOT/cliproxy.${JOB_TAG}.log"; then
+      wait_for_quota || break
+      continue
+    fi
+
+    # Order matters: the 401 arrives WRAPPED in the strict-abort message, so the
+    # restart has to happen before that branch decides to retry.
+    if looks_like_revoked "$ATTEMPT_LOG"; then
+      if (( SHARED_MODE || GATEWAY_MODE || OPENROUTER_MODE )); then
+        # A single refresher should never trip reuse detection; a 401 here is
+        # either the shared instance mid-refresh (transient) or a dead grant
+        # (needs a human re-login: -claude-login / -codex-login on the
+        # instance that holds the credential). Waiting distinguishes them cheaply.
+        echo "[point] b$BUDGET 上游 401 — 共享/网关/OpenRouter 模式下等 2 分钟再试（若持续：claude 用 -claude-login，gpt 用 -codex-login 重新登录；deepseek 检查 openrouter.env 里的 key）"
+        sleep 120
+      else
+        echo "[point] b$BUDGET 令牌被其它实例轮换掉了 (401) — 重启本作业的 CLIProxyAPI 以重读凭据"
+        start_cliproxy || { echo "[point] b$BUDGET CLIProxyAPI 重启失败" >&2; exit 4; }
+      fi
+    fi
+
+    if looks_like_strict_abort "$ATTEMPT_LOG"; then
+      now_turns="$(turns_done "$OUT_DIR")"
+      if (( now_turns > seen_turns )); then strict_stall=0; else strict_stall=$(( strict_stall + 1 )); fi
+      seen_turns="$now_turns"
+      if (( strict_stall < STRICT_RETRY_MAX )); then
+        echo "[point] b$BUDGET strict-turn 中止，从 checkpoint 原地重试 (${strict_stall}/${STRICT_RETRY_MAX})"
+        sleep 30
+        continue
+      fi
+      # Exhausted retries can mean "provider down", not "protocol failure":
+      # 2026-08-29 CLIProxyAPI put the credential in cooldown and answered 503
+      # auth_unavailable (not 429), and 56 chain links burned in minutes. A
+      # real chat probe distinguishes the two before the point is condemned.
+      if ! python -m omniqec_agentic.hpc.probe_llm "$PROVIDER" > /dev/null 2>&1; then
+        echo "[point] b$BUDGET 重试烧完但探针不通 — 上游不可用而非协议失败，转入配额等待"
+        strict_stall=0
+        wait_for_quota || break
+        continue
+      fi
+      echo "[point] b$BUDGET 连续 ${STRICT_RETRY_MAX} 次重试没有推进一轮 — 这个模型在该预算点满足不了协议" >&2
+      write_fatal_stop "$OUT_DIR" "strict_retries_exhausted" \
+        "strict turn made no audited progress after ${STRICT_RETRY_MAX} retries while the provider probe was healthy" \
+        "$ATTEMPT_LOG"
+      fatal_link_exit; break
+    fi
+
+    echo "[point] b$BUDGET failed for a non-quota reason (rc=$rc) — not retrying" >&2
+    write_fatal_stop "$OUT_DIR" "non_quota_campaign_failure" \
+      "run-campaign exited rc=$rc and matched neither quota/walltime continuation nor a recoverable provider restart" \
+      "$ATTEMPT_LOG"
+    tail -30 "$ATTEMPT_LOG" >&2
+    fatal_link_exit; break
+  done
+  (( HELD_LOCK )) && exec 9>&-
+
+  # Export before validating: a rejected campaign must still leave the CSVs.
+  python -m omniqec_agentic.summary_csv "$OUT_DIR" || true
+  python -m omniqec_agentic.progress_csv "$OUT_DIR" || true
+  report_stats "$OUT_DIR" "b$BUDGET end"
+
+  if [[ -e "$OUT_DIR/campaign_report.json" ]]; then
+    if (( VALIDATE_FORMAL )); then
+      # v3.6 validator: search 16 / final 128 shot shards, the per-shot budget
+      # and retry policy, telescoping_cpu-only with every
+      # TELESCOPING_PROTOCOL_FIELDS key, the budget policy (shots re-derived
+      # from the report's qubit_budget), resolved_versions.json (the
+      # telescoping-decoder version + vendored commit), the noise protocol and
+      # the SEC policy (incl. the
+      # multi-seed certification fields) are enforced internally; passing the
+      # decoder and --p states what this launcher used. --final-shots is not
+      # passed: the policy is the truth, a stated value could only restate it.
+      # shellcheck disable=SC2086
+      if python omniqec_agentic/hpc/validate_fig2_campaign.py \
+          --run-dir "$OUT_DIR" --turns "$TURNS" --p "$P_VALUE" \
+          --provider "$PROVIDER" --model "$LLM_MODEL" \
+          --profile "$VALIDATOR_PROFILE" "${REASONING_VALIDATOR_ARGS[@]}" \
+          --decoders $DECODERS; then
+        echo "[point] b$BUDGET VALIDATED"
+      else
+        write_fatal_stop "$OUT_DIR" "formal_validation_failed" \
+          "completed campaign failed the standalone v3.6 artifact validator" \
+          "${ATTEMPT_LOG:-}"
+        fatal_link_exit; continue
+      fi
+    else
+      echo "[point] b$BUDGET PROTOCOL VARIANT / CANARY complete — formal validator intentionally skipped"
+    fi
+  fi
+done
+
+echo "=========================================================================="
+echo "[grid] $(date '+%F %T') this link done after $(( (SECONDS - JOB_START) / 60 ))min"
+for BUDGET in $POINTS; do
+  OUT_DIR="$OUT_ROOT/fig2_${ARM_PREFIX}_b${BUDGET}_${RUN_TAG}"
+  state="未开始"
+  [[ -d "$OUT_DIR/turns" ]] && state="$(turns_done "$OUT_DIR")/${TURNS} 轮"
+  [[ -e "$OUT_DIR/campaign_report.json" ]] && state="完成"
+  printf '  b%-5s %s\n' "$BUDGET" "$state"
+done

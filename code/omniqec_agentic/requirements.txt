@@ -1,0 +1,26 @@
+# omniqec_agentic runtime dependencies.
+# Versions pinned to the validated local QEC environment (Python 3.10,
+# calibration slope_offset=0.958 was measured against exactly these).
+numpy==1.26.4
+scipy==1.15.3
+stim==1.15.0
+ldpc==2.4.1            # dev-only bposd / lsd decoders (BpOsdDecoder / BpLsdDecoder)
+relay-bp==0.2.1        # OPTIONAL: dev-only `relaybp` decoder only (IBM Rust Relay-BP)
+sinter==1.15.0         # post-search LER sweeps only
+networkx==3.4.2        # ASC-style edge-coloring schedule
+
+# Formal decoder of telescoping_structural_v3_7 (2026-09-03): the VENDORED
+# telescoping-decoder (third_party/telescoping-decoder; Mitten paper,
+# github.com/a7b/yarn, MIT; commit pinned in its VENDORED_COMMIT and in
+# config.TELESCOPING_VENDORED_COMMIT). Not on PyPI -- install EDITABLE from
+# the repo root:
+#   pip install -e ./third_party/telescoping-decoder
+# Needs a C compiler (gcc) for its two S3 kernels, compiled on first use into
+# $XDG_CACHE_HOME/telescoping_decoder (prebuild: python -m telescoping_decoder.build;
+# overrides CHECKSERIAL_BP_SO / RELAY_MEM_BP_SO). Its pyproject also pulls
+# gurobipy, unused: the S4 stage is off in the CPU protocol.
+
+# Provider SDKs — install only what you use:
+openai==2.41.0         # deepseek + gpt providers
+
+# anthropic>=0.40      # claude provider (uncomment if used)

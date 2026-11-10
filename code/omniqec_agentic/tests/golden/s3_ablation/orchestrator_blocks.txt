@@ -1,0 +1,418 @@
+<source id="S-1" kind="manual_static_index" origin="manual/static/INDEX.md+tools.md" hash="sha256:7cfa6774f7c8fc6e">
+# Manual index
+
+- static/tools.md — tool catalog (registry-rendered; docstrings are the source of truth)
+- static/ranking.md — the two ledgers: structural retention and runtime measurement
+- static/feedback_vocab.md — feedback field semantics (what each field means)
+- dynamic/insights.md — supported insights (full text) + active hypotheses
+- dynamic/bandit.md — strategy-arm suggestion snapshot
+- dynamic/digest.md — latest turn digest (fast + slow top-k)
+- skills/ — frontier-producing construct programs with evidence pointers
+
+
+# Tool catalog
+
+## acquisition_score(code_hashes: array)  [scope=read]
+
+Deterministic baseline order for the FOUR runtime slow slots (code_hash
+prefixes). baseline_order is the full archive queue minus candidates that
+already carry a measurement (fixed shots: nothing is re-measured) and
+minus schedule_catastrophic ones; it is exactly the list the plan
+validator checks. Promoting baseline_head needs no rationale; naming any
+other candidate needs a per-item cited rationale in the plan. scores
+report the requested hashes only (measured ones are flagged, not
+ranked into the baseline). This tool has no authority over the two
+structural endpoint slots, which the (k, d_search, -weight) reducer fills;
+degraded_* candidates are scored normally.
+
+Example call: `acquisition_score(code_hashes=["a41f00b2", "9c00d1ee"])`
+
+## bandit_status()  [scope=read]
+
+Strategy-arm suggestion and statistics (UCB1, 03 §6.4). The mix is an
+informed signal: deviating from it requires a cited rationale in your
+plan; every arm keeps the epsilon_arm floor.
+
+Example call: `bandit_status()`
+
+## budget_status()  [scope=read]
+
+The four ledgers (tokens / slow shots / wall clock / turns): used so
+far and configured caps. Plans exceeding remaining budget are rejected.
+
+Example call: `budget_status()`
+
+## fingerprint_lookup(code_hash: string)  [scope=read]
+
+Novelty distance of a candidate against measured candidates and the
+known-code table. Distance 0 = WL-indistinguishable; < epsilon is gated
+from the slow loop as a near-duplicate.
+
+Example call: `fingerprint_lookup(code_hash="a41f00b2")`
+
+## known_code_lookup(code_hash: string)  [scope=read]
+
+Equivalence-class lookup against the literature known-code table
+(docs/known_codes_v1.json). A match means rediscovery, not novelty.
+
+Example call: `known_code_lookup(code_hash="a41f00b2")`
+
+## ledger_propose(predicate: array, claim: any, scope: any, rationale: string)  [scope=policy]
+
+Propose an insight hypothesis. Predicate = conjunction of comparisons
+over computed columns only; claim defaults to lower per_logical_per_round.
+Rejected when the active-hypothesis cap is reached, the predicate matches
+a graveyarded entry, or the schema is invalid. Adjudication is prospective:
+only evidence arriving AFTER this proposal can support/refute it.
+
+Example call: `ledger_propose(predicate=[{"field": "family", "op": "==", "value": "bb"}], claim={"metric": "per_logical_per_round", "direction": "lower"}, rationale="bb rows dominate the slow top-k this turn (S-4)")`
+
+## ledger_retract(entry_id: string)  [scope=policy]
+
+Retract an active hypothesis or supported entry (moves it to retired;
+retired predicates cannot be re-proposed).
+
+Example call: `ledger_retract(entry_id="H-7")`
+
+## manual_read(section: string)  [scope=read]
+
+Read one manual section. Sections live under the campaign manual
+directory: static/ (tool catalog, the two-ledger semantics, feedback
+vocabulary), dynamic/ (supported insights, bandit snapshot, latest
+digest).
+
+Example call: `manual_read(section="static/INDEX.md")`
+
+## precheck_draft(program: string, rng_seed: integer)  [scope=draft]
+
+Pre-check one construct program draft: sandbox -> structural -> proxy
+-> fingerprint (novelty vs known codes). Returns machine-computed truths
+only; passing precheck does NOT guarantee acceptance (the evaluator is
+the source of truth).
+
+Example call: `precheck_draft(program="def construct(rng): ...")`
+
+## query_archive(family: any, max_n: any, min_d_proxy: any, max_check_weight: any, promoted_only: boolean, limit: integer)  [scope=read]
+
+Structured query over the fast archive queue. Rows carry code_hash /
+family / n,k,d_search / Q / max_check_weight, promotion flags and the
+construction `spec` (group name, base-matrix shapes) so a query can compare
+structures and not just scores; use query_evidence for one candidate's full
+chain. `max_check_weight` filters to codes at or below a check weight.
+
+This is the RUNTIME/MAP archive, ordered by the runtime acquisition key. It
+is not the structural record: retention across turns is decided by the
+(k, d_search, -max_check_weight) proxy-Pareto elites in S-3, which this
+queue does not see.
+
+Example call: `query_archive(family="lp_nonabelian", limit=8)`
+
+## query_coverage(limit: integer)  [scope=read]
+
+Structural coverage of the search so far: per region (family / group
+class / group-order band) how many candidates were proposed, how many
+carry a measurement, and how many racing stopped at pilot depth with their
+performance still unresolved. Also lists lp_nonabelian catalog branches
+that have never been proposed. Use it to find unexplored regions — a
+ranked list can only show what was already tried.
+
+Example call: `query_coverage()`
+
+## query_evidence(code_hash: string)  [scope=read]
+
+Full evidence chain for one candidate (code_hash prefix >= 8 chars):
+slow rankings row(s) + distance evidence + racing metadata.
+
+Example call: `query_evidence(code_hash="a41f00b2")`
+
+</source>
+
+<source id="S-2" kind="manual_dynamic" origin="manual/dynamic/insights.md" hash="sha256:4038e4b458f5877b">
+# Insights (backtester-adjudicated)
+
+(none yet — propose hypotheses via ledger_propose)
+
+</source>
+
+<source id="S-3" kind="structural_frontier" origin="state.structural_proxy_elites" hash="sha256:2eeef8637ac8e0ab">
+  code_hash=a1a1a1a1 family=bb n=72 n_total=144 k=12 d_search=6 max_check_weight=6 pareto_rank=0 crowding_boundary=True
+</source>
+
+<source id="S-4" kind="digest_slow" origin="last_cycle/slow_rankings" hash="sha256:889a81e123881a65">
+  (none)
+</source>
+
+<source id="S-5" kind="hof_baseline" origin="state.hof_summary+baseline_summary" hash="sha256:52a43486aeaf5421">
+{
+ "baseline": {},
+ "hall_of_fame": [
+  {
+   "code_hash": "b2b2b2b2b2b2b2b2b2b2b2b2",
+   "d_search": 5,
+   "family": "hgp",
+   "first_seen_turn": 2,
+   "k": 4,
+   "last_measured_turn": 4,
+   "max_check_weight": 5,
+   "n": 45,
+   "per_logical_per_round": 0.0015,
+   "program_id": "rt_bb",
+   "spec": {
+    "family": "hgp"
+   }
+  }
+ ]
+}
+</source>
+
+<source id="S-6" kind="budget" origin="state.budget" hash="sha256:556ba674c0896b16">
+{"caps": {"max_turns": 30, "tool_budget": 32}, "remaining": {"nominable_runtime_slots_per_turn": 0, "slow_evaluation_slots_per_turn": 6, "turns_including_this_one": 25}, "used": {"slow_shots_used": 50000, "tokens_used": 1000, "turns_used": 5}}
+</source>
+
+<source id="S-7" kind="bandit" origin="bandit.suggestion()" hash="sha256:cedd9e509d3efa2d">
+{"epsilon_arm": 0.05, "mix": {"exploit": 0.2, "novelty": 0.2, "test_hypothesis": 0.2, "transfer": 0.2, "wildcat": 0.2}, "stats": {"exploit": {"mean_reward": null, "pulls": 0.0}, "novelty": {"mean_reward": null, "pulls": 0.0}, "test_hypothesis": {"mean_reward": null, "pulls": 0.0}, "transfer": {"mean_reward": null, "pulls": 0.0}, "wildcat": {"mean_reward": null, "pulls": 0.0}}}
+</source>
+
+<source id="S-8" kind="last_plan_outcome" origin="state.plan+last_cycle.status" hash="sha256:834a6d5cfe473385">
+{"last_cycle_status": "ok", "last_plan": {"family_mix": {"bb": 0.5, "hgp": 0.5}, "strategy_mix": {"novelty": 1.0}}}
+</source>
+
+<source id="S-9" kind="structural_coverage" origin="coverage_report(archive+slow)" hash="sha256:dcb3669e534011e8">
+{
+ "fact_lines": [
+  "Regions never proposed at this budget (n_budget=98): lp_nonabelian/dihedral/1x1|1x1, lp_abelian/cyclic/1x1|1x1, bb/bb_square/0-12, hgp/hgp/n2-3|n2-3, lp_nonabelian/metacyclic/1x1|1x1, lp_abelian/abelian_product/1x1|1x1, bb/bb_rect/0-12, hgp/hgp/n2-3|n4-6, lp_nonabelian/direct_product/1x1|1x1, lp_abelian/cyclic/1x1|1x2, bb/bb_square/12-24, hgp/hgp/n2-3|n7-10 (+72 more); never proposed of spellable regions by family: bb 5 of 5; hgp 12 of 12; lp_abelian 32 of 32; lp_nonabelian 35 of 35"
+ ],
+ "lp_nonabelian_catalog": {
+  "by_branch": {
+   "alternating_symmetric": 0,
+   "dihedral": 0,
+   "direct_product": 0,
+   "metacyclic": 0
+  },
+  "feasible_branch_shape_pairs": 84,
+  "group_order_range": null,
+  "lp_nonabelian_proposals": 0,
+  "n_budget": 98,
+  "never_proposed_branch_shapes": [
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "1x1|1x1"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "1x1|1x2"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "1x1|2x1"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "1x1|2x2"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "1x2|1x1"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "1x2|1x2"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "1x2|2x1"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "1x2|2x2"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "2x1|1x1"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "2x1|1x2"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "2x1|2x1"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "2x1|2x2"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "2x2|1x1"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "2x2|1x2"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "2x2|2x1"
+   },
+   {
+    "branch": "dihedral",
+    "family": "lp_nonabelian",
+    "shapes": "2x2|2x2"
+   },
+   {
+    "branch": "metacyclic",
+    "family": "lp_nonabelian",
+    "shapes": "1x1|1x1"
+   },
+   {
+    "branch": "metacyclic",
+    "family": "lp_nonabelian",
+    "shapes": "1x1|1x2"
+   },
+   {
+    "branch": "metacyclic",
+    "family": "lp_nonabelian",
+    "shapes": "1x1|2x1"
+   },
+   {
+    "branch": "metacyclic",
+    "family": "lp_nonabelian",
+    "shapes": "1x1|2x2"
+   },
+   {
+    "branch": "metacyclic",
+    "family": "lp_nonabelian",
+    "shapes": "1x2|1x1"
+   },
+   {
+    "branch": "metacyclic",
+    "family": "lp_nonabelian",
+    "shapes": "2x1|1x1"
+   },
+   {
+    "branch": "metacyclic",
+    "family": "lp_nonabelian",
+    "shapes": "2x2|1x1"
+   },
+   {
+    "branch": "direct_product",
+    "family": "lp_nonabelian",
+    "shapes": "1x1|1x1"
+   }
+  ],
+  "never_proposed_branches": [
+   "alternating_symmetric",
+   "dihedral",
+   "direct_product",
+   "metacyclic"
+  ],
+  "never_proposed_by_family": {
+   "bb": {
+    "feasible": 5,
+    "never_proposed": 5
+   },
+   "hgp": {
+    "feasible": 12,
+    "never_proposed": 12
+   },
+   "lp_abelian": {
+    "feasible": 32,
+    "never_proposed": 32
+   },
+   "lp_nonabelian": {
+    "feasible": 35,
+    "never_proposed": 35
+   }
+  },
+  "note": "Catalog branches with zero proposals are reachable by the grammar (see the lp_nonabelian format contract) but unexplored so far. never_proposed_branch_shapes lists (family, branch, region) triples that fit this budget with the family's smallest spelling of the region and have no proposal: LP regions are A-shape|B-shape, bb regions the ell*m band, hgp regions the seed column bands; never_proposed_by_family counts them per family; regions carry the best k / d_search seen there.",
+  "regions": []
+ },
+ "note": "proposed=constructed this turn; measured=has a per_logical_per_round; censored=racing stopped it at pilot depth (performance unresolved, not known bad). Regions absent from this table were never proposed.",
+ "regions": [],
+ "regions_seen": 0,
+ "total_proposed": 0,
+ "unmeasured_regions": []
+}
+</source>
+
+<source id="S-10" kind="recent_reflections" origin="manual/dynamic/reflections.jsonl" hash="sha256:c3fb2ec8854fa18b">
+(no reflections yet)
+</source>
+=====REGISTRY=====
+[
+ {
+  "hash": "7cfa6774f7c8fc6e",
+  "id": "S-1",
+  "kind": "manual_static_index",
+  "origin": "manual/static/INDEX.md+tools.md"
+ },
+ {
+  "hash": "4038e4b458f5877b",
+  "id": "S-2",
+  "kind": "manual_dynamic",
+  "origin": "manual/dynamic/insights.md"
+ },
+ {
+  "hash": "2eeef8637ac8e0ab",
+  "id": "S-3",
+  "kind": "structural_frontier",
+  "origin": "state.structural_proxy_elites"
+ },
+ {
+  "hash": "889a81e123881a65",
+  "id": "S-4",
+  "kind": "digest_slow",
+  "origin": "last_cycle/slow_rankings"
+ },
+ {
+  "hash": "52a43486aeaf5421",
+  "id": "S-5",
+  "kind": "hof_baseline",
+  "origin": "state.hof_summary+baseline_summary"
+ },
+ {
+  "hash": "556ba674c0896b16",
+  "id": "S-6",
+  "kind": "budget",
+  "origin": "state.budget"
+ },
+ {
+  "hash": "cedd9e509d3efa2d",
+  "id": "S-7",
+  "kind": "bandit",
+  "origin": "bandit.suggestion()"
+ },
+ {
+  "hash": "834a6d5cfe473385",
+  "id": "S-8",
+  "kind": "last_plan_outcome",
+  "origin": "state.plan+last_cycle.status"
+ },
+ {
+  "hash": "dcb3669e534011e8",
+  "id": "S-9",
+  "kind": "structural_coverage",
+  "origin": "coverage_report(archive+slow)"
+ },
+ {
+  "hash": "c3fb2ec8854fa18b",
+  "id": "S-10",
+  "kind": "recent_reflections",
+  "origin": "manual/dynamic/reflections.jsonl"
+ }
+]

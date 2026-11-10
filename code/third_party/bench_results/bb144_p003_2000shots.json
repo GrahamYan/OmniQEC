@@ -1,0 +1,101 @@
+{
+  "circuit": "third_party/BeamSearchDecoder/StimCircuit/BB[[144,12,12]],memory_X,error_rate=0.003,syndrome_rounds=12.stim",
+  "shots": 2000,
+  "seed": 7,
+  "dem": {
+    "num_detectors": 936,
+    "num_observables": 12,
+    "num_error_mechanisms": 8784,
+    "num_matrix_columns": 8784,
+    "num_nonzero_H": 30672,
+    "num_nonzero_L": 26310,
+    "skipped_detectorless_count": 0,
+    "skipped_detectorless_observable_count": 0
+  },
+  "results": [
+    {
+      "decoder": "bposd(osd_cs3)",
+      "shots": 2000,
+      "failures": 2,
+      "ler": 0.001,
+      "mean_ms": 126.66945602598207,
+      "median_ms": 157.0545624999795,
+      "p90_ms": 216.55193749902537,
+      "p99_ms": 252.24200966966237,
+      "max_ms": 278.3329579997371,
+      "total_s": 253.33891205196414
+    },
+    {
+      "decoder": "lsd(order8)",
+      "shots": 2000,
+      "failures": 14,
+      "ler": 0.007,
+      "mean_ms": 4.449691370483379,
+      "median_ms": 3.577520999897388,
+      "p90_ms": 7.469963100993483,
+      "p99_ms": 15.449336249494081,
+      "max_ms": 61.04083399986848,
+      "total_s": 8.899382740966757
+    },
+    {
+      "decoder": "relaybp(60sets)",
+      "shots": 2000,
+      "failures": 53,
+      "ler": 0.0265,
+      "mean_ms": 8.123139852515123,
+      "median_ms": 2.6355414993304294,
+      "p90_ms": 16.443829200579792,
+      "p99_ms": 91.72385141966515,
+      "max_ms": 96.8654999996943,
+      "total_s": 16.246279705030247
+    },
+    {
+      "decoder": "beam(B=4)",
+      "shots": 2000,
+      "failures": 2,
+      "ler": 0.001,
+      "mean_ms": 6.233919075471022,
+      "median_ms": 3.69552099982684,
+      "p90_ms": 10.609225000553126,
+      "p99_ms": 47.55394000048909,
+      "max_ms": 205.3581669988489,
+      "total_s": 12.467838150942043
+    },
+    {
+      "decoder": "beam(B=8)",
+      "shots": 2000,
+      "failures": 0,
+      "ler": 0.0,
+      "mean_ms": 6.6120241519993215,
+      "median_ms": 3.898103999745217,
+      "p90_ms": 10.848671101302898,
+      "p99_ms": 48.033003919699695,
+      "max_ms": 317.339292001634,
+      "total_s": 13.224048303998643
+    },
+    {
+      "decoder": "beam(B=16)",
+      "shots": 2000,
+      "failures": 0,
+      "ler": 0.0,
+      "mean_ms": 7.265746719484014,
+      "median_ms": 4.294021000532666,
+      "p90_ms": 11.060333398927469,
+      "p99_ms": 48.37183342093339,
+      "max_ms": 543.949540999165,
+      "total_s": 14.531493438968027
+    },
+    {
+      "decoder": "bpotf(E_CLN)",
+      "shots": 2000,
+      "failures": 104,
+      "ler": 0.052,
+      "mean_ms": 6.349478414537771,
+      "median_ms": 4.462958000658546,
+      "p90_ms": 11.488300000019082,
+      "p99_ms": 25.550689170377154,
+      "max_ms": 26.844083000469254,
+      "total_s": 12.698956829075541
+    }
+  ]
+}

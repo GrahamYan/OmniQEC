@@ -1,0 +1,41 @@
+# credentials: never in git (keep the example only)
+.env
+.env.*
+!.env.openrouter.example
+shared_endpoint.env
+*.pem
+
+# run products / backups / archives (same list the NSCC rsync and Pod zip exclude)
+runs/
+nscc_backup_runs/
+results_archive/
+_archive_*/
+_backup_*/
+_cleanup_quarantine_*/
+runs_*.tar.gz
+*.zip
+*.tgz
+omniqec_agentic/tmp/
+
+# build artifacts
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+*.so
+*.dylib
+*.o
+third_party/BPOTF/build/
+third_party/BeamSearchDecoder/decoder/build/
+omniqec_agentic/hpc/worker_deepseek/node_modules/
+omniqec_agentic/hpc/worker_deepseek/.wrangler/
+
+# OS
+.DS_Store
+
+# vendored external repo with its own .git (not imported by the package; the deploy zip excludes it too)
+third_party/BPOTF/
+third_party/bpotf_pkg/
+
+# Claude Code worktrees (claude --worktree / EnterWorktree)
+.claude/worktrees/

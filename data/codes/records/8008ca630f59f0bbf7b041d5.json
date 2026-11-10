@@ -1,0 +1,155 @@
+{
+ "code_hash": "8008ca630f59f0bbf7b041d5",
+ "code_hash8": "8008ca63",
+ "family": "BB",
+ "n": 48,
+ "k": 2,
+ "d": 6,
+ "w": 4,
+ "parameters_printed_in_tables": true,
+ "construction": {
+  "G": "C3×C8",
+  "A": "1 + x y^5",
+  "B": "1 + x^2 y",
+  "as_printed_in": ["Table IX"],
+  "spec": {
+   "A": [[0, 0], [1, 5]],
+   "B": [[0, 0], [2, 1]],
+   "ell": 3,
+   "family": "bb",
+   "m": 8
+  }
+ },
+ "parity_check_matrices": {
+  "Hx": {
+   "shape": [24, 48],
+   "row_supports": [
+    [0, 13, 24, 41],
+    [1, 14, 25, 42],
+    [2, 15, 26, 43],
+    [3, 8, 27, 44],
+    [4, 9, 28, 45],
+    [5, 10, 29, 46],
+    [6, 11, 30, 47],
+    [7, 12, 31, 40],
+    [8, 21, 25, 32],
+    [9, 22, 26, 33],
+    [10, 23, 27, 34],
+    [11, 16, 28, 35],
+    [12, 17, 29, 36],
+    [13, 18, 30, 37],
+    [14, 19, 31, 38],
+    [15, 20, 24, 39],
+    [5, 16, 33, 40],
+    [6, 17, 34, 41],
+    [7, 18, 35, 42],
+    [0, 19, 36, 43],
+    [1, 20, 37, 44],
+    [2, 21, 38, 45],
+    [3, 22, 39, 46],
+    [4, 23, 32, 47]
+   ]
+  },
+  "Hz": {
+   "shape": [24, 48],
+   "row_supports": [
+    [0, 15, 24, 43],
+    [1, 8, 25, 44],
+    [2, 9, 26, 45],
+    [3, 10, 27, 46],
+    [4, 11, 28, 47],
+    [5, 12, 29, 40],
+    [6, 13, 30, 41],
+    [7, 14, 31, 42],
+    [8, 23, 27, 32],
+    [9, 16, 28, 33],
+    [10, 17, 29, 34],
+    [11, 18, 30, 35],
+    [12, 19, 31, 36],
+    [13, 20, 24, 37],
+    [14, 21, 25, 38],
+    [15, 22, 26, 39],
+    [7, 16, 35, 40],
+    [0, 17, 36, 41],
+    [1, 18, 37, 42],
+    [2, 19, 38, 43],
+    [3, 20, 39, 44],
+    [4, 21, 32, 45],
+    [5, 22, 33, 46],
+    [6, 23, 34, 47]
+   ]
+  }
+ },
+ "appearances": [
+  {
+   "table": "Table IX",
+   "task": "Memory",
+   "N": 98,
+   "backend_or_method": "Claude",
+   "rank": 1,
+   "p_LER": "3.14e-04",
+   "p_LER_value": 0.000314,
+   "pooled": false,
+   "upper_bound": false,
+   "ci95": [0.000257, 0.000384],
+   "ci95_printed_in_table": false,
+   "p_LER_printed_in_table": true
+  },
+  {
+   "table": "tab_fig4a_cross",
+   "task": "Memory",
+   "N": 98,
+   "backend_or_method": "Claude",
+   "rank": 1,
+   "p_LER_by_task": {
+    "Memory": {
+     "p_LER": "3.14e-04",
+     "p_LER_value": 0.000314,
+     "pooled": false,
+     "upper_bound": false,
+     "ci95": [0.000257, 0.000384],
+     "ci95_printed_in_table": true,
+     "p_LER_printed_in_table": true
+    },
+    "CNOT": {
+     "p_LER": "4.25e-04",
+     "p_LER_value": 0.000425,
+     "pooled": false,
+     "upper_bound": false,
+     "ci95": [0.000376, 0.000481],
+     "ci95_printed_in_table": true,
+     "p_LER_printed_in_table": true
+    }
+   }
+  },
+  {
+   "table": "tab_champion_stats",
+   "task": "Memory",
+   "N": 98,
+   "backend_or_method": "Claude",
+   "rank": 1,
+   "p_LER": "3.14e-04",
+   "p_LER_value": 0.000314,
+   "pooled": false,
+   "upper_bound": false,
+   "ci95": [0.000257, 0.000384],
+   "ci95_printed_in_table": true,
+   "p_LER_printed_in_table": true
+  },
+  {
+   "table": "tab_ablation",
+   "task": "Memory",
+   "N": 98,
+   "backend_or_method": "Full",
+   "rank": 1,
+   "p_LER": "3.14e-04",
+   "p_LER_value": 0.000314,
+   "pooled": false,
+   "upper_bound": false,
+   "ci95": [0.000257, 0.000384],
+   "ci95_printed_in_table": false,
+   "p_LER_printed_in_table": true,
+   "p_LER_in_top3_mean": 0.0003138827
+  }
+ ]
+}

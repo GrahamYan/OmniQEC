@@ -1,0 +1,62 @@
+{
+  "schema": "known_code_table",
+  "version": "v1",
+  "date": "2026-09-03",
+  "note": "Literature codes as genotype specs for equivalence-class rediscovery detection (03 doc section 6.3). Lookup is colored-Tanner WL hash, canonically confirmed when pynauty is present. v3.6 (2026-09-03): the two Mitten Table XIII rows are transcribed as repo-native specs (docs/06 section 3 minor). PENDING transcriptions (need the source tables; use memory.known_codes.gap_index_to_tuple for GAP-indexed entries): the remaining Mitten rows, Lin-Pryadko Table I SmallGroup(40,1)=C5:C8 [[80,8,10]] (reproduced 01 section 12, polynomials not stored), and Zoo entries within budget.",
+  "codes": [
+    {
+      "name": "BB [[72,12,6]] (Bravyi et al. 2024)",
+      "family": "bb",
+      "n": 72, "k": 12, "d": 6,
+      "source": "arXiv:2308.07915",
+      "spec": {"family": "bb", "ell": 6, "m": 6,
+               "A": [[3, 0], [0, 1], [0, 2]],
+               "B": [[0, 3], [1, 0], [2, 0]]}
+    },
+    {
+      "name": "BB [[144,12,12]] (Bravyi et al. 2024)",
+      "family": "bb",
+      "n": 144, "k": 12, "d": 12,
+      "source": "arXiv:2308.07915",
+      "spec": {"family": "bb", "ell": 12, "m": 6,
+               "A": [[3, 0], [0, 1], [0, 2]],
+               "B": [[0, 3], [1, 0], [2, 0]]}
+    },
+    {
+      "name": "Lin-Pryadko 2BGA D6 [[24,8,3]] (Table III)",
+      "family": "lp_nonabelian",
+      "n": 24, "k": 8, "d": 3,
+      "source": "arXiv:2306.16400",
+      "spec": {"family": "lp_nonabelian", "group": "D6",
+               "A": [[[[0, 0], [4, 0]]]],
+               "B": [[[[0, 0], [2, 1], [3, 0], [4, 0], [4, 1], [1, 0]]]]}
+    },
+    {
+      "name": "Mitten LP [[150,30,10]] (Table XIII, host group C5 x S3 = catalog C5xD3, GAP SmallGroup(30,1))",
+      "family": "lp_nonabelian",
+      "n": 150, "k": 30, "d": 10,
+      "source": "arXiv:2607.28795 Table XIII (transcribed to catalog exponent tuples; k and weight 9 verified by construction, d from the paper)",
+      "spec": {"family": "lp_nonabelian", "group": "C5xD3",
+               "A": [[[[0, 0, 0], [1, 2, 0], [2, 1, 1]], [[0, 0, 0], [1, 0, 0], [0, 1, 1]]]],
+               "B": [[[[4, 2, 0], [3, 1, 0], [1, 2, 0]], [[0, 0, 0], [4, 0, 0], [1, 1, 1]]]]}
+    },
+    {
+      "name": "Mitten LP [[200,40,12]] (Table XIII, host group C4 x D10 = catalog C4xD5, GAP SmallGroup(40,5))",
+      "family": "lp_nonabelian",
+      "n": 200, "k": 40, "d": 12,
+      "source": "arXiv:2607.28795 Table XIII (transcribed to catalog exponent tuples; k and weight 9 verified by construction, d from the paper)",
+      "spec": {"family": "lp_nonabelian", "group": "C4xD5",
+               "A": [[[[2, 1, 0], [1, 3, 1], [1, 2, 1]], [[0, 0, 0], [1, 2, 0], [2, 2, 0]]]],
+               "B": [[[[3, 0, 0], [0, 1, 0], [1, 1, 0]], [[0, 0, 0], [0, 2, 0], [3, 3, 1]]]]}
+    },
+    {
+      "name": "C3xC3 abelian LP [[27,2,4]] (MILP-certified seed)",
+      "family": "lp_abelian",
+      "n": 27, "k": 2, "d": 4,
+      "source": "omniqec seed sweep 2026-08-15 (MILP d=4)",
+      "spec": {"family": "lp_abelian", "group": {"factors": [3, 3]},
+               "A": [[[[2, 0], [0, 0]], [[1, 0], [0, 1]]]],
+               "B": [[[[0, 2], [1, 2], [0, 0]]]]}
+    }
+  ]
+}

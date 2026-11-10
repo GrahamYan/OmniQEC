@@ -1,0 +1,43 @@
+#!/bin/bash
+# Provider reachability from a COMPUTE node — the only test that counts.
+#
+#   qsub -v PROVIDERS="deepseek openai" omniqec_agentic/hpc/probe_llm.pbs
+#
+# A login-node check proves nothing about the job: compute nodes sit behind
+# their own egress policy (qlong nodes, for one, have no outbound internet at
+# all). Run this before committing a 60-turn chain to a new provider.
+# The PBS project is a placeholder: submit with qsub -P <PROJECT> ...; the queue
+# and the conda env below are the settings of the cluster the paper's runs used.
+#PBS -P <PROJECT>
+#PBS -q q2
+#PBS -N omni_probe
+#PBS -l select=1:ncpus=1:mem=4gb
+#PBS -l walltime=00:10:00
+#PBS -j oe
+
+set -euo pipefail
+
+REPO_ROOT="${REPO_ROOT:-$HOME/OmniQEC}"
+PROVIDERS="${PROVIDERS:-deepseek}"
+LOG_ROOT="$REPO_ROOT/runs/logs"
+mkdir -p "$LOG_ROOT"
+exec > >(tee -a "$LOG_ROOT/probe_llm.${PBS_JOBID:-manual}.log") 2>&1
+
+module load miniforge3/23.10
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate omniqec2
+
+# Credentials live outside the repo, one file per provider, chmod 600.
+# The loader reports collisions, which is half of what this probe is for.
+source "$REPO_ROOT/omniqec_agentic/hpc/load_llm_env.sh"
+load_llm_env
+
+cd "$REPO_ROOT"
+export PYTHONPATH="$REPO_ROOT${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONUNBUFFERED=1
+
+echo "=== compute node LLM reachability: $PROVIDERS ==="
+python -m omniqec_agentic.hpc.probe_llm $PROVIDERS
+status=$?
+echo "=== probe exit=$status (0 = every provider reachable) ==="
+exit $status

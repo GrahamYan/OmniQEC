@@ -1,0 +1,53 @@
+#!/bin/bash
+#PBS -q q4
+#PBS -l select=1:ncpus=128:mem=100gb
+#PBS -l walltime=24:00:00
+#PBS -N brute_b48
+#PBS -j oe
+#PBS -o /dev/null
+# Brute-force BB / abelian-LP search at one total-qubit budget (hpc/brute_force_budget.py)
+# under pauli_label_uniform_v1 p=0.001 (2026-09-15).  No LLM, no gateway.
+#
+#   cd <TREE> && qsub -P <PROJECT> -v REPO_ROOT=<TREE>,BUDGET=48 omniqec_agentic/hpc/brute_force_budget.pbs
+#
+# Optional -v knobs: WORKERS (127), SCREEN_SHOTS (1000), CONFIRM_SHOTS (25000), CONFIRM_TOP (40),
+# CONFIRM_KD2_TOP (0), SCREEN_MAX_ERRORS (50), MIN_D (4), SCREEN_MAX (8000), EXTRA_ARGS.
+set -euo pipefail
+
+module load miniforge3/23.10
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate omniqec2
+module load gcc 2>/dev/null || echo "module load gcc unavailable; relying on the gcc on PATH" >&2
+
+REPO_ROOT="${REPO_ROOT:-$HOME/OmniQEC}"
+BUDGET="${BUDGET:-48}"
+WORKERS="${WORKERS:-127}"
+OUT="${OUT:-$REPO_ROOT/runs/brute_b${BUDGET}}"
+cd "$REPO_ROOT"
+export PYTHONPATH="$REPO_ROOT:$REPO_ROOT/third_party/telescoping-decoder${PYTHONPATH:+:$PYTHONPATH}"
+export OMP_NUM_THREADS=1
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$REPO_ROOT/runs/.cache}"
+mkdir -p "$OUT" "$XDG_CACHE_HOME" "$REPO_ROOT/runs/logs"
+LOG="$REPO_ROOT/runs/logs/brute_b${BUDGET}.${PBS_JOBID:-manual}.log"
+exec > >(tee -a "$LOG") 2>&1
+echo "job=${PBS_JOBID:-manual} node=$(hostname) budget=$BUDGET workers=$WORKERS out=$OUT start=$(date '+%F %T')"
+
+python - <<'PY'
+from omniqec_agentic.verification.noise import NoiseProfile, NoiseSweepConfig
+from omniqec_agentic.config import VerificationConfig
+v = VerificationConfig()
+assert v.max_check_weight is None and v.decoders[0].value == 'telescoping_cpu', v
+n = NoiseSweepConfig.pauli_label_uniform((0.001,))
+assert n.profile == NoiseProfile.PAULI_LABEL_UNIFORM and n.values == (0.001,), n
+import pynauty  # canonical hashes are the dedupe key
+print('BRUTE_DEFAULTS_OK')
+PY
+python -m telescoping_decoder.build
+python -m omniqec_agentic.cli check-slow-deps
+
+python -m omniqec_agentic.hpc.brute_force_budget \
+  --budget "$BUDGET" --out "$OUT" --workers "$WORKERS" \
+  --screen-shots "${SCREEN_SHOTS:-25000}" --screen-max-errors "${SCREEN_MAX_ERRORS:-50}" --confirm-shots "${CONFIRM_SHOTS:-25000}" \
+  --confirm-top "${CONFIRM_TOP:-0}" --confirm-kd2-top "${CONFIRM_KD2_TOP:-0}" \
+  --min-d "${MIN_D:-4}" --screen-max "${SCREEN_MAX:-8000}" ${EXTRA_ARGS:-}
+echo "end=$(date '+%F %T')"

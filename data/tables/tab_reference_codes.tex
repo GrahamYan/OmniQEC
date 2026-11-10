@@ -1,0 +1,28 @@
+\begingroup
+\SetTblrTemplate{head}{normal}
+\SetTblrTemplate{foot}{normal}
+\DefTblrTemplate{caption-tag}{default}{\tablename\hspace{\fontdimen2\font}\thetable}
+\DefTblrTemplate{caption-sep}{default}{.\hspace{\fontdimen2\font}}
+\SetTblrStyle{caption,capcont}{font=\normalfont\small\rmfamily}
+\SetTblrTemplate{caption}{plain}
+\SetTblrTemplate{capcont}{plain}
+\footnotesize
+\nolinenumbers
+\begin{longtblr}[
+caption={Measurements of the two BB reference codes. $N=n+m_X+m_Z$ is the physical-qubit budget occupied by each reference, and $F_X$ and $F_Z$ are the block failures observed in the two bases. $p_{\mathrm{LER}}$ is normalized over $k$ logical qubits for quantum memory and $2k$ for transversal CNOT; the interval is the 95\% Wilson score interval propagated to $p_{\mathrm{LER}}$.},
+label={tab:bb-reference-codes},
+]{
+width=\linewidth,
+colspec={X[1.70,l] X[0.95,l] X[1.10,l] X[1.10,l] X[0.85,l] X[0.45,c] X[0.60,c] X[0.55,c] X[1.30,c] X[2.75,c]},
+colsep=2pt, rowsep=3pt,
+cells={valign=m},
+row{1}={font=\bfseries}, rowhead=1,
+hline{1,2,Z}={0.5pt},
+}
+Code & $G$ & $A$ & $B$ & Task & $N$ & $F_X$ & $F_Z$ & $p_{\mathrm{LER}}$ & 95\% interval \\
+BB~$[\![72,12,6]\!]$ & $C_{6}\times C_{6}$ & $x^{3} + y + y^{2}$ & $y^{3} + x + x^{2}$ & Memory & 144 & 1,445 & 1,365 & $3.96\times10^{-4}$ & $[3.76\times10^{-4},\,4.17\times10^{-4}]$ \\
+BB~$[\![72,12,6]\!]$ & $C_{6}\times C_{6}$ & $x^{3} + y + y^{2}$ & $y^{3} + x + x^{2}$ & CNOT & 144 & 7,143 & 4,076 & $8.30\times10^{-4}$ & $[8.09\times10^{-4},\,8.52\times10^{-4}]$ \\
+BB~$[\![144,12,12]\!]$ & $C_{12}\times C_{6}$ & $x^{3} + y + y^{2}$ & $y^{3} + x + x^{2}$ & Memory & 288 & 80 & 40 & $8.34\times10^{-6}$ & $[6.51\times10^{-6},\,1.07\times10^{-5}]$ \\
+BB~$[\![144,12,12]\!]$ & $C_{12}\times C_{6}$ & $x^{3} + y + y^{2}$ & $y^{3} + x + x^{2}$ & CNOT & 288 & 1,257 & 140 & $4.88\times10^{-5}$ & $[4.57\times10^{-5},\,5.22\times10^{-5}]$ \\
+\end{longtblr}
+\endgroup

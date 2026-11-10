@@ -1,0 +1,43 @@
+# Fig.2 campaign runtime deps, pinned to the versions validated locally
+# (macOS qec env, 2026-08-16; 37 tests passing). Python 3.12.
+# NOTE ldpc==2.4.1 exactly: the LSD lsd_order/lsd_method footgun workaround
+# in config.py was calibrated against this version.
+numpy==1.26.4
+scipy==1.15.3
+stim==1.15.0
+ldpc==2.4.1
+pydantic==2.13.4
+langgraph==1.2.11
+langgraph-checkpoint-sqlite==3.1.1
+langchain-core==1.5.5
+openai==3.1.0
+pynauty==2.8.8.1
+networkx==3.6.1
+sympy==1.14.0
+pytest
+# Build-time deps for the vendored beam decoder (its setup.py imports
+# numpy AND Cython at top level, so install it with --no-build-isolation):
+Cython==3.2.9
+setuptools
+wheel
+# The beam decoder (primary) is vendored C++/Cython and installed separately:
+#   module load gcc
+#   python -m pip install --no-build-isolation ./third_party/BeamSearchDecoder/decoder
+# v3.6 (telescoping_structural_v3_7, 2026-09-03): the formal decoder
+# telescoping_cpu is the VENDORED telescoping-decoder package (Mitten paper,
+# github.com/a7b/yarn, MIT; third_party/telescoping-decoder, commit pinned in
+# its VENDORED_COMMIT and in config.TELESCOPING_VENDORED_COMMIT). Pure Python
+# plus two C kernels compiled on first use into
+# $XDG_CACHE_HOME/telescoping_decoder, so a C COMPILER IS REQUIRED
+# (module load gcc) -- prebuild with `python -m telescoping_decoder.build`
+# (the v36 launcher does this once per job before any worker starts).
+# Not on PyPI: install EDITABLE from the repo root, after the pins above:
+#   module load gcc
+#   python -m pip install -e ./third_party/telescoping-decoder
+#   python -m telescoping_decoder.build
+# (its pyproject also pulls gurobipy; unused, the S4 stage is off.)
+# relay-bp is OPTIONAL: only the dev-only `relaybp` decoder needs it (no
+# protocol dependency any more); ldpc stays for the dev-only bposd / lsd
+# decoders and the validator's v3.5 history mode. Kept installed so the
+# full test suite runs on the cluster.
+relay-bp

@@ -1,0 +1,60 @@
+\begingroup
+\SetTblrTemplate{head}{normal}
+\SetTblrTemplate{foot}{normal}
+\DefTblrTemplate{caption-tag}{default}{\tablename\hspace{\fontdimen2\font}\thetable}
+\DefTblrTemplate{caption-sep}{default}{.\hspace{\fontdimen2\font}}
+\SetTblrStyle{caption,capcont}{font=\normalfont\small\rmfamily}
+\SetTblrTemplate{caption}{plain}
+\SetTblrTemplate{capcont}{plain}
+\footnotesize
+\nolinenumbers
+\begin{longtblr}[
+caption={Top-three constructions from the fixed-weight transversal logical-CNOT searches in Fig.~\ref{fig:setting-dependent}c. $w$ is the maximum check-row weight required in each search, and $d$ is the search-stage distance estimate. Finalists are ranked by terminal $p_{\mathrm{LER}}$ and then by the upper confidence limit; codes equivalent under qubit and check permutations are listed once. $p_{\mathrm{LER}}$ uses terminal measurements. $N$ is the per-block resource budget, and $p_{\mathrm{LER}}$ is normalized over $2k$ logical qubits. Top-3 mean is the arithmetic mean of the three listed $p_{\mathrm{LER}}$ values.},
+label={tab:fig4c-fixed-weight},
+]{
+width=\linewidth,
+colspec={X[0.55,c] X[0.50,c] X[0.60,c] X[0.90,c] X[0.90,l] X[1.05,l] X[2.15,l] X[2.00,l] X[1.40,c] X[1.40,c]},
+colsep=2pt, rowsep=3pt,
+cells={valign=m},
+row{1}={font=\bfseries}, rowhead=1,
+hline{1,2,Z}={0.5pt},
+}
+$N$ & $w$ & Rank & $n,k,d$ & Family & $G$ & $A$ & $B$ & $p_{\mathrm{LER}}$ & Top-3 mean \\
+98 & 4 & 1 & $48,2,6$ & BB & $C_{3}\times C_{8}$ & $1 + x\,y^{4}$ & $1 + y^{3}$ & $3.34\times10^{-4}$ & $3.96\times10^{-4}$ \\
+98 & 4 & 2 & $46,2,6$ & LP Abelian & $C_{23}$ & $1 + x$ & $1 + x^{5}$ & $4.06\times10^{-4}$ &  \\
+98 & 4 & 3 & $48,2,6$ & BB & $C_{2}\times C_{12}$ & $1 + x\,y^{4}$ & $1 + y$ & $4.49\times10^{-4}$ &  \\
+98 & 5 & 1 & $48,4,7$ & BB & $C_{3}\times C_{8}$ & $1 + x\,y + x^{2}\,y$ & $1 + y^{3}$ & $6.02\times10^{-4}$ & $7.21\times10^{-4}$ \\
+98 & 5 & 2 & $48,4,6$ & LP Abelian & $C_{24}$ & $1 + x^{21}$ & $1 + x^{2} + x^{10}$ & $7.43\times10^{-4}$ &  \\
+98 & 5 & 3 & $48,4,6$ & LP Abelian & $C_{24}$ & $1 + x^{9}$ & $1 + x + x^{14}$ & $8.19\times10^{-4}$ &  \\
+98 & 6 & 1 & $48,2,8$ & BB & $C_{3}\times C_{8}$ & $1 + y$ & $1 + x\,y^{4} + x^{2}\,y^{2} + x\,y^{7}$ & $1.25\times10^{-3}$ & $1.26\times10^{-3}$ \\
+98 & 6 & 2 & $48,2,8$ & BB & $C_{3}\times C_{8}$ & $1 + y^{3}$ & $x\,y + x^{2}\,y^{4} + y^{6} + x\,y^{7}$ & $1.26\times10^{-3}$ &  \\
+98 & 6 & 3 & $48,2,8$ & BB & $C_{2}\times C_{12}$ & $1 + x\,y^{5}$ & $1 + y^{2} + x\,y^{3} + y^{7}$ & $1.28\times10^{-3}$ &  \\
+98 & 7 & 1 & $48,4,8$ & BB & $C_{2}\times C_{12}$ & $y^{10} + y^{3} + x\,y + x\,y^{3}$ & $y^{4} + x\,y^{9} + x\,y^{5}$ & $2.82\times10^{-3}$ & $2.85\times10^{-3}$ \\
+98 & 7 & 2 & $48,4,6$ & BB & $C_{24}$ & $1 + y^{2} + y^{7}$ & $1 + y + y^{9} + y^{13}$ & $2.86\times10^{-3}$ &  \\
+98 & 7 & 3 & $48,4,8$ & BB & $C_{24}$ & $1 + y^{8} + y^{9} + y^{23}$ & $y^{16} + y^{18} + y^{23}$ & $2.87\times10^{-3}$ &  \\
+144 & 4 & 1 & $72,2,8$ & BB & $C_{4}\times C_{9}$ & $1 + x^{3}\,y^{5}$ & $1 + y^{4}$ & $1.24\times10^{-4}$ & $1.36\times10^{-4}$ \\
+144 & 4 & 2 & $72,2,8$ & BB & $C_{4}\times C_{9}$ & $1 + x^{2}\,y^{2}$ & $1 + x^{3}\,y^{7}$ & $1.37\times10^{-4}$ &  \\
+144 & 4 & 3 & $72,2,8$ & BB & $C_{4}\times C_{9}$ & $1 + x\,y^{5}$ & $1 + x^{3}\,y^{3}$ & $1.46\times10^{-4}$ &  \\
+144 & 5 & 1 & $72,4,8$ & BB & $C_{4}\times C_{9}$ & $1 + x\,y + x^{2}\,y^{5}$ & $1 + x^{3}\,y^{3}$ & $1.49\times10^{-4}$ & $1.77\times10^{-4}$ \\
+144 & 5 & 2 & $72,4,6$ & BB & $C_{3}\times C_{12}$ & $1 + x\,y^{3} + x^{2}\,y^{10}$ & $1 + y^{2}$ & $1.86\times10^{-4}$ &  \\
+144 & 5 & 3 & $72,4,8$ & BB & $C_{3}\times C_{12}$ & $1 + x\,y^{3} + x^{2}\,y^{8}$ & $1 + y^{7}$ & $1.95\times10^{-4}$ &  \\
+144 & 6 & 1 & $72,4,8$ & BB & $C_{3}\times C_{12}$ & $x + y + x^{2}\,y^{7}$ & $1 + x\,y^{5} + x^{2}\,y^{9}$ & $2.47\times10^{-4}$ & $2.51\times10^{-4}$ \\
+144 & 6 & 2 & $72,4,8$ & BB & $C_{3}\times C_{12}$ & $y + x\,y^{4} + x^{2}\,y^{9}$ & $1 + x\,y^{6} + x^{2}\,y^{2}$ & $2.51\times10^{-4}$ &  \\
+144 & 6 & 3 & $72,4,10$ & BB & $C_{36}$ & $1 + y + y^{11}$ & $y^{3} + y^{7} + y^{20}$ & $2.54\times10^{-4}$ &  \\
+144 & 7 & 1 & $72,4,10$ & LP Abelian & $C_{2}\times C_{18}$ & $x\,y^{11} + y^{7} + x\,y^{15}$ & $y^{11} + y^{14} + y^{6} + x\,y^{9}$ & $7.49\times10^{-4}$ & $7.86\times10^{-4}$ \\
+144 & 7 & 2 & $72,4,11$ & BB & $C_{4}\times C_{9}$ & $y^{8} + 1 + x\,y^{4}$ & $x^{2}\,y^{8} + 1 + x^{3} + x\,y^{2}$ & $7.96\times10^{-4}$ &  \\
+144 & 7 & 3 & $72,4,10$ & LP Abelian & $C_{2}\times C_{2}\times C_{9}$ & $x + z^{2} + x\,z$ & $x\,y\,z^{7} + x\,y + y\,z^{4} + z^{6}$ & $8.13\times10^{-4}$ &  \\
+180 & 4 & 1 & $90,2,9$ & LP Abelian & $C_{45}$ & $1 + x$ & $1 + x^{17}$ & $6.59\times10^{-5}$ & $7.06\times10^{-5}$ \\
+180 & 4 & 2 & $90,2,9$ & BB & $C_{45}$ & $1 + y$ & $1 + y^{10}$ & $6.84\times10^{-5}$ &  \\
+180 & 4 & 3 & $90,2,9$ & BB & $C_{5}\times C_{9}$ & $1 + x\,y$ & $1 + x^{4}\,y$ & $7.76\times10^{-5}$ &  \\
+180 & 5 & 1 & $90,4,9$ & BB & $C_{3}\times C_{15}$ & $1 + x\,y^{2} + x^{2}\,y^{11}$ & $1 + y$ & $7.39\times10^{-5}$ & $7.68\times10^{-5}$ \\
+180 & 5 & 2 & $84,4,9$ & BB & $C_{3}\times C_{14}$ & $1 + x\,y^{3} + x^{2}\,y^{9}$ & $1 + y^{5}$ & $7.76\times10^{-5}$ &  \\
+180 & 5 & 3 & $90,4,9$ & BB & $C_{3}\times C_{15}$ & $1 + x\,y^{5} + x^{2}\,y$ & $1 + y$ & $7.89\times10^{-5}$ &  \\
+180 & 6 & 1 & $90,4,12$ & LP Abelian & $C_{45}$ & $1 + x + x^{5}$ & $1 + x^{8} + x^{19}$ & $8.69\times10^{-5}$ & $9.12\times10^{-5}$ \\
+180 & 6 & 2 & $90,4,10$ & LP Abelian & $C_{45}$ & $1 + x + x^{11}$ & $1 + x^{5} + x^{13}$ & $8.86\times10^{-5}$ &  \\
+180 & 6 & 3 & $90,4,10$ & LP Abelian & $C_{5}\times C_{9}$ & $1 + x\,y + x^{2}\,y^{5}$ & $1 + x^{3}\,y^{2} + x^{4}\,y^{4}$ & $9.82\times10^{-5}$ &  \\
+180 & 7 & 1 & $90,8,10$ & BB & $C_{3}\times C_{15}$ & $1 + x\,y^{5} + x^{2}\,y + y^{13}$ & $1 + x\,y^{13} + y^{11}$ & $3.33\times10^{-4}$ & $3.46\times10^{-4}$ \\
+180 & 7 & 2 & $90,4,12$ & BB & $C_{3}\times C_{15}$ & $1 + y^{3} + y^{13} + x^{2}\,y^{14}$ & $1 + y + x\,y^{7}$ & $3.37\times10^{-4}$ &  \\
+180 & 7 & 3 & $90,4,12$ & LP Abelian & $C_{45}$ & $1 + x^{3} + x + x^{7}$ & $1 + x^{34} + x^{29}$ & $3.66\times10^{-4}$ &  \\
+\end{longtblr}
+\endgroup

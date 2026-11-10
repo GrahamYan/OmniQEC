@@ -1,0 +1,149 @@
+{
+  "schema": "fig2_extended_stats_plan",
+  "version": "extended_stats_v1",
+  "created": "2026-10-17",
+  "target": "replicate / protocol-variant champions measured with the same per-point uniform extension shots as the formal champions (b288 500k per basis), so that the formal run and the replicate can be compared on pooled values; separate plan and output root so the formal table is untouched",
+  "seed_namespace": "extended_stats_v1",
+  "rounds": {
+    "1": "2026-10-17: GPT b288 v3.7 replicate (RUN_TAG=v37r2) champion, validated manually (VALIDATE_FORMAL=0 launch)",
+    "2": "2026-10-18: DeepSeek b320 v37r2 champion (output root on NSCC scratch because the home quota filled)"
+  },
+  "items": [
+    {
+      "key": "b288_gptsub_01997335",
+      "budget": 288,
+      "arm": "GPT",
+      "source_run": "fig2_gptsub_b288_v37r2",
+      "role": "champion_replicate_v37r2",
+      "program_id": "g0001_p0007",
+      "code_hash": "019973355a5451428f3c34c8",
+      "family": "lp_abelian",
+      "n": 144,
+      "k": 4,
+      "d_search": 12,
+      "max_check_weight": 6,
+      "spec": {
+        "A": [
+          [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                3,
+                8
+              ]
+            ]
+          ]
+        ],
+        "B": [
+          [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                2,
+                5
+              ]
+            ]
+          ]
+        ],
+        "family": "lp_abelian",
+        "group": {
+          "factors": [
+            4,
+            18
+          ]
+        }
+      },
+      "spec_source": "campaign_report.json final_frontier",
+      "formal_failures_x": 3,
+      "formal_failures_z": 2,
+      "formal_shots_per_basis": 25000,
+      "formal_plpr": 4.166874667421716e-06,
+      "formal_rounds": 12,
+      "shots_per_basis": 500000,
+      "expected_failures_per_basis": 50,
+      "note": "second independent v3.7 search run of GPT b288 (RUN_TAG=v37r2, 2026-10-16/17); search measurement turn 27: 4 failures / 50k (3.33e-6); final 25k/basis: 3+2 failures (4.17e-6); extension 500k per basis = the b288 per-point uniform rule of round 3"
+    },
+    {
+      "key": "b320_deepseek_7efc7125",
+      "budget": 320,
+      "arm": "DeepSeek",
+      "source_run": "fig2_deepseek_b320_v37r2",
+      "role": "champion_replicate_v37r2",
+      "program_id": "g0003_p0015_s38",
+      "code_hash": "7efc7125758f96bb34f75cd8",
+      "family": "lp_abelian",
+      "n": 154,
+      "k": 6,
+      "d_search": 14,
+      "max_check_weight": 6,
+      "spec": {
+        "A": [
+          [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                3
+              ],
+              [
+                5,
+                2
+              ]
+            ]
+          ]
+        ],
+        "B": [
+          [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                5,
+                6
+              ],
+              [
+                4,
+                5
+              ]
+            ]
+          ]
+        ],
+        "family": "lp_abelian",
+        "group": {
+          "factors": [
+            11,
+            7
+          ]
+        }
+      },
+      "spec_source": "final_slow/T12/candidates/g0003_p0015_s38.json",
+      "formal_failures_x": 1,
+      "formal_failures_z": 2,
+      "formal_shots_per_basis": 25000,
+      "formal_plpr": 1.4286180294309503e-06,
+      "formal_rounds": 14,
+      "shots_per_basis": 850000,
+      "expected_failures_per_basis": 68,
+      "note": "second independent v3.7 search run of DeepSeek b320 (RUN_TAG=v37r2); search turn 15: 2 failures / 50k (9.5e-7); final 25k/basis 1+2 (1.43e-6), best of the 5 runtime finalists; submitted 2026-10-18 while the 2 structural-endpoint finalists (lp_abelian, check weight 16, never slow-measured) were still decoding -- they cannot rank above it; extension 850k per basis = the b320 per-point uniform value"
+    }
+  ]
+}

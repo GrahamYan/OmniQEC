@@ -1,0 +1,8 @@
+{
+ "schema": "top5_extension_caps_v1",
+ "note": "Per-basis total shot caps of the Top-5 extension (final stage included), by task and budget N. Fixed 2026-11-06 from the pooled totals of the Fig.2 and Fig.3 champions at that date.",
+ "caps": {
+  "memory": {"60": 175000, "98": 175000, "144": 175000, "180": 175000, "220": 275000, "260": 525000, "288": 525000, "320": 875000, "360": 1725000},
+  "cnot_dense": {"60": 75000, "98": 75000, "144": 75000, "180": 75000, "220": 125000, "260": 175000, "288": 325000, "320": 525000, "360": 875000}
+ }
+}

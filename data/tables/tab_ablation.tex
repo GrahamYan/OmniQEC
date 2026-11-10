@@ -1,0 +1,48 @@
+\begingroup
+\SetTblrTemplate{head}{normal}
+\SetTblrTemplate{foot}{normal}
+\DefTblrTemplate{caption-tag}{default}{\tablename\hspace{\fontdimen2\font}\thetable}
+\DefTblrTemplate{caption-sep}{default}{.\hspace{\fontdimen2\font}}
+\SetTblrStyle{caption,capcont}{font=\normalfont\small\rmfamily}
+\SetTblrTemplate{caption}{plain}
+\SetTblrTemplate{capcont}{plain}
+\footnotesize
+\nolinenumbers
+\begin{longtblr}[
+caption={Leading constructions from the ablation searches. Configuration names follow Table~\ref{tab:apx-ablation-settings}. Measurable finalists are ranked by $p_{\mathrm{LER}}$ and then by the upper confidence limit, using one measurement per finalist. The champion is the first finalist, and Top-3 mean is the arithmetic mean of $p_{\mathrm{LER}}$ over the first three. $n,k,d$, Family and $w$ describe the champion; $d$ is the search-stage distance estimate, and $w$ is the maximum check-row weight. $\dagger$ denotes a champion $p_{\mathrm{LER}}$ from pooled terminal and supplementary measurements; other values are the measurements used for ranking. $p_{\mathrm{LER}}$ is reported per logical qubit per extraction round. For CNOT, $N$ is the per-block resource budget, and $p_{\mathrm{LER}}$ is normalized over $2k$ logical qubits.},
+label={tab:ablation},
+]{
+width=\linewidth,
+colspec={X[0.80,l] X[0.50,c] X[1.30,l] X[0.95,c] X[1.05,l] X[0.45,c] X[1.25,c] X[1.25,c]},
+colsep=2pt, rowsep=3pt,
+cells={valign=m},
+row{1}={font=\bfseries}, rowhead=1,
+hline{1,2,Z}={0.5pt},
+}
+Task & $N$ & Configuration & $n,k,d$ & Family & $w$ & Champion $p_{\mathrm{LER}}$ & Top-3 mean \\
+Memory & 98 & Full & $48,2,6$ & BB & 4 & $3.14\times10^{-4}$ & $3.58\times10^{-4}$ \\
+Memory & 98 & w/o slow & $48,4,7$ & BB & 5 & $3.76\times10^{-4}$ & $7.44\times10^{-4}$ \\
+Memory & 98 & w/o slow \& fast & $48,4,8$ & BB & 6 & $9.68\times10^{-4}$ & $1.55\times10^{-3}$ \\
+Memory & 98 & Random & $42,2,6$ & BB & 4 & $3.82\times10^{-4}$ & $4.34\times10^{-4}$ \\
+Memory & 180 & Full & $90,4,9$ & BB & 5 & ${2.99\times10^{-5}}^{\dagger}$ & $3.05\times10^{-5}$ \\
+Memory & 180 & w/o slow & $84,4,7$ & LP Abelian & 5 & $5.84\times10^{-5}$ & $2.22\times10^{-4}$ \\
+Memory & 180 & w/o slow \& fast & $90,8,10$ & BB & 6 & $8.56\times10^{-5}$ & $3.36\times10^{-4}$ \\
+Memory & 180 & Random & $90,4,9$ & BB & 5 & $3.84\times10^{-5}$ & $4.22\times10^{-5}$ \\
+Memory & 260 & Full & $126,4,12$ & BB & 6 & ${5.64\times10^{-6}}^{\dagger}$ & $6.88\times10^{-6}$ \\
+Memory & 260 & w/o slow & $126,4,15$ & BB & 7 & $2.73\times10^{-5}$ & $3.92\times10^{-4}$ \\
+Memory & 260 & w/o slow \& fast & $108,8,10$ & BB & 6 & $2.33\times10^{-5}$ & $1.73\times10^{-4}$ \\
+Memory & 260 & Random & $122,2,11$ & BB & 6 & $2.83\times10^{-5}$ & $3.06\times10^{-5}$ \\
+CNOT & 98 & Full & $48,2,6$ & LP Non-Abelian & 4 & $3.72\times10^{-4}$ & $3.88\times10^{-4}$ \\
+CNOT & 98 & w/o slow & $48,2,7$ & LP Non-Abelian & 5 & $6.87\times10^{-4}$ & $9.32\times10^{-4}$ \\
+CNOT & 98 & w/o slow \& fast & $48,2,6$ & BB & 4 & $4.78\times10^{-4}$ & $8.80\times10^{-4}$ \\
+CNOT & 98 & Random & $46,2,6$ & BB & 4 & $3.98\times10^{-4}$ & $5.85\times10^{-4}$ \\
+CNOT & 180 & Full & $90,2,9$ & LP Abelian & 4 & ${6.39\times10^{-5}}^{\dagger}$ & $6.74\times10^{-5}$ \\
+CNOT & 180 & w/o slow & $90,2,9$ & LP Abelian & 4 & $6.67\times10^{-5}$ & $1.13\times10^{-4}$ \\
+CNOT & 180 & w/o slow \& fast & $90,4,9$ & BB & 5 & $5.93\times10^{-5}$ & $1.13\times10^{-4}$ \\
+CNOT & 180 & Random & $84,4,7$ & BB & 5 & $1.27\times10^{-4}$ & $1.40\times10^{-4}$ \\
+CNOT & 260 & Full & $126,4,11$ & LP Abelian & 5 & ${1.28\times10^{-5}}^{\dagger}$ & $1.54\times10^{-5}$ \\
+CNOT & 260 & w/o slow & $126,2,15$ & BB & 6 & $4.00\times10^{-5}$ & $5.77\times10^{-5}$ \\
+CNOT & 260 & w/o slow \& fast & $126,2,15$ & BB & 6 & $3.00\times10^{-5}$ & $6.04\times10^{-5}$ \\
+CNOT & 260 & Random & $120,4,11$ & BB & 5 & $9.59\times10^{-6}$ & $4.13\times10^{-5}$ \\
+\end{longtblr}
+\endgroup

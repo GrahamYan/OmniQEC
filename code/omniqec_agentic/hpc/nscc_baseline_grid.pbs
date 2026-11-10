@@ -1,0 +1,206 @@
+#!/bin/bash
+# Search baselines without an LLM (paper Methods "Baseline comparisons", appendix D4 / D5): one budget point of one
+# baseline per chain link.
+#
+#   METHOD=bo     FAMILIES=bb                                  BO baseline over BB codes, Memory (TASK=memory) or
+#                                                              transversal CNOT (TASK=cnot_dense)
+#   METHOD=random FAMILIES="bb hgp lp_abelian lp_nonabelian"   the Random configuration of the ablation (Table VIII,
+#                                                              Fig. 11; N = 98, 180, 260)
+#
+# Proposals (baselines/sampler.py, literal_uniform_v2: every stage the paper names uniform over its admissible set,
+# sizes first, then groups): 3,840 per iteration (4 x 960, the program-seed realisations of an OmniQEC iteration),
+# 30 iterations; BO draws BB codes only ((l, m) uniform over 4 l m <= N, (|A|, |B|) uniform over the splits with
+# 4-8 terms in total), Random draws the four families in equal shares. No hand-written seed programs, no LLM, no
+# discovery memory. Every proposal goes through the same fast-loop checks as the LLM search; the slow loop measures
+# 6 (Memory) / 7 (CNOT) codes per iteration, chosen uniformly (Random; BO in iterations 1-4) or by qLogNEI (BO from
+# iteration 5). Everything that is measured follows the final protocol of the LLM searches (docs/final_protocol_20261106.md):
+# uniform_paper_v1 at p = 0.005, twobasis_nonint_v1, telescoping_cpu, R = 12 rounds for every code (fixed_Tc),
+# slow-loop gate w <= 8, the paper's early stop (run-campaign's default policy, appendix D3: Wilson lower bound above
+# ten times the best measured code's and the reference code's upper bounds, or 30 failures in both bases, at most
+# 25,000 shots per basis; no --racing-max-errors here, 30 / 100 select the older policies), the same shot shards,
+# watchdogs and decode budget as the LLM launcher (nscc_claude_grid_v36.pbs), and the common final stage of the
+# campaign graph (the five leading distinct codes by search-stage pLER).
+# The structural profile is v3.7 for memory and the CNOT profile for cnot_dense; the baselines take only its slot
+# counts and replace the proposal and selection channels (omniqec_agentic/baselines).
+#
+# Site settings are parameters: CONDA_ENV (default omniqec), MODULES (`module load` names separated by ':' or
+# spaces, default none; e.g. MODULES=miniforge3/23.10:gcc), BO_VENV (a venv with torch / gpytorch / botorch layered on CONDA_ENV, METHOD=bo only); the PBS queue and
+# project are chosen by the submitter (submit_baseline_grid.sh: QUEUE, PROJECT).
+#
+# Chain links: the submit script queues several links per point (-W depend=afterany). A link resumes the
+# checkpoint, runs until the point completes or the walltime nears, and exits; the next link skips a complete
+# point (campaign_report.json) or a stopped one (FATAL_STOP). A failing run-campaign is retried RETRY_MAX times.
+#
+#PBS -q normal
+#PBS -N omni_baseline
+#PBS -l select=1:ncpus=128:mem=100gb
+#PBS -l walltime=24:00:00
+#PBS -j oe
+
+set -euo pipefail
+
+CONDA_ENV="${CONDA_ENV:-omniqec}"
+MODULES="${MODULES:-}"
+for module_name in ${MODULES//:/ }; do
+  module load "$module_name"
+done
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate "$CONDA_ENV"
+command -v gcc >/dev/null || echo "no gcc on PATH: the telescoping kernels cannot be prebuilt (add a compiler module to MODULES)" >&2
+
+REPO_ROOT="${REPO_ROOT:?REPO_ROOT (the deployed release tree) is required}"
+OUT_ROOT="${OUT_ROOT:?OUT_ROOT (scratch directory for the run directories) is required}"
+METHOD="${METHOD:?METHOD=random|bo}"
+TASK="${TASK:-memory}"
+POINT="${POINT:?POINT=<budget N>}"
+SEED_ID="${SEED_ID:-r01}"
+RUN_TAG="${RUN_TAG:-bl1}"
+TURNS="${TURNS:-30}"
+RETRY_MAX="${RETRY_MAX:-3}"
+BO_VENV="${BO_VENV:-}"
+case "$METHOD" in
+  bo) FAMILIES="${FAMILIES:-bb}" ;;
+  random) FAMILIES="${FAMILIES:-bb hgp lp_abelian lp_nonabelian}" ;;
+  *) echo "METHOD must be random or bo (got $METHOD)" >&2; exit 2 ;;
+esac
+case "$TASK" in
+  memory) TASK_TAG="mem" ;;
+  cnot_dense) TASK_TAG="cnot" ;;
+  *) echo "TASK must be memory or cnot_dense (got $TASK)" >&2; exit 2 ;;
+esac
+[[ "$POINT" =~ ^[0-9]+$ ]] || { echo "POINT must be one integer budget (got $POINT)" >&2; exit 2; }
+[[ "$SEED_ID" =~ ^r[0-9]{2}$ ]] || { echo "SEED_ID must look like r01 (got $SEED_ID)" >&2; exit 2; }
+if [[ "$METHOD" == "bo" ]]; then
+  [[ -n "$BO_VENV" && -x "$BO_VENV/bin/python" ]] || { echo "METHOD=bo needs BO_VENV (venv with torch/gpytorch/botorch)" >&2; exit 2; }
+  # A venv layered on $CONDA_ENV (--system-site-packages): the decoder stack stays the one of the LLM searches.
+  source "$BO_VENV/bin/activate"
+  python -c "import torch, gpytorch, botorch" || { echo "BO_VENV $BO_VENV cannot import the BO packages" >&2; exit 4; }
+fi
+
+# Frozen protocol values (identical to nscc_claude_grid_v36.pbs).
+readonly NOISE_PROFILE="uniform_paper_v1"
+readonly P_VALUE="0.005"
+readonly DECODERS="telescoping_cpu"
+readonly SHOT_SHARDS=16
+readonly FINAL_SHOT_SHARDS=128
+readonly DECODE_SHOT_BUDGET_S=8
+readonly BUILD_TIMEOUT_S=3600
+readonly DECODE_SHARD_TIMEOUT_S=1800
+readonly DISTANCE_TIMEOUT_S=1800
+readonly TIMEOUT_RETRIES=0
+readonly TRANSIENT_RETRIES=1
+
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export OMNIQEC_TOTAL_MEM_BYTES="${OMNIQEC_TOTAL_MEM_BYTES:-$((100 * 1024 * 1024 * 1024))}"
+export OMNIQEC_WORKER_RSS_BYTES="${OMNIQEC_WORKER_RSS_BYTES:-$((768 * 1024 * 1024))}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$OUT_ROOT/.cache}"
+WALL_S="${WALL_S:-86400}"
+WALL_RESERVE_S="${WALL_RESERVE_S:-3600}"
+
+LOG_ROOT="$OUT_ROOT/logs"
+mkdir -p "$LOG_ROOT" "$XDG_CACHE_HOME"
+JOB_TAG="${PBS_JOBID:-manual}"
+JOB_TAG="${JOB_TAG//[^A-Za-z0-9_.-]/_}"
+RUN_NAME="bl${METHOD}_${TASK_TAG}_b${POINT}_${RUN_TAG}_${SEED_ID}"
+OUT_DIR="$OUT_ROOT/$RUN_NAME"
+exec > >(tee -a "$LOG_ROOT/${RUN_NAME}.${JOB_TAG}.log") 2>&1
+
+cd "$REPO_ROOT"
+# The tree's own vendored decoder first (byte-identical to the editable install the Full runs import, 2026-11-06).
+export PYTHONPATH="$REPO_ROOT:$REPO_ROOT/third_party/telescoping-decoder${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONUNBUFFERED=1
+
+on_signal() {
+  echo "[link] $(date '+%F %T') caught SIGTERM/SIGINT (walltime or qdel) -- the next chain link resumes the checkpoint" >&2
+  exit 143
+}
+trap on_signal INT TERM
+
+if [[ -e "$OUT_DIR/campaign_report.json" ]]; then
+  echo "[point] $RUN_NAME already complete -- skipping"; exit 0
+fi
+if [[ -e "$OUT_DIR/FATAL_STOP" ]]; then
+  echo "[point] $RUN_NAME has FATAL_STOP ($(head -c 300 "$OUT_DIR/FATAL_STOP")) -- not resuming"; exit 0
+fi
+
+mkdir -p "$OUT_DIR"
+exec 9> "$OUT_DIR/.chain.lock"
+flock -n 9 || { echo "[point] $RUN_NAME is held by another link -- exiting" >&2; exit 0; }
+
+if ! python -m telescoping_decoder.build; then
+  echo "telescoping S3 kernel prebuild FAILED (cache $XDG_CACHE_HOME/telescoping_decoder)" >&2; exit 4
+fi
+python -m omniqec_agentic.cli check-slow-deps
+
+ALLOCATED_CPUS="${NCPUS:-128}"
+[[ "$ALLOCATED_CPUS" =~ ^(128|64)$ ]] || { echo "runs on 128 or 64 allocated CPUs (got NCPUS=$ALLOCATED_CPUS)" >&2; exit 2; }
+readonly WORKERS=$((ALLOCATED_CPUS - 1))
+export OMNIQEC_SEC_WORKERS="${OMNIQEC_SEC_WORKERS:-$(( WORKERS / 4 ))}"
+export OMNIQEC_FAST_WORKERS="${OMNIQEC_FAST_WORKERS:-$WORKERS}"
+export OMNIQEC_PERSISTENT_WORKERS="${OMNIQEC_PERSISTENT_WORKERS:-1}"
+# OMNIQEC_RACE_PILOT_WINDOW is not set: the paper's early stop decides after the whole 2,000-shot pilot and ignores it.
+# BO model threads while the slow queue is built (the decoder pool is idle then).
+export OMNIQEC_BO_THREADS="${OMNIQEC_BO_THREADS:-$(( ALLOCATED_CPUS / 2 ))}"
+
+# shellcheck disable=SC2206
+FAMILY_ARGS=($FAMILIES)
+echo "=========================================================================="
+echo "baseline $METHOD task=$TASK N=$POINT families=${FAMILIES} seed=$SEED_ID turns=$TURNS out=$OUT_DIR"
+echo "protocol: $NOISE_PROFILE p=$P_VALUE decoder=$DECODERS fixed_Tc (R=12) gate w<=8 early stop = run-campaign default (paper D3) shards=$SHOT_SHARDS/$FINAL_SHOT_SHARDS"
+echo "workers=$WORKERS sec_workers=$OMNIQEC_SEC_WORKERS fast_workers=$OMNIQEC_FAST_WORKERS bo_threads=$OMNIQEC_BO_THREADS job=$JOB_TAG"
+echo "repo=$REPO_ROOT ($(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || cat "$REPO_ROOT/RELEASE_COMMIT" 2>/dev/null || echo unknown))"
+echo "=========================================================================="
+
+attempt=0
+while :; do
+  if (( SECONDS > WALL_S - WALL_RESERVE_S )); then
+    echo "[point] $RUN_NAME: walltime reserve reached before a new attempt -- the next link resumes"; exit 0
+  fi
+  RESUME_ARGS=()
+  [[ -e "$OUT_DIR/checkpoint.sqlite3" ]] && RESUME_ARGS=(--resume)
+  rc=0
+  python -m omniqec_agentic.cli run-campaign \
+    --budget "$POINT" \
+    --out "$OUT_DIR" \
+    --noise-profile "$NOISE_PROFILE" \
+    --p "$P_VALUE" \
+    --turns "$TURNS" \
+    --proposal-count 960 \
+    --generations-per-turn 4 \
+    --rng-seeds-per-program 1 \
+    --provider baseline_sampler \
+    --search-method "$METHOD" \
+    --search-seed-id "$SEED_ID" \
+    --families "${FAMILY_ARGS[@]}" \
+    --task "$TASK" \
+    --rounds-policy fixed_Tc \
+    --promotion-max-check-weight 8 \
+    --decoders $DECODERS \
+    --shot-shards "$SHOT_SHARDS" \
+    --build-timeout-s "$BUILD_TIMEOUT_S" \
+    --decode-shard-timeout-s "$DECODE_SHARD_TIMEOUT_S" \
+    --distance-timeout-s "$DISTANCE_TIMEOUT_S" \
+    --timeout-retries "$TIMEOUT_RETRIES" \
+    --final-shot-shards "$FINAL_SHOT_SHARDS" \
+    --decode-shot-budget-s "$DECODE_SHOT_BUDGET_S" \
+    --transient-retries "$TRANSIENT_RETRIES" \
+    --strict-turns \
+    --slow-workers "$WORKERS" \
+    ${RESUME_ARGS[@]+"${RESUME_ARGS[@]}"} 9>&- || rc=$?
+  if (( rc == 0 )); then
+    echo "[point] $RUN_NAME finished"; break
+  fi
+  if (( rc >= 128 )); then
+    echo "[point] $RUN_NAME run-campaign died by signal $(( rc - 128 )) -- the next link resumes" >&2; exit 0
+  fi
+  attempt=$(( attempt + 1 ))
+  echo "[point] $RUN_NAME run-campaign failed rc=$rc (attempt $attempt/$RETRY_MAX)" >&2
+  if (( attempt >= RETRY_MAX )); then
+    printf 'run-campaign failed %s times (last rc=%s) at %s; see %s\n' "$attempt" "$rc" "$(date '+%F %T')" \
+      "$LOG_ROOT/${RUN_NAME}.${JOB_TAG}.log" > "$OUT_DIR/FATAL_STOP"
+    echo "[point] $RUN_NAME FATAL_STOP written" >&2; exit 1
+  fi
+  sleep 30
+done

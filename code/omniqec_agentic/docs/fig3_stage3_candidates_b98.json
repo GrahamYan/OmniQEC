@@ -1,0 +1,1224 @@
+[
+ {
+  "spec": {
+   "A": [
+    [
+     2,
+     7
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "B": [
+    [
+     2,
+     0
+    ],
+    [
+     1,
+     4
+    ]
+   ],
+   "ell": 3,
+   "family": "bb",
+   "m": 8
+  },
+  "code_hash8": "0bf5b3b1",
+  "d_search": 6,
+  "family": "bb",
+  "source": "final:DeepSeek",
+  "fig2_plpr": 0.000285450551284705,
+  "w": 4,
+  "n": 48,
+  "k": 2,
+  "label": "bb_0bf5b3b1~q0",
+  "control_label": "bb_0bf5b3b1",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 0,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 33
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     2,
+     7
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "B": [
+    [
+     2,
+     0
+    ],
+    [
+     1,
+     4
+    ]
+   ],
+   "ell": 3,
+   "family": "bb",
+   "m": 8
+  },
+  "code_hash8": "0bf5b3b1",
+  "d_search": 6,
+  "family": "bb",
+  "source": "final:DeepSeek",
+  "fig2_plpr": 0.000285450551284705,
+  "w": 4,
+  "n": 48,
+  "k": 2,
+  "label": "bb_0bf5b3b1~q25",
+  "control_label": "bb_0bf5b3b1",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 25,
+   "proxy_d_x": 6,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 33
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     0,
+     9
+    ],
+    [
+     0,
+     20
+    ]
+   ],
+   "B": [
+    [
+     0,
+     22
+    ],
+    [
+     0,
+     6
+    ]
+   ],
+   "ell": 1,
+   "family": "bb",
+   "m": 23
+  },
+  "code_hash8": "976369b0",
+  "d_search": 6,
+  "family": "bb",
+  "source": "final:DeepSeek",
+  "fig2_plpr": 0.0002954979966107718,
+  "w": 4,
+  "n": 46,
+  "k": 2,
+  "label": "bb_976369b0~q24",
+  "control_label": "bb_976369b0",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 24,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 22
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     5
+    ]
+   ],
+   "B": [
+    [
+     0,
+     0
+    ],
+    [
+     2,
+     1
+    ]
+   ],
+   "ell": 3,
+   "family": "bb",
+   "m": 8
+  },
+  "code_hash8": "8008ca63",
+  "d_search": 6,
+  "family": "bb",
+  "source": "final:Claude",
+  "fig2_plpr": 0.0003138827369461028,
+  "w": 4,
+  "n": 48,
+  "k": 2,
+  "label": "bb_8008ca63~q24",
+  "control_label": "bb_8008ca63",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 24,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 24
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     0,
+     22
+    ],
+    [
+     0,
+     21
+    ]
+   ],
+   "B": [
+    [
+     0,
+     17
+    ],
+    [
+     0,
+     12
+    ]
+   ],
+   "ell": 1,
+   "family": "bb",
+   "m": 24
+  },
+  "code_hash8": "6700491d",
+  "d_search": 6,
+  "family": "bb",
+  "source": "final:DeepSeek",
+  "fig2_plpr": 0.00032057271197005743,
+  "w": 4,
+  "n": 48,
+  "k": 2,
+  "label": "bb_6700491d~q24",
+  "control_label": "bb_6700491d",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 24,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 24
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       1
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       5
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     24
+    ]
+   }
+  },
+  "code_hash8": "ef861bb3",
+  "d_search": 6,
+  "family": "lp_abelian",
+  "source": "final:GPT",
+  "fig2_plpr": 0.0003239100258309868,
+  "w": 4,
+  "n": 48,
+  "k": 2,
+  "label": "lp_ab_ef861bb3~q24",
+  "control_label": "lp_ab_ef861bb3",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 24,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 24
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       1
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       5
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     23
+    ]
+   }
+  },
+  "code_hash8": "87350a72",
+  "d_search": 6,
+  "family": "lp_abelian",
+  "source": "final:GPT",
+  "fig2_plpr": 0.00032725565641233967,
+  "w": 4,
+  "n": 46,
+  "k": 2,
+  "label": "lp_ab_87350a72~q23",
+  "control_label": "lp_ab_87350a72",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 23,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 23
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     2,
+     5
+    ],
+    [
+     3,
+     3
+    ]
+   ],
+   "B": [
+    [
+     3,
+     5
+    ],
+    [
+     3,
+     0
+    ]
+   ],
+   "ell": 4,
+   "family": "bb",
+   "m": 6
+  },
+  "code_hash8": "9f43df86",
+  "d_search": 6,
+  "family": "bb",
+  "source": "final:DeepSeek",
+  "fig2_plpr": 0.00035404362022395386,
+  "w": 4,
+  "n": 48,
+  "k": 2,
+  "label": "bb_9f43df86~q0",
+  "control_label": "bb_9f43df86",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 0,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 39
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     2,
+     5
+    ],
+    [
+     3,
+     3
+    ]
+   ],
+   "B": [
+    [
+     3,
+     5
+    ],
+    [
+     3,
+     0
+    ]
+   ],
+   "ell": 4,
+   "family": "bb",
+   "m": 6
+  },
+  "code_hash8": "9f43df86",
+  "d_search": 6,
+  "family": "bb",
+  "source": "final:DeepSeek",
+  "fig2_plpr": 0.00035404362022395386,
+  "w": 4,
+  "n": 48,
+  "k": 2,
+  "label": "bb_9f43df86~q25",
+  "control_label": "bb_9f43df86",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 25,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 39
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       1
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       17
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     24
+    ]
+   }
+  },
+  "code_hash8": "0e320cde",
+  "d_search": 6,
+  "family": "lp_abelian",
+  "source": "final:DeepSeek+GPT",
+  "fig2_plpr": 0.00035904527594643465,
+  "w": 4,
+  "n": 48,
+  "k": 2,
+  "label": "lp_ab_0e320cde~q24",
+  "control_label": "lp_ab_0e320cde",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 24,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 24
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       15
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       5
+      ],
+      [
+       16
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     24
+    ]
+   }
+  },
+  "code_hash8": "eec5cc39",
+  "d_search": 7,
+  "family": "lp_abelian",
+  "source": "final:Claude",
+  "fig2_plpr": 0.0003732662055092595,
+  "w": 5,
+  "n": 48,
+  "k": 4,
+  "label": "lp_ab_eec5cc39~q5",
+  "control_label": "lp_ab_eec5cc39",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 5,
+   "proxy_d_x": 6,
+   "proxy_d_z": 7
+  },
+  "n_valid_children": 26
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       15
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       5
+      ],
+      [
+       16
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     24
+    ]
+   }
+  },
+  "code_hash8": "eec5cc39",
+  "d_search": 7,
+  "family": "lp_abelian",
+  "source": "final:Claude",
+  "fig2_plpr": 0.0003732662055092595,
+  "w": 5,
+  "n": 48,
+  "k": 4,
+  "label": "lp_ab_eec5cc39~q26",
+  "control_label": "lp_ab_eec5cc39",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 26,
+   "proxy_d_x": 6,
+   "proxy_d_z": 7
+  },
+  "n_valid_children": 26
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     0,
+     17
+    ],
+    [
+     0,
+     20
+    ]
+   ],
+   "B": [
+    [
+     0,
+     2
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     0,
+     10
+    ]
+   ],
+   "ell": 1,
+   "family": "bb",
+   "m": 24
+  },
+  "code_hash8": "2bddcc45",
+  "d_search": 7,
+  "family": "bb",
+  "source": "search:DeepSeek",
+  "fig2_plpr": 0.00037327950348142735,
+  "w": 5,
+  "n": 48,
+  "k": 4,
+  "label": "bb_2bddcc45~q2",
+  "control_label": "bb_2bddcc45",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 2,
+   "proxy_d_x": 6,
+   "proxy_d_z": 7
+  },
+  "n_valid_children": 27
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     0,
+     17
+    ],
+    [
+     0,
+     20
+    ]
+   ],
+   "B": [
+    [
+     0,
+     2
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     0,
+     10
+    ]
+   ],
+   "ell": 1,
+   "family": "bb",
+   "m": 24
+  },
+  "code_hash8": "2bddcc45",
+  "d_search": 7,
+  "family": "bb",
+  "source": "search:DeepSeek",
+  "fig2_plpr": 0.00037327950348142735,
+  "w": 5,
+  "n": 48,
+  "k": 4,
+  "label": "bb_2bddcc45~q26",
+  "control_label": "bb_2bddcc45",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 26,
+   "proxy_d_x": 6,
+   "proxy_d_z": 7
+  },
+  "n_valid_children": 27
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       1,
+       1
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     6,
+     4
+    ]
+   }
+  },
+  "code_hash8": "08d36455",
+  "d_search": 6,
+  "family": "lp_abelian",
+  "source": "final:GPT",
+  "fig2_plpr": 0.0003874924999685003,
+  "w": 4,
+  "n": 48,
+  "k": 2,
+  "label": "lp_ab_08d36455~q20",
+  "control_label": "lp_ab_08d36455",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 20,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 24
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       1,
+       1
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     6,
+     4
+    ]
+   }
+  },
+  "code_hash8": "08d36455",
+  "d_search": 6,
+  "family": "lp_abelian",
+  "source": "final:GPT",
+  "fig2_plpr": 0.0003874924999685003,
+  "w": 4,
+  "n": 48,
+  "k": 2,
+  "label": "lp_ab_08d36455~q28",
+  "control_label": "lp_ab_08d36455",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 28,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 24
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     1
+    ]
+   ],
+   "B": [
+    [
+     0,
+     0
+    ],
+    [
+     2,
+     5
+    ]
+   ],
+   "ell": 4,
+   "family": "bb",
+   "m": 6
+  },
+  "code_hash8": "8f953b44",
+  "d_search": 6,
+  "family": "bb",
+  "source": "final:Claude",
+  "fig2_plpr": 0.00038749471966714744,
+  "w": 4,
+  "n": 48,
+  "k": 2,
+  "label": "bb_8f953b44~q0",
+  "control_label": "bb_8f953b44",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 0,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 39
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     1
+    ]
+   ],
+   "B": [
+    [
+     0,
+     0
+    ],
+    [
+     2,
+     5
+    ]
+   ],
+   "ell": 4,
+   "family": "bb",
+   "m": 6
+  },
+  "code_hash8": "8f953b44",
+  "d_search": 6,
+  "family": "bb",
+  "source": "final:Claude",
+  "fig2_plpr": 0.00038749471966714744,
+  "w": 4,
+  "n": 48,
+  "k": 2,
+  "label": "bb_8f953b44~q24",
+  "control_label": "bb_8f953b44",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 24,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 39
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ]
+     ],
+     [
+      [
+       1
+      ]
+     ]
+    ],
+    [
+     [
+      [
+       3
+      ]
+     ],
+     [
+      [
+       7
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       1
+      ],
+      [
+       5
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     12
+    ]
+   }
+  },
+  "code_hash8": "9133c929",
+  "d_search": 6,
+  "family": "lp_abelian",
+  "source": "search:Claude",
+  "fig2_plpr": 0.0004657265540086719,
+  "w": 5,
+  "n": 48,
+  "k": 4,
+  "label": "lp_ab_9133c929~q3",
+  "control_label": "lp_ab_9133c929",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 3,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 28
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ]
+     ],
+     [
+      [
+       1
+      ]
+     ]
+    ],
+    [
+     [
+      [
+       3
+      ]
+     ],
+     [
+      [
+       7
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       1
+      ],
+      [
+       5
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     12
+    ]
+   }
+  },
+  "code_hash8": "9133c929",
+  "d_search": 6,
+  "family": "lp_abelian",
+  "source": "search:Claude",
+  "fig2_plpr": 0.0004657265540086719,
+  "w": 5,
+  "n": 48,
+  "k": 4,
+  "label": "lp_ab_9133c929~q26",
+  "control_label": "lp_ab_9133c929",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 26,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 28
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       1,
+       3
+      ],
+      [
+       0,
+       5
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       2,
+       1
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_nonabelian",
+   "group": "C3:C8(2)"
+  },
+  "code_hash8": "368a9962",
+  "d_search": 6,
+  "family": "lp_nonabelian",
+  "source": "final:Claude",
+  "fig2_plpr": 0.000476250345177176,
+  "w": 5,
+  "n": 48,
+  "k": 2,
+  "label": "lp_no_368a9962~q3",
+  "control_label": "lp_no_368a9962",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 3,
+   "proxy_d_x": 5,
+   "proxy_d_z": 6
+  },
+  "n_valid_children": 13
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     2
+    ]
+   ],
+   "B": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     5
+    ]
+   ],
+   "ell": 4,
+   "family": "bb",
+   "m": 6
+  },
+  "code_hash8": "ef3ff106",
+  "d_search": 8,
+  "family": "bb",
+  "source": "search:Claude",
+  "fig2_plpr": 0.0007068247256141191,
+  "w": 6,
+  "n": 48,
+  "k": 2,
+  "label": "bb_ef3ff106~q24",
+  "control_label": "bb_ef3ff106",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 24,
+   "proxy_d_x": 7,
+   "proxy_d_z": 8
+  },
+  "n_valid_children": 24
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       1
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       3
+      ],
+      [
+       9
+      ],
+      [
+       14
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     24
+    ]
+   }
+  },
+  "code_hash8": "9ff0fc8b",
+  "d_search": 8,
+  "family": "lp_abelian",
+  "source": "search:GPT",
+  "fig2_plpr": 0.0007068264189014073,
+  "w": 6,
+  "n": 48,
+  "k": 2,
+  "label": "lp_ab_9ff0fc8b~q24",
+  "control_label": "lp_ab_9ff0fc8b",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 24,
+   "proxy_d_x": 7,
+   "proxy_d_z": 8
+  },
+  "n_valid_children": 24
+ },
+ {
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       1
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       3
+      ],
+      [
+       8
+      ],
+      [
+       13
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     24
+    ]
+   }
+  },
+  "code_hash8": "1f15c709",
+  "d_search": 8,
+  "family": "lp_abelian",
+  "source": "search:GPT",
+  "fig2_plpr": 0.0007262988522999114,
+  "w": 6,
+  "n": 48,
+  "k": 2,
+  "label": "lp_ab_1f15c709~q24",
+  "control_label": "lp_ab_1f15c709",
+  "child": {
+   "construction": "freeze_qubit",
+   "freeze_qubit": 24,
+   "proxy_d_x": 7,
+   "proxy_d_z": 8
+  },
+  "n_valid_children": 24
+ }
+]

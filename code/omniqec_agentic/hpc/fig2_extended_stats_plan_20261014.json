@@ -1,0 +1,1953 @@
+{
+ "schema": "fig2_extended_stats_plan",
+ "version": "extended_stats_v1",
+ "created": "2026-10-14",
+ "target": "at least 30 failures per basis; from round 3 the extension shots are uniform within each budget point",
+ "seed_namespace": "extended_stats_v1",
+ "items": [
+  {
+   "key": "b220_claudesub_fdc58a86",
+   "budget": 220,
+   "arm": "Claude",
+   "source_run": "fig2_claudesub_b220_v37",
+   "role": "champion",
+   "program_id": "g0004_p0013",
+   "code_hash": "fdc58a86a389fbea4bc2649a",
+   "family": "lp_abelian",
+   "n": 108,
+   "k": 4,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        1,
+        0
+       ],
+       [
+        0,
+        0,
+        2
+       ]
+      ]
+     ]
+    ],
+    "B": [
+     [
+      [
+       [
+        1,
+        0,
+        1
+       ],
+       [
+        0,
+        1,
+        4
+       ],
+       [
+        0,
+        0,
+        3
+       ]
+      ]
+     ]
+    ],
+    "family": "lp_abelian",
+    "group": {
+     "factors": [
+      2,
+      3,
+      9
+     ]
+    }
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 4,
+   "formal_failures_z": 5,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 7.5006552873180254e-06,
+   "formal_rounds": 12,
+   "shots_per_basis": 250000,
+   "expected_failures_per_basis": 45
+  },
+  {
+   "key": "b220_deepseek_375b9f1b",
+   "budget": 220,
+   "arm": "DeepSeek",
+   "source_run": "fig2_deepseek_b220_v37",
+   "role": "champion",
+   "program_id": "g0001_p0006_s24",
+   "code_hash": "375b9f1b787c74b6f6a2664b",
+   "family": "bb",
+   "n": 108,
+   "k": 4,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      0,
+      8
+     ],
+     [
+      1,
+      10
+     ],
+     [
+      1,
+      15
+     ]
+    ],
+    "B": [
+     [
+      0,
+      13
+     ],
+     [
+      0,
+      15
+     ],
+     [
+      1,
+      23
+     ]
+    ],
+    "ell": 2,
+    "family": "bb",
+    "m": 27
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 8,
+   "formal_failures_z": 9,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 1.4168983504037058e-05,
+   "formal_rounds": 12,
+   "shots_per_basis": 150000,
+   "expected_failures_per_basis": 51
+  },
+  {
+   "key": "b220_gptsub_2d831ee3",
+   "budget": 220,
+   "arm": "GPT",
+   "source_run": "fig2_gptsub_b220_v37",
+   "role": "champion",
+   "program_id": "g0003_p0006",
+   "code_hash": "2d831ee3bc1d04b2e4007d5b",
+   "family": "lp_abelian",
+   "n": 106,
+   "k": 2,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      [
+       [
+        0
+       ],
+       [
+        1
+       ]
+      ]
+     ]
+    ],
+    "B": [
+     [
+      [
+       [
+        0
+       ],
+       [
+        9
+       ],
+       [
+        22
+       ],
+       [
+        34
+       ]
+      ]
+     ]
+    ],
+    "family": "lp_abelian",
+    "group": {
+     "factors": [
+      53
+     ]
+    }
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 7,
+   "formal_failures_z": 4,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 1.833533226758277e-05,
+   "formal_rounds": 12,
+   "shots_per_basis": 250000,
+   "expected_failures_per_basis": 55
+  },
+  {
+   "key": "b260_claudesub_831a2b3a",
+   "budget": 260,
+   "arm": "Claude",
+   "source_run": "fig2_claudesub_b260_v37",
+   "role": "champion",
+   "program_id": "g0002_p0005",
+   "code_hash": "831a2b3aff5cbde3cc590fea",
+   "family": "bb",
+   "n": 126,
+   "k": 4,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      4,
+      8
+     ]
+    ],
+    "B": [
+     [
+      0,
+      0
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      6,
+      7
+     ]
+    ],
+    "ell": 7,
+    "family": "bb",
+    "m": 9
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 2,
+   "formal_failures_z": 4,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 5.000320863701724e-06,
+   "formal_rounds": 12,
+   "shots_per_basis": 400000,
+   "expected_failures_per_basis": 48
+  },
+  {
+   "key": "b260_deepseek_3fbc3c7c",
+   "budget": 260,
+   "arm": "DeepSeek",
+   "source_run": "fig2_deepseek_b260_v37",
+   "role": "champion",
+   "program_id": "g0002_p0015_s31",
+   "code_hash": "3fbc3c7c1574377982aa2f57",
+   "family": "bb",
+   "n": 126,
+   "k": 4,
+   "d_search": 11,
+   "max_check_weight": 5,
+   "spec": {
+    "A": [
+     [
+      3,
+      3
+     ],
+     [
+      4,
+      0
+     ]
+    ],
+    "B": [
+     [
+      6,
+      0
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      0,
+      4
+     ]
+    ],
+    "ell": 7,
+    "family": "bb",
+    "m": 9
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 4,
+   "formal_failures_z": 3,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 5.8337330242075325e-06,
+   "formal_rounds": 12,
+   "shots_per_basis": 350000,
+   "expected_failures_per_basis": 49
+  },
+  {
+   "key": "b260_gptsub_bafb3be3",
+   "budget": 260,
+   "arm": "GPT",
+   "source_run": "fig2_gptsub_b260_v37",
+   "role": "champion",
+   "program_id": "g0001_p0001",
+   "code_hash": "bafb3be39e79d20352e781b2",
+   "family": "bb",
+   "n": 126,
+   "k": 4,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      3
+     ],
+     [
+      2,
+      13
+     ]
+    ],
+    "B": [
+     [
+      1,
+      0
+     ],
+     [
+      0,
+      8
+     ],
+     [
+      2,
+      18
+     ]
+    ],
+    "ell": 3,
+    "family": "bb",
+    "m": 21
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 1,
+   "formal_failures_z": 3,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 3.3334944563589985e-06,
+   "formal_rounds": 12,
+   "shots_per_basis": 500000,
+   "expected_failures_per_basis": 40
+  },
+  {
+   "key": "b288_claudesub_3786d18d",
+   "budget": 288,
+   "arm": "Claude",
+   "source_run": "fig2_claudesub_b288_v37",
+   "role": "champion",
+   "program_id": "g0003_p0014_s20",
+   "code_hash": "3786d18d773006a29327958d",
+   "family": "bb",
+   "n": 144,
+   "k": 4,
+   "d_search": 16,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      0,
+      0
+     ],
+     [
+      7,
+      1
+     ],
+     [
+      2,
+      5
+     ]
+    ],
+    "B": [
+     [
+      1,
+      0
+     ],
+     [
+      7,
+      1
+     ],
+     [
+      1,
+      5
+     ]
+    ],
+    "ell": 8,
+    "family": "bb",
+    "m": 9
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 1,
+   "formal_failures_z": 4,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 3.125207638232652e-06,
+   "formal_rounds": 16,
+   "shots_per_basis": 450000,
+   "expected_failures_per_basis": 45
+  },
+  {
+   "key": "b288_deepseek_efac54e4",
+   "budget": 288,
+   "arm": "DeepSeek",
+   "source_run": "fig2_deepseek_b288_v37",
+   "role": "champion",
+   "program_id": "g0001_p0007_s28",
+   "code_hash": "efac54e487dc388c1556524d",
+   "family": "bb",
+   "n": 140,
+   "k": 6,
+   "d_search": 14,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      4,
+      4
+     ],
+     [
+      1,
+      13
+     ],
+     [
+      4,
+      10
+     ]
+    ],
+    "B": [
+     [
+      3,
+      0
+     ],
+     [
+      1,
+      12
+     ],
+     [
+      3,
+      11
+     ]
+    ],
+    "ell": 5,
+    "family": "bb",
+    "m": 14
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 2,
+   "formal_failures_z": 3,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 2.3810733645879267e-06,
+   "formal_rounds": 14,
+   "shots_per_basis": 450000,
+   "expected_failures_per_basis": 45
+  },
+  {
+   "key": "b288_gptsub_8fa59d8e",
+   "budget": 288,
+   "arm": "GPT",
+   "source_run": "fig2_gptsub_b288_v37",
+   "role": "champion",
+   "program_id": "g0002_p0012",
+   "code_hash": "8fa59d8e37e03dfe12759680",
+   "family": "lp_abelian",
+   "n": 144,
+   "k": 4,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0
+       ]
+      ]
+     ],
+     [
+      [
+       [
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0
+       ],
+       [
+        0,
+        1
+       ]
+      ]
+     ]
+    ],
+    "B": [
+     [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        2
+       ],
+       [
+        4,
+        3
+       ]
+      ]
+     ]
+    ],
+    "family": "lp_abelian",
+    "group": {
+     "factors": [
+      6,
+      6
+     ]
+    }
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 3,
+   "formal_failures_z": 1,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 3.3334944563589985e-06,
+   "formal_rounds": 12,
+   "shots_per_basis": 500000,
+   "expected_failures_per_basis": 40
+  },
+  {
+   "key": "b320_claudesub_e64ec9c0",
+   "budget": 320,
+   "arm": "Claude",
+   "source_run": "fig2_claudesub_b320_v37",
+   "role": "champion",
+   "program_id": "g0002_p0007",
+   "code_hash": "e64ec9c0ad74d8dc15511794",
+   "family": "bb",
+   "n": 150,
+   "k": 4,
+   "d_search": 14,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      8
+     ],
+     [
+      2,
+      21
+     ]
+    ],
+    "B": [
+     [
+      0,
+      3
+     ],
+     [
+      1,
+      14
+     ],
+     [
+      2,
+      9
+     ]
+    ],
+    "ell": 3,
+    "family": "bb",
+    "m": 25
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 1,
+   "formal_failures_z": 1,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 1.428598980335316e-06,
+   "formal_rounds": 14,
+   "shots_per_basis": 500000,
+   "expected_failures_per_basis": 20
+  },
+  {
+   "key": "b320_deepseek_71f1718d",
+   "budget": 320,
+   "arm": "DeepSeek",
+   "source_run": "fig2_deepseek_b320_v37",
+   "role": "champion",
+   "program_id": "g0001_p0002_s18",
+   "code_hash": "71f1718d0549c9559f10384e",
+   "family": "bb",
+   "n": 156,
+   "k": 4,
+   "d_search": 15,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      2,
+      14
+     ],
+     [
+      1,
+      2
+     ]
+    ],
+    "B": [
+     [
+      2,
+      7
+     ],
+     [
+      2,
+      10
+     ],
+     [
+      2,
+      25
+     ],
+     [
+      0,
+      18
+     ]
+    ],
+    "ell": 3,
+    "family": "bb",
+    "m": 26
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 2,
+   "formal_failures_z": 0,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 1.3333857805664096e-06,
+   "formal_rounds": 15,
+   "shots_per_basis": 500000,
+   "expected_failures_per_basis": 20
+  },
+  {
+   "key": "b320_gptsub_91135d36",
+   "budget": 320,
+   "arm": "GPT",
+   "source_run": "fig2_gptsub_b320_v37",
+   "role": "champion",
+   "program_id": "g0002_p0016",
+   "code_hash": "91135d36ea82222e9c785dbe",
+   "family": "lp_abelian",
+   "n": 160,
+   "k": 4,
+   "d_search": 13,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      [
+       [
+        0
+       ],
+       [
+        1
+       ]
+      ],
+      [
+       [
+        0
+       ],
+       [
+        9
+       ]
+      ]
+     ],
+     [
+      [
+       [
+        0
+       ],
+       [
+        14
+       ]
+      ],
+      [
+       [
+        0
+       ],
+       [
+        21
+       ]
+      ]
+     ]
+    ],
+    "B": [
+     [
+      [
+       [
+        0
+       ],
+       [
+        17
+       ]
+      ]
+     ]
+    ],
+    "family": "lp_abelian",
+    "group": {
+     "factors": [
+      40
+     ]
+    }
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 2,
+   "formal_failures_z": 3,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 3.84634646333204e-06,
+   "formal_rounds": 13,
+   "shots_per_basis": 450000,
+   "expected_failures_per_basis": 45
+  },
+  {
+   "key": "b360_claudesub_356c1030",
+   "budget": 360,
+   "arm": "Claude",
+   "source_run": "fig2_claudesub_b360_v37",
+   "role": "champion",
+   "program_id": "g0003_p0006",
+   "code_hash": "356c10301a09abc15b6fd65e",
+   "family": "bb",
+   "n": 180,
+   "k": 8,
+   "d_search": 14,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      0,
+      9
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      2,
+      0
+     ]
+    ],
+    "B": [
+     [
+      3,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ]
+    ],
+    "canonicalized": true,
+    "ell": 6,
+    "family": "bb",
+    "m": 15
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 0,
+   "formal_failures_z": 0,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 0.0,
+   "formal_rounds": 14,
+   "shots_per_basis": 500000,
+   "expected_failures_per_basis": 154
+  },
+  {
+   "key": "b360_deepseek_fffe0bb8",
+   "budget": 360,
+   "arm": "DeepSeek",
+   "source_run": "fig2_deepseek_b360_v37",
+   "role": "champion",
+   "program_id": "g0001_p0001_s10",
+   "code_hash": "fffe0bb8db1980a2ee3c3c3c",
+   "family": "bb",
+   "n": 180,
+   "k": 8,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      1,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      6,
+      9
+     ]
+    ],
+    "B": [
+     [
+      2,
+      2
+     ],
+     [
+      7,
+      8
+     ],
+     [
+      4,
+      1
+     ]
+    ],
+    "ell": 9,
+    "family": "bb",
+    "m": 10
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 0,
+   "formal_failures_z": 0,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 0.0,
+   "formal_rounds": 12,
+   "shots_per_basis": 500000,
+   "expected_failures_per_basis": 154
+  },
+  {
+   "key": "b360_gptsub_41d7ed82",
+   "budget": 360,
+   "arm": "GPT",
+   "source_run": "fig2_gptsub_b360_v37",
+   "role": "champion",
+   "program_id": "g0002_p0012",
+   "code_hash": "41d7ed829b6bc8034191a51d",
+   "family": "lp_abelian",
+   "n": 180,
+   "k": 4,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ],
+       [
+        0,
+        5
+       ],
+       [
+        5,
+        12
+       ]
+      ]
+     ]
+    ],
+    "B": [
+     [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        0,
+        1
+       ]
+      ]
+     ]
+    ],
+    "family": "lp_abelian",
+    "group": {
+     "factors": [
+      6,
+      15
+     ]
+    }
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 2,
+   "formal_failures_z": 0,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 1.6667319479024556e-06,
+   "formal_rounds": 12,
+   "shots_per_basis": 500000,
+   "expected_failures_per_basis": 20
+  },
+  {
+   "key": "b144_ref_3c631986",
+   "budget": 144,
+   "arm": "reference",
+   "source_run": "fig2_gptsub_b144_v37",
+   "role": "reference",
+   "program_id": "baseline_bb_72_12_6",
+   "code_hash": null,
+   "family": "bb",
+   "n": 72,
+   "k": 12,
+   "d_search": 6,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      3,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ]
+    ],
+    "B": [
+     [
+      0,
+      3
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      2,
+      0
+     ]
+    ],
+    "ell": 6,
+    "family": "bb",
+    "m": 6
+   },
+   "spec_source": "campaign_report baseline",
+   "formal_failures_x": null,
+   "formal_failures_z": null,
+   "formal_shots_per_basis": 4250,
+   "formal_plpr": 0.0003843720064510281,
+   "formal_rounds": 12,
+   "shots_per_basis": 50000,
+   "expected_failures_per_basis": null
+  },
+  {
+   "key": "b288_ref_39b6b714",
+   "budget": 288,
+   "arm": "reference",
+   "source_run": "fig2_gptsub_b288_v37",
+   "role": "reference",
+   "program_id": "baseline_bb_144_12_12",
+   "code_hash": null,
+   "family": "bb",
+   "n": 144,
+   "k": 12,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      3,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ]
+    ],
+    "B": [
+     [
+      0,
+      3
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      2,
+      0
+     ]
+    ],
+    "ell": 12,
+    "family": "bb",
+    "m": 6
+   },
+   "spec_source": "campaign_report baseline",
+   "formal_failures_x": null,
+   "formal_failures_z": null,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 8.892596161325095e-06,
+   "formal_rounds": 12,
+   "shots_per_basis": 100000,
+   "expected_failures_per_basis": null
+  },
+  {
+   "key": "b320_claudesub_e64ec9c0_r2",
+   "budget": 320,
+   "arm": "Claude",
+   "source_run": "fig2_claudesub_b320_v37",
+   "role": "champion",
+   "program_id": "g0002_p0007",
+   "code_hash": "e64ec9c0ad74d8dc15511794",
+   "family": "bb",
+   "n": 150,
+   "k": 4,
+   "d_search": 14,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      8
+     ],
+     [
+      2,
+      21
+     ]
+    ],
+    "B": [
+     [
+      0,
+      3
+     ],
+     [
+      1,
+      14
+     ],
+     [
+      2,
+      9
+     ]
+    ],
+    "ell": 3,
+    "family": "bb",
+    "m": 25
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 1,
+   "formal_failures_z": 1,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 1.428598980335316e-06,
+   "formal_rounds": 14,
+   "shots_per_basis": 350000,
+   "expected_failures_per_basis": null,
+   "base_key": "b320_claudesub_e64ec9c0",
+   "seed_namespace": "extended_stats_v1_r2",
+   "note": "top-up round 2 (2026-10-14 18:10): round 1 gave < 30 failures per basis"
+  },
+  {
+   "key": "b360_claudesub_356c1030_r2",
+   "budget": 360,
+   "arm": "Claude",
+   "source_run": "fig2_claudesub_b360_v37",
+   "role": "champion",
+   "program_id": "g0003_p0006",
+   "code_hash": "356c10301a09abc15b6fd65e",
+   "family": "bb",
+   "n": 180,
+   "k": 8,
+   "d_search": 14,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      0,
+      9
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      2,
+      0
+     ]
+    ],
+    "B": [
+     [
+      3,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      2
+     ]
+    ],
+    "canonicalized": true,
+    "ell": 6,
+    "family": "bb",
+    "m": 15
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 0,
+   "formal_failures_z": 0,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 0.0,
+   "formal_rounds": 14,
+   "shots_per_basis": 1200000,
+   "expected_failures_per_basis": null,
+   "base_key": "b360_claudesub_356c1030",
+   "seed_namespace": "extended_stats_v1_r2",
+   "note": "top-up round 2 (2026-10-14 18:10): round 1 gave < 30 failures per basis"
+  },
+  {
+   "key": "b360_deepseek_fffe0bb8_r2",
+   "budget": 360,
+   "arm": "DeepSeek",
+   "source_run": "fig2_deepseek_b360_v37",
+   "role": "champion",
+   "program_id": "g0001_p0001_s10",
+   "code_hash": "fffe0bb8db1980a2ee3c3c3c",
+   "family": "bb",
+   "n": 180,
+   "k": 8,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      1,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      6,
+      9
+     ]
+    ],
+    "B": [
+     [
+      2,
+      2
+     ],
+     [
+      7,
+      8
+     ],
+     [
+      4,
+      1
+     ]
+    ],
+    "ell": 9,
+    "family": "bb",
+    "m": 10
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 0,
+   "formal_failures_z": 0,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 0.0,
+   "formal_rounds": 12,
+   "shots_per_basis": 500000,
+   "expected_failures_per_basis": null,
+   "base_key": "b360_deepseek_fffe0bb8",
+   "seed_namespace": "extended_stats_v1_r2",
+   "note": "top-up round 2 (2026-10-14 18:10): round 1 gave < 30 failures per basis"
+  },
+  {
+   "key": "b220_deepseek_375b9f1b_r3",
+   "budget": 220,
+   "arm": "DeepSeek",
+   "source_run": "fig2_deepseek_b220_v37",
+   "role": "champion",
+   "program_id": "g0001_p0006_s24",
+   "code_hash": "375b9f1b787c74b6f6a2664b",
+   "family": "bb",
+   "n": 108,
+   "k": 4,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      0,
+      8
+     ],
+     [
+      1,
+      10
+     ],
+     [
+      1,
+      15
+     ]
+    ],
+    "B": [
+     [
+      0,
+      13
+     ],
+     [
+      0,
+      15
+     ],
+     [
+      1,
+      23
+     ]
+    ],
+    "ell": 2,
+    "family": "bb",
+    "m": 27
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 8,
+   "formal_failures_z": 9,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 1.4168983504037058e-05,
+   "formal_rounds": 12,
+   "shots_per_basis": 100000,
+   "expected_failures_per_basis": null,
+   "base_key": "b220_deepseek_375b9f1b",
+   "seed_namespace": "extended_stats_v1_r3",
+   "note": "round 3 (2026-10-15): per-point uniform extension, 250000 shots per basis per arm; this item tops the code up from 150000"
+  },
+  {
+   "key": "b260_claudesub_831a2b3a_r3",
+   "budget": 260,
+   "arm": "Claude",
+   "source_run": "fig2_claudesub_b260_v37",
+   "role": "champion",
+   "program_id": "g0002_p0005",
+   "code_hash": "831a2b3aff5cbde3cc590fea",
+   "family": "bb",
+   "n": 126,
+   "k": 4,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      4
+     ],
+     [
+      4,
+      8
+     ]
+    ],
+    "B": [
+     [
+      0,
+      0
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      6,
+      7
+     ]
+    ],
+    "ell": 7,
+    "family": "bb",
+    "m": 9
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 2,
+   "formal_failures_z": 4,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 5.000320863701724e-06,
+   "formal_rounds": 12,
+   "shots_per_basis": 100000,
+   "expected_failures_per_basis": null,
+   "base_key": "b260_claudesub_831a2b3a",
+   "seed_namespace": "extended_stats_v1_r3",
+   "note": "round 3 (2026-10-15): per-point uniform extension, 500000 shots per basis per arm; this item tops the code up from 400000"
+  },
+  {
+   "key": "b260_deepseek_3fbc3c7c_r3",
+   "budget": 260,
+   "arm": "DeepSeek",
+   "source_run": "fig2_deepseek_b260_v37",
+   "role": "champion",
+   "program_id": "g0002_p0015_s31",
+   "code_hash": "3fbc3c7c1574377982aa2f57",
+   "family": "bb",
+   "n": 126,
+   "k": 4,
+   "d_search": 11,
+   "max_check_weight": 5,
+   "spec": {
+    "A": [
+     [
+      3,
+      3
+     ],
+     [
+      4,
+      0
+     ]
+    ],
+    "B": [
+     [
+      6,
+      0
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      0,
+      4
+     ]
+    ],
+    "ell": 7,
+    "family": "bb",
+    "m": 9
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 4,
+   "formal_failures_z": 3,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 5.8337330242075325e-06,
+   "formal_rounds": 12,
+   "shots_per_basis": 150000,
+   "expected_failures_per_basis": null,
+   "base_key": "b260_deepseek_3fbc3c7c",
+   "seed_namespace": "extended_stats_v1_r3",
+   "note": "round 3 (2026-10-15): per-point uniform extension, 500000 shots per basis per arm; this item tops the code up from 350000"
+  },
+  {
+   "key": "b288_claudesub_3786d18d_r3",
+   "budget": 288,
+   "arm": "Claude",
+   "source_run": "fig2_claudesub_b288_v37",
+   "role": "champion",
+   "program_id": "g0003_p0014_s20",
+   "code_hash": "3786d18d773006a29327958d",
+   "family": "bb",
+   "n": 144,
+   "k": 4,
+   "d_search": 16,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      0,
+      0
+     ],
+     [
+      7,
+      1
+     ],
+     [
+      2,
+      5
+     ]
+    ],
+    "B": [
+     [
+      1,
+      0
+     ],
+     [
+      7,
+      1
+     ],
+     [
+      1,
+      5
+     ]
+    ],
+    "ell": 8,
+    "family": "bb",
+    "m": 9
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 1,
+   "formal_failures_z": 4,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 3.125207638232652e-06,
+   "formal_rounds": 16,
+   "shots_per_basis": 50000,
+   "expected_failures_per_basis": null,
+   "base_key": "b288_claudesub_3786d18d",
+   "seed_namespace": "extended_stats_v1_r3",
+   "note": "round 3 (2026-10-15): per-point uniform extension, 500000 shots per basis per arm; this item tops the code up from 450000"
+  },
+  {
+   "key": "b288_deepseek_efac54e4_r3",
+   "budget": 288,
+   "arm": "DeepSeek",
+   "source_run": "fig2_deepseek_b288_v37",
+   "role": "champion",
+   "program_id": "g0001_p0007_s28",
+   "code_hash": "efac54e487dc388c1556524d",
+   "family": "bb",
+   "n": 140,
+   "k": 6,
+   "d_search": 14,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      4,
+      4
+     ],
+     [
+      1,
+      13
+     ],
+     [
+      4,
+      10
+     ]
+    ],
+    "B": [
+     [
+      3,
+      0
+     ],
+     [
+      1,
+      12
+     ],
+     [
+      3,
+      11
+     ]
+    ],
+    "ell": 5,
+    "family": "bb",
+    "m": 14
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 2,
+   "formal_failures_z": 3,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 2.3810733645879267e-06,
+   "formal_rounds": 14,
+   "shots_per_basis": 50000,
+   "expected_failures_per_basis": null,
+   "base_key": "b288_deepseek_efac54e4",
+   "seed_namespace": "extended_stats_v1_r3",
+   "note": "round 3 (2026-10-15): per-point uniform extension, 500000 shots per basis per arm; this item tops the code up from 450000"
+  },
+  {
+   "key": "b320_deepseek_71f1718d_r3",
+   "budget": 320,
+   "arm": "DeepSeek",
+   "source_run": "fig2_deepseek_b320_v37",
+   "role": "champion",
+   "program_id": "g0001_p0002_s18",
+   "code_hash": "71f1718d0549c9559f10384e",
+   "family": "bb",
+   "n": 156,
+   "k": 4,
+   "d_search": 15,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      2,
+      14
+     ],
+     [
+      1,
+      2
+     ]
+    ],
+    "B": [
+     [
+      2,
+      7
+     ],
+     [
+      2,
+      10
+     ],
+     [
+      2,
+      25
+     ],
+     [
+      0,
+      18
+     ]
+    ],
+    "ell": 3,
+    "family": "bb",
+    "m": 26
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 2,
+   "formal_failures_z": 0,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 1.3333857805664096e-06,
+   "formal_rounds": 15,
+   "shots_per_basis": 350000,
+   "expected_failures_per_basis": null,
+   "base_key": "b320_deepseek_71f1718d",
+   "seed_namespace": "extended_stats_v1_r3",
+   "note": "round 3 (2026-10-15): per-point uniform extension, 850000 shots per basis per arm; this item tops the code up from 500000"
+  },
+  {
+   "key": "b320_gptsub_91135d36_r3",
+   "budget": 320,
+   "arm": "GPT",
+   "source_run": "fig2_gptsub_b320_v37",
+   "role": "champion",
+   "program_id": "g0002_p0016",
+   "code_hash": "91135d36ea82222e9c785dbe",
+   "family": "lp_abelian",
+   "n": 160,
+   "k": 4,
+   "d_search": 13,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      [
+       [
+        0
+       ],
+       [
+        1
+       ]
+      ],
+      [
+       [
+        0
+       ],
+       [
+        9
+       ]
+      ]
+     ],
+     [
+      [
+       [
+        0
+       ],
+       [
+        14
+       ]
+      ],
+      [
+       [
+        0
+       ],
+       [
+        21
+       ]
+      ]
+     ]
+    ],
+    "B": [
+     [
+      [
+       [
+        0
+       ],
+       [
+        17
+       ]
+      ]
+     ]
+    ],
+    "family": "lp_abelian",
+    "group": {
+     "factors": [
+      40
+     ]
+    }
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 2,
+   "formal_failures_z": 3,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 3.84634646333204e-06,
+   "formal_rounds": 13,
+   "shots_per_basis": 400000,
+   "expected_failures_per_basis": null,
+   "base_key": "b320_gptsub_91135d36",
+   "seed_namespace": "extended_stats_v1_r3",
+   "note": "round 3 (2026-10-15): per-point uniform extension, 850000 shots per basis per arm; this item tops the code up from 450000"
+  },
+  {
+   "key": "b360_deepseek_fffe0bb8_r3",
+   "budget": 360,
+   "arm": "DeepSeek",
+   "source_run": "fig2_deepseek_b360_v37",
+   "role": "champion",
+   "program_id": "g0001_p0001_s10",
+   "code_hash": "fffe0bb8db1980a2ee3c3c3c",
+   "family": "bb",
+   "n": 180,
+   "k": 8,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      1,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      6,
+      9
+     ]
+    ],
+    "B": [
+     [
+      2,
+      2
+     ],
+     [
+      7,
+      8
+     ],
+     [
+      4,
+      1
+     ]
+    ],
+    "ell": 9,
+    "family": "bb",
+    "m": 10
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 0,
+   "formal_failures_z": 0,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 0.0,
+   "formal_rounds": 12,
+   "shots_per_basis": 700000,
+   "expected_failures_per_basis": null,
+   "base_key": "b360_deepseek_fffe0bb8",
+   "seed_namespace": "extended_stats_v1_r3",
+   "note": "round 3 (2026-10-15): per-point uniform extension, 1700000 shots per basis per arm; this item tops the code up from 1000000"
+  },
+  {
+   "key": "b360_gptsub_41d7ed82_r3",
+   "budget": 360,
+   "arm": "GPT",
+   "source_run": "fig2_gptsub_b360_v37",
+   "role": "champion",
+   "program_id": "g0002_p0012",
+   "code_hash": "41d7ed829b6bc8034191a51d",
+   "family": "lp_abelian",
+   "n": 180,
+   "k": 4,
+   "d_search": 12,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ],
+       [
+        0,
+        5
+       ],
+       [
+        5,
+        12
+       ]
+      ]
+     ]
+    ],
+    "B": [
+     [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        0,
+        1
+       ]
+      ]
+     ]
+    ],
+    "family": "lp_abelian",
+    "group": {
+     "factors": [
+      6,
+      15
+     ]
+    }
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 2,
+   "formal_failures_z": 0,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 1.6667319479024556e-06,
+   "formal_rounds": 12,
+   "shots_per_basis": 1200000,
+   "expected_failures_per_basis": null,
+   "base_key": "b360_gptsub_41d7ed82",
+   "seed_namespace": "extended_stats_v1_r3",
+   "note": "round 3 (2026-10-15): per-point uniform extension, 1700000 shots per basis per arm; this item tops the code up from 500000"
+  },
+  {
+   "key": "b180_claudesub_afc1499e",
+   "budget": 180,
+   "arm": "Claude",
+   "source_run": "fig2_claudesub_b180_v37",
+   "role": "champion",
+   "program_id": "g0001_p0013",
+   "code_hash": "afc1499eb17a992c17ddd919",
+   "family": "lp_abelian",
+   "n": 90,
+   "k": 4,
+   "d_search": 9,
+   "max_check_weight": 5,
+   "spec": {
+    "A": [
+     [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        1,
+        0,
+        2
+       ]
+      ]
+     ]
+    ],
+    "B": [
+     [
+      [
+       [
+        0,
+        0,
+        0
+       ],
+       [
+        0,
+        1,
+        1
+       ],
+       [
+        2,
+        2,
+        3
+       ]
+      ]
+     ]
+    ],
+    "family": "lp_abelian",
+    "group": {
+     "factors": [
+      3,
+      3,
+      5
+     ]
+    }
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 15,
+   "formal_failures_z": 20,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 2.9176662744601067e-05,
+   "formal_rounds": 12,
+   "shots_per_basis": 150000,
+   "expected_failures_per_basis": 105,
+   "note": "round 3 (2026-10-15): N = 180 added (formal 25k gave 9-20 failures per basis); per-point uniform 150k per basis per arm"
+  },
+  {
+   "key": "b180_deepseek_f8bdd97f",
+   "budget": 180,
+   "arm": "DeepSeek",
+   "source_run": "fig2_deepseek_b180_v37",
+   "role": "champion",
+   "program_id": "g0002_p0005_s10",
+   "code_hash": "f8bdd97f6b19a07ddde7567b",
+   "family": "bb",
+   "n": 90,
+   "k": 4,
+   "d_search": 9,
+   "max_check_weight": 5,
+   "spec": {
+    "A": [
+     [
+      4,
+      7
+     ],
+     [
+      0,
+      4
+     ]
+    ],
+    "B": [
+     [
+      1,
+      2
+     ],
+     [
+      4,
+      6
+     ],
+     [
+      2,
+      7
+     ]
+    ],
+    "canonicalized": true,
+    "ell": 5,
+    "family": "bb",
+    "m": 9
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 9,
+   "formal_failures_z": 16,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 2.0838735015904497e-05,
+   "formal_rounds": 12,
+   "shots_per_basis": 150000,
+   "expected_failures_per_basis": 75,
+   "note": "round 3 (2026-10-15): N = 180 added (formal 25k gave 9-20 failures per basis); per-point uniform 150k per basis per arm"
+  },
+  {
+   "key": "b180_gptsub_e1ccc801",
+   "budget": 180,
+   "arm": "GPT",
+   "source_run": "fig2_gptsub_b180_v37",
+   "role": "champion",
+   "program_id": "g0003_p0010",
+   "code_hash": "e1ccc8012f4fc4504794c8e2",
+   "family": "lp_abelian",
+   "n": 90,
+   "k": 2,
+   "d_search": 11,
+   "max_check_weight": 6,
+   "spec": {
+    "A": [
+     [
+      [
+       [
+        0
+       ],
+       [
+        1
+       ]
+      ]
+     ]
+    ],
+    "B": [
+     [
+      [
+       [
+        0
+       ],
+       [
+        7
+       ],
+       [
+        18
+       ],
+       [
+        31
+       ]
+      ]
+     ]
+    ],
+    "family": "lp_abelian",
+    "group": {
+     "factors": [
+      45
+     ]
+    }
+   },
+   "spec_source": "final candidate file",
+   "formal_failures_x": 10,
+   "formal_failures_z": 17,
+   "formal_shots_per_basis": 25000,
+   "formal_plpr": 4.501195885653342e-05,
+   "formal_rounds": 12,
+   "shots_per_basis": 150000,
+   "expected_failures_per_basis": 81,
+   "note": "round 3 (2026-10-15): N = 180 added (formal 25k gave 9-20 failures per basis); per-point uniform 150k per basis per arm"
+  }
+ ],
+ "rounds": {
+  "1": "2026-10-14 16:00 jobs 25805235-25805252",
+  "2": "top-up for codes under 30 failures per basis, namespace extended_stats_v1_r2",
+  "3": "2026-10-15: per-point uniform extension (the user's rule): every arm at a point gets the same extension shots per basis = the largest already measured at that point (b220 250k, b260 500k, b288 500k, b320 850k, b360 1.7M); N = 180 added at 150k (sized for >= 45 expected failures in the weakest basis, DeepSeek X 9/25k). Namespace extended_stats_v1_r3 for top-ups; the three new N = 180 codes use extended_stats_v1."
+ }
+}

@@ -1,0 +1,51 @@
+\begingroup
+\SetTblrTemplate{head}{normal}
+\SetTblrTemplate{foot}{normal}
+\DefTblrTemplate{caption-tag}{default}{\tablename\hspace{\fontdimen2\font}\thetable}
+\DefTblrTemplate{caption-sep}{default}{.\hspace{\fontdimen2\font}}
+\SetTblrStyle{caption,capcont}{font=\normalfont\small\rmfamily}
+\SetTblrTemplate{caption}{plain}
+\SetTblrTemplate{capcont}{plain}
+\footnotesize
+\nolinenumbers
+\begin{longtblr}[
+caption={Top-three constructions from the BO baseline in the transversal logical-CNOT experiments. All entries are BB codes. Ranks and $p_{\mathrm{LER}}$ values follow terminal measurements; finalists are ordered by $p_{\mathrm{LER}}$ and then by the upper bound of the interval. The interval is the 95\% Wilson score interval propagated to $p_{\mathrm{LER}}$. $d$ is the search-stage distance estimate, and $w$ is the maximum check-row weight. $N$ is the per-block resource budget, and $p_{\mathrm{LER}}$ is normalized over $2k$ logical qubits.},
+label={tab:bo-cnot-top3},
+]{
+width=\linewidth,
+colspec={X[0.55,c] X[0.60,c] X[0.85,c] X[0.90,l] X[2.20,l] X[2.40,l] X[0.45,c] X[1.30,c] X[2.35,c]},
+colsep=2pt, rowsep=3pt,
+cells={valign=m},
+row{1}={font=\bfseries}, rowhead=1,
+hline{1,2,Z}={0.5pt},
+}
+$N$ & Rank & $n,k,d$ & $G$ & $A$ & $B$ & $w$ & $p_{\mathrm{LER}}$ & 95\% interval \\
+60 & 1 & $26,2,5$ & $C_{13}$ & $y^{3} + y^{6}$ & $1 + y^{11}$ & 4 & $1.40\times10^{-3}$ & $[1.31\times10^{-3},\,1.50\times10^{-3}]$ \\
+60 & 2 & $30,4,5$ & $C_{15}$ & $y^{5} + y^{11}$ & $1 + y^{2} + y^{7}$ & 5 & $2.32\times10^{-3}$ & $[2.23\times10^{-3},\,2.41\times10^{-3}]$ \\
+60 & 3 & $30,2,5$ & $C_{15}$ & $y + y^{3} + y^{9} + y^{11}$ & $y^{5} + y^{8}$ & 6 & $4.06\times10^{-3}$ & $[3.90\times10^{-3},\,4.22\times10^{-3}]$ \\
+98 & 1 & $48,2,6$ & $C_{24}$ & $y^{13} + y^{16}$ & $y^{16} + y^{20}$ & 4 & $3.46\times10^{-4}$ & $[3.02\times10^{-4},\,3.97\times10^{-4}]$ \\
+98 & 2 & $46,2,6$ & $C_{23}$ & $y^{3} + y^{13}$ & $y^{14} + y^{18}$ & 4 & $4.21\times10^{-4}$ & $[3.72\times10^{-4},\,4.76\times10^{-4}]$ \\
+98 & 3 & $48,2,6$ & $C_{3}\times C_{8}$ & $y + x\,y^{2}$ & $y^{2} + x\,y^{5}$ & 4 & $4.29\times10^{-4}$ & $[3.79\times10^{-4},\,4.85\times10^{-4}]$ \\
+144 & 1 & $72,2,8$ & $C_{36}$ & $y^{8} + y^{9}$ & $y^{2} + y^{28}$ & 4 & $1.23\times10^{-4}$ & $[9.77\times10^{-5},\,1.54\times10^{-4}]$ \\
+144 & 2 & $70,2,7$ & $C_{5}\times C_{7}$ & $x^{2} + x^{2}\,y^{2}$ & $x\,y^{6} + x^{4}\,y^{2}$ & 4 & $1.34\times10^{-4}$ & $[1.07\times10^{-4},\,1.66\times10^{-4}]$ \\
+144 & 3 & $72,2,8$ & $C_{36}$ & $y^{3} + y^{18}$ & $y^{11} + y^{12}$ & 4 & $1.39\times10^{-4}$ & $[1.12\times10^{-4},\,1.72\times10^{-4}]$ \\
+180 & 1 & $88,2,9$ & $C_{44}$ & $y^{4} + y^{24}$ & $y^{9} + y^{28}$ & 4 & $7.34\times10^{-5}$ & $[5.47\times10^{-5},\,9.85\times10^{-5}]$ \\
+180 & 2 & $90,2,9$ & $C_{3}\times C_{15}$ & $x\,y^{2} + x^{2}\,y^{9}$ & $y^{13} + x\,y^{4}$ & 4 & $7.42\times10^{-5}$ & $[5.54\times10^{-5},\,9.95\times10^{-5}]$ \\
+180 & 3 & $84,2,7$ & $C_{6}\times C_{7}$ & $x^{3} + x^{4}\,y^{3}$ & $x^{2}\,y^{3} + x^{2}\,y^{4}$ & 4 & $7.76\times10^{-5}$ & $[5.82\times10^{-5},\,1.03\times10^{-4}]$ \\
+220 & 1 & $110,2,11$ & $C_{5}\times C_{11}$ & $x + x^{3}\,y$ & $y^{3} + y^{8} + x\,y^{7} + x^{3}$ & 6 & $4.42\times10^{-5}$ & $[3.09\times10^{-5},\,6.39\times10^{-5}]$ \\
+220 & 2 & $108,2,9$ & $C_{6}\times C_{9}$ & $y^{8} + x^{2}\,y^{6}$ & $x^{2}\,y^{7} + x^{5}$ & 4 & $8.01\times10^{-5}$ & $[6.04\times10^{-5},\,1.06\times10^{-4}]$ \\
+220 & 3 & $110,2,11$ & $C_{5}\times C_{11}$ & $1 + x^{2}\,y^{8}$ & $y^{6} + x^{2}\,y^{7} + x^{4}\,y^{8} + x^{4}\,y^{10}$ & 6 & $8.17\times10^{-5}$ & $[6.20\times10^{-5},\,1.08\times10^{-4}]$ \\
+260 & 1 & $122,2,13$ & $C_{61}$ & $y^{7} + y^{18} + y^{26} + y^{27}$ & $y^{13} + y^{28}$ & 6 & $3.42\times10^{-5}$ & $[2.26\times10^{-5},\,5.21\times10^{-5}]$ \\
+260 & 2 & $128,2,14$ & $C_{2}\times C_{32}$ & $y^{8} + x\,y^{18}$ & $y^{15} + x\,y^{3} + x\,y^{8} + x\,y^{27}$ & 6 & $3.50\times10^{-5}$ & $[2.32\times10^{-5},\,5.33\times10^{-5}]$ \\
+260 & 3 & $126,2,13$ & $C_{7}\times C_{9}$ & $y^{7} + x^{3}\,y^{5} + x^{5}\,y^{4} + x^{6}\,y^{5}$ & $x\,y^{2} + x^{6}\,y^{4}$ & 6 & $3.67\times10^{-5}$ & $[2.49\times10^{-5},\,5.48\times10^{-5}]$ \\
+288 & 1 & $130,2,13$ & $C_{5}\times C_{13}$ & $x^{2} + x^{4}\,y$ & $x^{2} + x^{2}\,y^{7} + x^{4}\,y^{7} + x^{4}\,y^{9}$ & 6 & $2.92\times10^{-5}$ & $[1.84\times10^{-5},\,4.64\times10^{-5}]$ \\
+288 & 2 & $140,2,14$ & $C_{5}\times C_{14}$ & $x\,y^{13} + x^{4}$ & $x\,y^{12} + x^{3}\,y^{10} + x^{4}\,y^{5} + x^{4}\,y^{7}$ & 6 & $3.42\times10^{-5}$ & $[2.27\times10^{-5},\,5.20\times10^{-5}]$ \\
+288 & 3 & $128,2,10$ & $C_{64}$ & $y^{19} + y^{46}$ & $y^{31} + y^{43}$ & 4 & $4.25\times10^{-5}$ & $[2.90\times10^{-5},\,6.24\times10^{-5}]$ \\
+320 & 1 & $158,2,13$ & $C_{79}$ & $y^{6} + y^{18}$ & $y^{22} + y^{32} + y^{36} + y^{55}$ & 6 & $2.08\times10^{-5}$ & $[1.23\times10^{-5},\,3.58\times10^{-5}]$ \\
+320 & 2 & $146,2,14$ & $C_{73}$ & $y^{51} + y^{69}$ & $y^{4} + y^{15} + y^{50} + y^{62}$ & 6 & $2.17\times10^{-5}$ & $[1.27\times10^{-5},\,3.70\times10^{-5}]$ \\
+320 & 3 & $148,2,15$ & $C_{74}$ & $y^{24} + y^{26}$ & $y^{25} + y^{39} + y^{47} + y^{56}$ & 6 & $2.50\times10^{-5}$ & $[1.53\times10^{-5},\,4.12\times10^{-5}]$ \\
+360 & 1 & $160,2,14$ & $C_{80}$ & $y^{15} + y^{16}$ & $y^{20} + y^{33} + y^{40} + y^{58}$ & 6 & $1.25\times10^{-5}$ & $[6.24\times10^{-6},\,2.52\times10^{-5}]$ \\
+360 & 2 & $168,2,13$ & $C_{3}\times C_{28}$ & $y^{25} + x\,y^{12}$ & $x + x\,y^{3} + x\,y^{5} + x\,y^{10}$ & 6 & $2.42\times10^{-5}$ & $[1.52\times10^{-5},\,3.95\times10^{-5}]$ \\
+360 & 3 & $178,2,16$ & $C_{89}$ & $y^{34} + y^{79}$ & $y^{16} + y^{19} + y^{26} + y^{36}$ & 6 & $2.75\times10^{-5}$ & $[1.72\times10^{-5},\,4.42\times10^{-5}]$ \\
+\end{longtblr}
+\endgroup

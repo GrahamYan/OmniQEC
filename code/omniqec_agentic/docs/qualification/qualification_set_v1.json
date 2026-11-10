@@ -1,0 +1,870 @@
+{
+  "codes": [
+    {
+      "anchor": false,
+      "d_proxy": 4,
+      "family": "bb",
+      "k": 4,
+      "n": 48,
+      "program_id": "bb_48",
+      "spec": {
+        "A": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "B": [
+          [
+            0,
+            2
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "ell": 4,
+        "family": "bb",
+        "m": 6
+      },
+      "total_qubits": 96
+    },
+    {
+      "anchor": true,
+      "d_proxy": 6,
+      "family": "bb",
+      "k": 12,
+      "n": 72,
+      "program_id": "bb_72_anchor",
+      "spec": {
+        "A": [
+          [
+            3,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ]
+        ],
+        "B": [
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "ell": 6,
+        "family": "bb",
+        "m": 6
+      },
+      "total_qubits": 144
+    },
+    {
+      "anchor": false,
+      "d_proxy": 6,
+      "family": "bb",
+      "k": 4,
+      "n": 90,
+      "program_id": "bb_90",
+      "spec": {
+        "A": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "B": [
+          [
+            0,
+            2
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "ell": 5,
+        "family": "bb",
+        "m": 9
+      },
+      "total_qubits": 180
+    },
+    {
+      "acceptance": {
+        "max_basis_ler": 0.005
+      },
+      "anchor": true,
+      "d_proxy": 12,
+      "family": "bb",
+      "k": 12,
+      "n": 144,
+      "program_id": "bb_144_anchor",
+      "spec": {
+        "A": [
+          [
+            3,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ]
+        ],
+        "B": [
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "ell": 12,
+        "family": "bb",
+        "m": 6
+      },
+      "total_qubits": 288
+    },
+    {
+      "anchor": false,
+      "d_proxy": 4,
+      "family": "hgp",
+      "k": 2,
+      "n": 32,
+      "program_id": "hgp_c4",
+      "spec": {
+        "family": "hgp",
+        "seeds": {
+          "H1": [
+            [
+              1,
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              1,
+              0,
+              0,
+              1
+            ]
+          ],
+          "H2": [
+            [
+              1,
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              1,
+              0,
+              0,
+              1
+            ]
+          ]
+        }
+      },
+      "total_qubits": 64
+    },
+    {
+      "anchor": false,
+      "d_proxy": 6,
+      "family": "hgp",
+      "k": 2,
+      "n": 72,
+      "program_id": "hgp_c6",
+      "spec": {
+        "family": "hgp",
+        "seeds": {
+          "H1": [
+            [
+              1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          ],
+          "H2": [
+            [
+              1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          ]
+        }
+      },
+      "total_qubits": 144
+    },
+    {
+      "anchor": false,
+      "d_proxy": 4,
+      "family": "hgp",
+      "k": 2,
+      "n": 48,
+      "program_id": "hgp_mixed",
+      "spec": {
+        "family": "hgp",
+        "seeds": {
+          "H1": [
+            [
+              1,
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              1,
+              0,
+              0,
+              1
+            ]
+          ],
+          "H2": [
+            [
+              1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              1
+            ]
+          ]
+        }
+      },
+      "total_qubits": 96
+    },
+    {
+      "anchor": false,
+      "d_proxy": 4,
+      "family": "lp_abelian",
+      "k": 2,
+      "n": 27,
+      "program_id": "lpab_27",
+      "spec": {
+        "A": [
+          [
+            [
+              [
+                2,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ]
+          ]
+        ],
+        "B": [
+          [
+            [
+              [
+                0,
+                2
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          ]
+        ],
+        "family": "lp_abelian",
+        "group": {
+          "factors": [
+            3,
+            3
+          ]
+        }
+      },
+      "total_qubits": 54
+    },
+    {
+      "anchor": false,
+      "d_proxy": 4,
+      "family": "lp_abelian",
+      "k": 2,
+      "n": 81,
+      "program_id": "lpab_c3c9",
+      "spec": {
+        "A": [
+          [
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                2,
+                3
+              ]
+            ]
+          ]
+        ],
+        "B": [
+          [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                6
+              ]
+            ]
+          ]
+        ],
+        "family": "lp_abelian",
+        "group": {
+          "factors": [
+            3,
+            9
+          ]
+        }
+      },
+      "total_qubits": 162
+    },
+    {
+      "anchor": false,
+      "d_proxy": 3,
+      "family": "lp_nonabelian",
+      "k": 8,
+      "n": 24,
+      "program_id": "lpnab_d6_24",
+      "spec": {
+        "A": [
+          [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          ]
+        ],
+        "B": [
+          [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                1
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                4,
+                0
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          ]
+        ],
+        "family": "lp_nonabelian",
+        "group": "D6"
+      },
+      "total_qubits": 48
+    },
+    {
+      "anchor": false,
+      "d_proxy": 3,
+      "family": "lp_nonabelian",
+      "k": 4,
+      "n": 24,
+      "program_id": "lpnab_d6_b4",
+      "spec": {
+        "A": [
+          [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          ]
+        ],
+        "B": [
+          [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                5,
+                1
+              ]
+            ]
+          ]
+        ],
+        "family": "lp_nonabelian",
+        "group": "D6"
+      },
+      "total_qubits": 48
+    },
+    {
+      "anchor": false,
+      "d_proxy": 10,
+      "family": "lp_nonabelian",
+      "k": 30,
+      "n": 150,
+      "program_id": "mitten_150",
+      "shots": 100,
+      "source": "arXiv:2607.28795 Table XIII ([[150,30,10]], GAP SmallGroup(30,1) = C5 x D3, weight 9)",
+      "spec": {
+        "A": [
+          [
+            [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                2,
+                0
+              ],
+              [
+                2,
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                1
+              ]
+            ]
+          ]
+        ],
+        "B": [
+          [
+            [
+              [
+                4,
+                2,
+                0
+              ],
+              [
+                3,
+                1,
+                0
+              ],
+              [
+                1,
+                2,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                4,
+                0,
+                0
+              ],
+              [
+                1,
+                1,
+                1
+              ]
+            ]
+          ]
+        ],
+        "family": "lp_nonabelian",
+        "group": "C5xD3"
+      },
+      "total_qubits": 270
+    },
+    {
+      "acceptance": {
+        "max_basis_ler": 0.5
+      },
+      "anchor": false,
+      "d_proxy": 12,
+      "family": "lp_nonabelian",
+      "k": 40,
+      "n": 200,
+      "program_id": "mitten_200",
+      "shots": 100,
+      "source": "arXiv:2607.28795 Table XIII ([[200,40,12]], GAP SmallGroup(40,5) = C4 x D5, weight 9)",
+      "spec": {
+        "A": [
+          [
+            [
+              [
+                2,
+                1,
+                0
+              ],
+              [
+                1,
+                3,
+                1
+              ],
+              [
+                1,
+                2,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                2,
+                0
+              ],
+              [
+                2,
+                2,
+                0
+              ]
+            ]
+          ]
+        ],
+        "B": [
+          [
+            [
+              [
+                3,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                1,
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                2,
+                0
+              ],
+              [
+                3,
+                3,
+                1
+              ]
+            ]
+          ]
+        ],
+        "family": "lp_nonabelian",
+        "group": "C4xD5"
+      },
+      "total_qubits": 360
+    }
+  ],
+  "date": "2026-09-03",
+  "note": "Fixed-seed qualification instances across the four families (03 doc section 10). BB72/BB144 are the anchors. v1 (2026-08-15) covered the validated instances; v1.1 (2026-09-03, telescoping_structural_v3_6, docs/06 section 1.3; reference decoder telescoping_cpu) adds the two Mitten literature codes [[150,30,10]] and [[200,40,12]] (arXiv:2607.28795 Table XIII, repo-native lp_nonabelian specs, verified k and weight 9) with per-code shots=100, the BB144 / Mitten200 basis-LER acceptance ceilings and the BB144-before-BB72 plpr order. Expanding toward the 24-36 target is tracked as a follow-up and versions as v2.",
+  "plpr_order": [
+    [
+      "bb_144_anchor",
+      "bb_72_anchor"
+    ]
+  ],
+  "profiles": [
+    "uniform_paper_v1",
+    "si1000_modern_v1"
+  ],
+  "schema": "decoder_qualification_set",
+  "version": "v1.1"
+}

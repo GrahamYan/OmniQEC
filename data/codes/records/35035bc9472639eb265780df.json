@@ -1,0 +1,123 @@
+{
+ "code_hash": "35035bc9472639eb265780df",
+ "code_hash8": "35035bc9",
+ "family": "LP Abelian",
+ "n": 30,
+ "k": 2,
+ "d": 6,
+ "w": 6,
+ "parameters_printed_in_tables": true,
+ "construction": {
+  "G": "C15",
+  "A": "1 + x^7",
+  "B": "x + x^4 + x^6 + x^13",
+  "as_printed_in": ["Table X"],
+  "spec": {
+   "A": [[[[0], [7]]]],
+   "B": [[[[1], [4], [6], [13]]]],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [15]
+   }
+  }
+ },
+ "parity_check_matrices": {
+  "Hx": {
+   "shape": [15, 30],
+   "row_supports": [
+    [0, 8, 16, 19, 21, 28],
+    [1, 9, 17, 20, 22, 29],
+    [2, 10, 15, 18, 21, 23],
+    [3, 11, 16, 19, 22, 24],
+    [4, 12, 17, 20, 23, 25],
+    [5, 13, 18, 21, 24, 26],
+    [6, 14, 19, 22, 25, 27],
+    [0, 7, 20, 23, 26, 28],
+    [1, 8, 21, 24, 27, 29],
+    [2, 9, 15, 22, 25, 28],
+    [3, 10, 16, 23, 26, 29],
+    [4, 11, 15, 17, 24, 27],
+    [5, 12, 16, 18, 25, 28],
+    [6, 13, 17, 19, 26, 29],
+    [7, 14, 15, 18, 20, 27]
+   ]
+  },
+  "Hz": {
+   "shape": [15, 30],
+   "row_supports": [
+    [2, 9, 11, 14, 15, 22],
+    [0, 3, 10, 12, 16, 23],
+    [1, 4, 11, 13, 17, 24],
+    [2, 5, 12, 14, 18, 25],
+    [0, 3, 6, 13, 19, 26],
+    [1, 4, 7, 14, 20, 27],
+    [0, 2, 5, 8, 21, 28],
+    [1, 3, 6, 9, 22, 29],
+    [2, 4, 7, 10, 15, 23],
+    [3, 5, 8, 11, 16, 24],
+    [4, 6, 9, 12, 17, 25],
+    [5, 7, 10, 13, 18, 26],
+    [6, 8, 11, 14, 19, 27],
+    [0, 7, 9, 12, 20, 28],
+    [1, 8, 10, 13, 21, 29]
+   ]
+  }
+ },
+ "appearances": [
+  {
+   "table": "Table X",
+   "task": "CNOT",
+   "N": 60,
+   "backend_or_method": "GPT",
+   "rank": 1,
+   "p_LER": "4.42e-03",
+   "p_LER_value": 0.00442,
+   "pooled": false,
+   "upper_bound": false,
+   "ci95": [0.00425, 0.00459],
+   "ci95_printed_in_table": false,
+   "p_LER_printed_in_table": true
+  },
+  {
+   "table": "tab_fig4a_cross",
+   "task": "CNOT",
+   "N": 60,
+   "backend_or_method": "GPT",
+   "rank": 1,
+   "p_LER_by_task": {
+    "Memory": {
+     "p_LER": "3.22e-03",
+     "p_LER_value": 0.00322,
+     "pooled": false,
+     "upper_bound": false,
+     "ci95": [0.00302, 0.00343],
+     "ci95_printed_in_table": true,
+     "p_LER_printed_in_table": true
+    },
+    "CNOT": {
+     "p_LER": "4.42e-03",
+     "p_LER_value": 0.00442,
+     "pooled": false,
+     "upper_bound": false,
+     "ci95": [0.00425, 0.00459],
+     "ci95_printed_in_table": true,
+     "p_LER_printed_in_table": true
+    }
+   }
+  },
+  {
+   "table": "tab_champion_stats",
+   "task": "CNOT",
+   "N": 60,
+   "backend_or_method": "GPT",
+   "rank": 1,
+   "p_LER": "4.42e-03",
+   "p_LER_value": 0.00442,
+   "pooled": false,
+   "upper_bound": false,
+   "ci95": [0.00425, 0.00459],
+   "ci95_printed_in_table": true,
+   "p_LER_printed_in_table": true
+  }
+ ]
+}

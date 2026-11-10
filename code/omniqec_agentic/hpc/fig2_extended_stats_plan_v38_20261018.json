@@ -1,0 +1,180 @@
+{
+  "schema": "fig2_extended_stats_plan",
+  "version": "extended_stats_v1",
+  "created": "2026-10-18",
+  "target": "v3.8 protocol-variant champions measured with the same per-point uniform extension shots as the formal champions (b288 500k, b320 850k, b360 1.7M per basis); separate plan and output root (scratch) so the formal table is untouched",
+  "seed_namespace": "extended_stats_v1",
+  "rounds": {
+    "1": "2026-10-18: GPT b288/b320/b360 v3.8 champions"
+  },
+  "items": [
+    {
+      "key": "b288_gptsub_e5146726_v38",
+      "budget": 288,
+      "arm": "GPT",
+      "source_run": "fig2_gptsub_b288_v38",
+      "role": "champion_protocol_variant_v38",
+      "program_id": "g0002_p0005",
+      "code_hash": "e5146726df7c9dc66f133972",
+      "family": "bb",
+      "n": 144,
+      "k": 4,
+      "d_search": 14,
+      "max_check_weight": 6,
+      "spec": {
+        "A": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            7
+          ],
+          [
+            2,
+            13
+          ]
+        ],
+        "B": [
+          [
+            0,
+            5
+          ],
+          [
+            1,
+            18
+          ],
+          [
+            2,
+            9
+          ]
+        ],
+        "ell": 3,
+        "family": "bb",
+        "m": 24
+      },
+      "spec_source": "campaign_report.json final_frontier",
+      "formal_failures_x": 2,
+      "formal_failures_z": 1,
+      "formal_shots_per_basis": 25000,
+      "formal_plpr": 2.1429262787586723e-06,
+      "formal_rounds": 14,
+      "shots_per_basis": 500000,
+      "expected_failures_per_basis": 40,
+      "note": "v3.8 protocol-variant run (RUN_TAG=v38, 2026-10-17/18), validated with --profile v3_8; extension = the b288 per-point uniform value of round 3"
+    },
+    {
+      "key": "b320_gptsub_c9334f1c_v38",
+      "budget": 320,
+      "arm": "GPT",
+      "source_run": "fig2_gptsub_b320_v38",
+      "role": "champion_protocol_variant_v38",
+      "program_id": "g0002_p0001",
+      "code_hash": "c9334f1cb46934d59afa4f3c",
+      "family": "bb",
+      "n": 154,
+      "k": 6,
+      "d_search": 12,
+      "max_check_weight": 6,
+      "spec": {
+        "A": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "B": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            6,
+            8
+          ]
+        ],
+        "ell": 7,
+        "family": "bb",
+        "m": 11
+      },
+      "spec_source": "campaign_report.json final_frontier",
+      "formal_failures_x": 1,
+      "formal_failures_z": 1,
+      "formal_shots_per_basis": 25000,
+      "formal_plpr": 1.111132716613561e-06,
+      "formal_rounds": 12,
+      "shots_per_basis": 850000,
+      "expected_failures_per_basis": 34,
+      "note": "v3.8 protocol-variant run (RUN_TAG=v38, 2026-10-17/18), validated with --profile v3_8; extension = the b320 per-point uniform value of round 3"
+    },
+    {
+      "key": "b360_gptsub_e4062596_v38",
+      "budget": 360,
+      "arm": "GPT",
+      "source_run": "fig2_gptsub_b360_v38",
+      "role": "champion_protocol_variant_v38",
+      "program_id": "g0004_p0013",
+      "code_hash": "e4062596396f0c47b43c2a2b",
+      "family": "bb",
+      "n": 180,
+      "k": 4,
+      "d_search": 16,
+      "max_check_weight": 6,
+      "spec": {
+        "A": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            4
+          ]
+        ],
+        "B": [
+          [
+            3,
+            4
+          ],
+          [
+            2,
+            11
+          ],
+          [
+            5,
+            10
+          ]
+        ],
+        "ell": 6,
+        "family": "bb",
+        "m": 15
+      },
+      "spec_source": "campaign_report.json final_frontier",
+      "formal_failures_x": 0,
+      "formal_failures_z": 0,
+      "formal_shots_per_basis": 25000,
+      "formal_plpr": 0.0,
+      "formal_rounds": 16,
+      "shots_per_basis": 1700000,
+      "expected_failures_per_basis": 68,
+      "note": "v3.8 protocol-variant run (RUN_TAG=v38, 2026-10-17/18), validated with --profile v3_8; extension = the b360 per-point uniform value of round 3"
+    }
+  ]
+}

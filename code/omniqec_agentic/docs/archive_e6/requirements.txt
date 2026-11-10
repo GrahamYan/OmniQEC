@@ -1,0 +1,15 @@
+# omniqec_agentic runtime dependencies.
+# Versions pinned to the validated local QEC environment (Python 3.10,
+# calibration slope_offset=0.958 was measured against exactly these).
+numpy==1.26.4
+scipy==1.15.3
+stim==1.15.0
+ldpc==2.4.1            # BpOsdDecoder / BpLsdDecoder / sinter_decoders
+relay-bp==0.2.1        # IBM Rust Relay-BP (RelayDecoderF64)
+sinter==1.15.0         # post-search LER sweeps only
+networkx==3.4.2        # ASC-style edge-coloring schedule
+
+# Provider SDKs — install only what you use:
+openai==2.41.0         # deepseek + gpt providers
+
+# anthropic>=0.40      # claude provider (uncomment if used)

@@ -1,0 +1,21 @@
+# Build dependencies
+Cython>=3.0.0
+setuptools>=60.0.0
+
+# Scientific stack
+numpy>=2.0.0      
+scipy>=1.10.0
+pandas>=2.0.0
+matplotlib>=3.5.0
+networkx>=3.0
+
+# Quantum / Domain specific
+ldpc>=2.0.0
+stim>=1.12.0
+sinter>=1.10.0
+PyMatching>=2.0.0
+stimbposd==0.1.0  
+
+# Utilities
+decorator>=5.0.0
+pyparsing>=3.0.0

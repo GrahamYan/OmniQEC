@@ -1,0 +1,25 @@
+Task,N,Configuration,"n,k,d",Family,w,Champion p_LER,Top-3 mean
+Memory,98,Full,"48,2,6",BB,4,3.14e-04,3.58e-04
+Memory,98,w/o slow,"48,4,7",BB,5,3.76e-04,7.44e-04
+Memory,98,w/o slow & fast,"48,4,8",BB,6,9.68e-04,1.55e-03
+Memory,98,Random,"42,2,6",BB,4,3.82e-04,4.34e-04
+Memory,180,Full,"90,4,9",BB,5,2.99e-05†,3.05e-05
+Memory,180,w/o slow,"84,4,7",LP Abelian,5,5.84e-05,2.22e-04
+Memory,180,w/o slow & fast,"90,8,10",BB,6,8.56e-05,3.36e-04
+Memory,180,Random,"90,4,9",BB,5,3.84e-05,4.22e-05
+Memory,260,Full,"126,4,12",BB,6,5.64e-06†,6.88e-06
+Memory,260,w/o slow,"126,4,15",BB,7,2.73e-05,3.92e-04
+Memory,260,w/o slow & fast,"108,8,10",BB,6,2.33e-05,1.73e-04
+Memory,260,Random,"122,2,11",BB,6,2.83e-05,3.06e-05
+CNOT,98,Full,"48,2,6",LP Non-Abelian,4,3.72e-04,3.88e-04
+CNOT,98,w/o slow,"48,2,7",LP Non-Abelian,5,6.87e-04,9.32e-04
+CNOT,98,w/o slow & fast,"48,2,6",BB,4,4.78e-04,8.80e-04
+CNOT,98,Random,"46,2,6",BB,4,3.98e-04,5.85e-04
+CNOT,180,Full,"90,2,9",LP Abelian,4,6.39e-05†,6.74e-05
+CNOT,180,w/o slow,"90,2,9",LP Abelian,4,6.67e-05,1.13e-04
+CNOT,180,w/o slow & fast,"90,4,9",BB,5,5.93e-05,1.13e-04
+CNOT,180,Random,"84,4,7",BB,5,1.27e-04,1.40e-04
+CNOT,260,Full,"126,4,11",LP Abelian,5,1.28e-05†,1.54e-05
+CNOT,260,w/o slow,"126,2,15",BB,6,4.00e-05,5.77e-05
+CNOT,260,w/o slow & fast,"126,2,15",BB,6,3.00e-05,6.04e-05
+CNOT,260,Random,"120,4,11",BB,5,9.59e-06,4.13e-05

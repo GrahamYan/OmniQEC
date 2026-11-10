@@ -1,0 +1,17 @@
+{
+  "schema": "reference_codes_v1",
+  "source": "the DeepSeek search arm of the same Fig.2 v3.6 campaign at TOTAL qubit budget 98 (its five best measured codes, ranked by measured per_logical_per_round)",
+  "protocol_note": "identical frozen protocol to this campaign: telescoping_cpu_v1 decoder, uniform_paper_v1 noise at p=0.005, T=12 rounds, SEC policy twobasis_nonint_v1, 20000 shots per basis (search stage); [[n,k,d]] uses the campaign's d_search proxy",
+  "codes": [
+    {"label": "ref-1", "code": "[[48,4,7]]", "class": "GB (single-variable bivariate bicycle) over C24: ell=1, m=24", "A": "y^17 + y^20", "B": "y^2 + y^3 + y^10", "w": 5, "plpr": 3.59e-4, "plpr_ci": [3.09e-4, 4.17e-4], "code_hash8": "2bddcc45",
+     "spec": {"A": [[0, 17], [0, 20]], "B": [[0, 2], [0, 3], [0, 10]], "ell": 1, "family": "bb", "m": 24}},
+    {"label": "ref-2", "code": "[[48,2,6]]", "class": "2BGA (1x1 lifted product) over the non-abelian group C3xD4", "A": "1 + c r^2 s", "B": "1 + c r", "w": 4, "plpr": 4.36e-4, "plpr_ci": [3.61e-4, 5.28e-4], "code_hash8": "0d1d972d",
+     "spec": {"A": [[[[0, 0, 0], [1, 2, 1]]]], "B": [[[[0, 0, 0], [1, 1, 0]]]], "family": "lp_nonabelian", "group": "C3xD4"}},
+    {"label": "ref-3", "code": "[[48,4,8]]", "class": "bivariate bicycle, (ell,m)=(3,8) coprime, G = C24", "A": "x^2 y^6 + y^6 + x y^4", "B": "x y^2 + x^2 + y^3", "w": 6, "plpr": 8.75e-4, "plpr_ci": [7.95e-4, 9.62e-4], "code_hash8": "4f7e0983",
+     "spec": {"A": [[2, 6], [0, 6], [1, 4]], "B": [[1, 2], [2, 0], [0, 3]], "ell": 3, "family": "bb", "m": 8}},
+    {"label": "ref-4", "code": "[[40,2,4]]", "class": "2BGA over the non-abelian group C5:C4(2)", "A": "1 + r^3", "B": "1 + r s", "w": 4, "plpr": 9.80e-4, "plpr_ci": [8.63e-4, 1.11e-3], "code_hash8": "a3db81fd",
+     "spec": {"A": [[[[0, 0], [3, 0]]]], "B": [[[[0, 0], [1, 1]]]], "family": "lp_nonabelian", "group": "C5:C4(2)"}},
+    {"label": "ref-5", "code": "[[48,4,8]]", "class": "2BGA over the dihedral group D12", "A": "1 + r + r^8", "B": "1 + r^2 s + r^9 s", "w": 6, "plpr": 1.01e-3, "plpr_ci": [9.26e-4, 1.11e-3], "code_hash8": "6e467790",
+     "spec": {"A": [[[[0, 0], [1, 0], [8, 0]]]], "B": [[[[0, 0], [2, 1], [9, 1]]]], "family": "lp_nonabelian", "group": "D12"}}
+  ]
+}

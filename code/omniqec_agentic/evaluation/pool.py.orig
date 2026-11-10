@@ -1,0 +1,984 @@
+"""Work-stealing job pool + queue-level driver (03 §7, semantics unchanged
+from slow.py). Every (candidate, p, decoder, basis, shot-shard) decode job and
+every distance job runs as its own hard-timeout subprocess consumed by one
+global pool; SEC synthesis is hoisted once-per-candidate via the shared
+synth-cache directory (02 §7.1)."""
+
+from __future__ import annotations
+
+import json
+import os
+import shutil
+import signal
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+
+from omniqec_agentic import ranking
+from omniqec_agentic.config import HardwareTarget, RacingConfig, VerificationConfig
+from omniqec_agentic.construction import build_compiled_code, compiled_code_metadata
+from omniqec_agentic.results_csv import write_results_csv
+from omniqec_agentic.verification.circuit import select_memory_rounds
+from omniqec_agentic.verification.fast import evaluate_proxy
+from omniqec_agentic.verification.ler import combine_basis_ler_results
+from omniqec_agentic.verification.structural import structural_check_spec
+
+from .baseline import with_resident_baseline
+from .common import (
+    SLOW_SCHEMA_VERSION,
+    decoder_name,
+    hardware_value,
+    int_or_none,
+    noise_result_fields,
+    record_to_slow_payload_input,
+    resolve_deformation_mode,
+    tail,
+)
+from .dem_cache import dem_bundle_path
+from .evidence import (
+    annotate_slow_checks,
+    best_combined_result,
+    distance_evidence_feedback,
+    sec_ext_evidence,
+    VER1_D_CIRC_MIN_ERRORS,
+    VER1_D_CIRC_MIN_POINTS,
+    VER1_LER_SLOPE_OFFSET,
+)
+from .feedback import build_slow_feedback
+from .pipeline import WORKER_MODULE, evaluate_slow_spec
+from .sampling import (
+    RacingThresholds,
+    merge_shard_results,
+    racing_decision,
+    racing_pilot_shards,
+    racing_shard_stream,
+    shard_partition,
+)
+from .writeback import (
+    compact_slow_payload,
+    has_decoder_attempt,
+    ranking_rows,
+    slow_csv_rows,
+    slow_queue_status,
+    summarize_evidence_status,
+    write_slow_result,
+)
+
+_WORKER_THREAD_CAPS = {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+}
+
+
+def run_worker_request(
+    request: dict[str, Any],
+    *,
+    timeout_s: float | None,
+) -> tuple[dict[str, Any] | None, dict[str, Any]]:
+    """Run one worker request in an isolated subprocess.
+
+    Library-internal thread pools are capped to one thread per worker: the job
+    pool provides the parallelism, and N workers x M BLAS threads oversubscribes
+    large machines.  ``None`` or a non-positive timeout disables the
+    application-level timeout while retaining process isolation.
+    """
+
+    env = dict(os.environ)
+    env.update(_WORKER_THREAD_CAPS)
+    process = subprocess.Popen(
+        [sys.executable, "-m", WORKER_MODULE],
+        cwd=str(Path(__file__).resolve().parents[2]),
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        start_new_session=True,
+        text=True,
+        env=env,
+    )
+    communicate_timeout = (
+        None if timeout_s is None or float(timeout_s) <= 0.0 else float(timeout_s)
+    )
+    try:
+        stdout, stderr = process.communicate(
+            json.dumps(request, default=float),
+            timeout=communicate_timeout,
+        )
+    except subprocess.TimeoutExpired:
+        kill_process_group(process)
+        return None, {"timeout": True, "timeout_s": communicate_timeout}
+    parsed = parse_worker_json(stdout)
+    return parsed, {
+        "timeout": False,
+        "returncode": process.returncode,
+        "stderr_tail": tail(stderr),
+        "stdout_tail": tail(stdout) if parsed is None else "",
+    }
+
+
+def kill_process_group(process: subprocess.Popen[str]) -> None:
+    try:
+        os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+    except Exception:
+        try:
+            process.kill()
+        except Exception:
+            pass
+    try:
+        process.wait(timeout=20)
+    except Exception:
+        pass
+
+
+def parse_worker_json(stdout: str | None) -> dict[str, Any] | None:
+    for line in reversed((stdout or "").splitlines()):
+        text = line.strip()
+        if not text:
+            continue
+        try:
+            payload = json.loads(text)
+        except Exception:
+            continue
+        if isinstance(payload, dict):
+            return payload
+    return None
+
+
+def without_relaybp_parallel(verification: VerificationConfig) -> VerificationConfig:
+    """Disable RelayBP's internal Rust threads when the job pool is wide:
+    pool-level parallelism already saturates the cores."""
+
+    import dataclasses
+
+    return dataclasses.replace(
+        verification,
+        decoder_build=dataclasses.replace(
+            verification.decoder_build,
+            relaybp=dataclasses.replace(verification.decoder_build.relaybp, parallel=False),
+        ),
+    )
+
+
+def resolve_workers(workers: int) -> int:
+    if int(workers) == 0:
+        return max(1, (os.cpu_count() or 2) - 1)
+    return max(1, int(workers))
+
+
+def load_promotion_queue(path: str | Path, *, limit: int | None = None) -> list[dict[str, Any]]:
+    queue_path = Path(path)
+    if not queue_path.exists():
+        raise FileNotFoundError(str(queue_path))
+    if queue_path.suffix == ".jsonl":
+        records = [
+            json.loads(line)
+            for line in queue_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+    else:
+        data = json.loads(queue_path.read_text(encoding="utf-8"))
+        records = data.get("queue", data) if isinstance(data, dict) else data
+    if not isinstance(records, list):
+        raise ValueError("promotion queue must be a JSON list or an object with a queue list")
+    records = [record for record in records if isinstance(record, dict)]
+    if limit is not None:
+        records = records[: max(0, int(limit))]
+    return records
+
+
+def evaluate_promotion_queue(
+    *,
+    queue_path: str | Path,
+    out_dir: str | Path,
+    verification: VerificationConfig | None = None,
+    hardware: HardwareTarget | str | None = None,
+    limit: int | None = None,
+    seed: int = 0,
+    batch_size: int = 1024,
+    prefer_coloring: bool = True,
+    include_baseline: bool = True,
+    baseline_spec: dict[str, Any] | None = None,
+    baseline_program_id: str | None = None,
+    workers: int = 1,
+    shot_shards: int = 1,
+    deformation_mode: str | None = None,
+    racing: RacingConfig | None = None,
+    racing_thresholds: RacingThresholds | None = None,
+) -> dict[str, Any]:
+    """Run slow verification for selected promotion-queue records.
+
+    When `include_baseline` is set, the BB [[72,12,6]] reference runs through
+    the identical protocol as a resident comparator (skipped if an identical
+    code is already in the queue). Baseline rows are flagged `is_baseline` and
+    never become slow parents.
+
+    `workers > 1` switches to a fine-grained job pool: every
+    (candidate, p, decoder, basis, shot-shard) decode job and every distance
+    job runs as its own hard-timeout subprocess, consumed by one global
+    work-stealing pool — uneven job durations cannot strand cores. Seeds are
+    index-derived, so a given (workers, shot_shards) protocol is deterministic
+    regardless of worker count; `shot_shards=1` reproduces the serial path's
+    numbers exactly for the deterministic beam decoder (LSD reproduces only to
+    within ldpc's tie-break jitter; see worker.run_shard_dem_request).
+    `workers=0` auto-sizes to cpu_count-1. `shot_shards` is part of the
+    measurement protocol (changing it re-partitions the RNG)."""
+
+    verification = verification or VerificationConfig()
+    racing_mode = bool(racing and racing.enabled)
+    if racing_mode:
+        if resolve_workers(workers) <= 1:
+            raise ValueError("racing needs the job pool (workers > 1); serial racing is not supported")
+        if len(verification.noise.values) != 1:
+            raise ValueError(
+                "racing runs at the anchor point only (03 §8): configure a single "
+                "noise value; the full p sweep belongs to the final pipeline"
+            )
+    out_path = Path(out_dir)
+    candidate_dir = out_path / "candidates"
+    out_path.mkdir(parents=True, exist_ok=True)
+    candidate_dir.mkdir(parents=True, exist_ok=True)
+    records = load_promotion_queue(queue_path, limit=limit)
+    if include_baseline:
+        records = with_resident_baseline(
+            records,
+            baseline_spec=baseline_spec,
+            baseline_program_id=baseline_program_id,
+        )
+    results_jsonl = out_path / "slow_results.jsonl"
+    rankings_path = out_path / "rankings.json"
+    results_csv_path = out_path / "slow_results.csv"
+    distance_evidence_path = out_path / "distance_evidence.json"
+    slow_feedback_path = out_path / "slow_feedback.json"
+    slow_parent_specs_path = out_path / "slow_parent_specs.json"
+    summary_path = out_path / "slow_summary.json"
+    run_config_path = out_path / "slow_run_config.json"
+    results_jsonl.write_text("", encoding="utf-8")
+    run_config_path.write_text(
+        json.dumps(
+            {
+                "schema": "slow_queue_run_config",
+                "schema_version": SLOW_SCHEMA_VERSION,
+                "queue_path": str(queue_path),
+                "out_dir": str(out_path),
+                "hardware": hardware_value(hardware),
+                "limit": limit,
+                "seed": int(seed),
+                "batch_size": int(batch_size),
+                "prefer_coloring": bool(prefer_coloring),
+                "workers": resolve_workers(workers),
+                "shot_shards": max(1, int(shot_shards)),
+                "deformation_mode": deformation_mode,
+                "racing": racing.to_dict() if racing is not None else None,
+                "racing_thresholds": (
+                    racing_thresholds.to_dict() if racing_thresholds is not None else None
+                ),
+                "verification": verification.to_dict(),
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    start = time.perf_counter()
+
+    def _evaluate_one(index: int, record: dict[str, Any]) -> dict[str, Any]:
+        program_id = str(record.get("program_id") or f"promotion_{index + 1:04d}")
+        candidate_payload = record_to_slow_payload_input(record, program_id=program_id)
+        if "error" in candidate_payload:
+            return {
+                "schema": "slow_verification_run",
+                "schema_version": SLOW_SCHEMA_VERSION,
+                "program_id": program_id,
+                "status": "input_error",
+                "hardware": hardware_value(hardware),
+                "promotion_record": record,
+                "failure_reason": candidate_payload["error"],
+                "results": [],
+            }
+        return evaluate_slow_spec(
+            program_id=program_id,
+            spec=candidate_payload["spec"],
+            verification=verification,
+            hardware=hardware,
+            seed=int(seed) + index * 1_000_000,
+            batch_size=int(batch_size),
+            prefer_coloring=prefer_coloring,
+            promotion_record=record,
+            deformation_mode=(
+                resolve_deformation_mode(None, record)
+                if record.get("deformation_mode") is not None or record.get("deformation") is not None
+                else deformation_mode
+            ),
+        )
+
+    workers = resolve_workers(workers)
+    if workers > 1:
+        candidate_payloads = evaluate_queue_with_jobs(
+            records,
+            verification=verification,
+            hardware=hardware,
+            seed=int(seed),
+            batch_size=int(batch_size),
+            prefer_coloring=prefer_coloring,
+            workers=workers,
+            shot_shards=max(1, int(shot_shards)),
+            deformation_mode=deformation_mode,
+            racing=racing if racing_mode else None,
+            racing_thresholds=racing_thresholds,
+        )
+    else:
+        candidate_payloads = [_evaluate_one(index, record) for index, record in enumerate(records)]
+
+    candidate_summaries: list[dict[str, Any]] = []
+    all_ranking_rows: list[dict[str, Any]] = []
+    for index, payload in enumerate(candidate_payloads):
+        program_id = str(payload.get("program_id") or f"promotion_{index + 1:04d}")
+        from .common import safe_file_stem
+
+        candidate_path = candidate_dir / f"{safe_file_stem(program_id)}.json"
+        write_slow_result(payload, candidate_path)
+        with results_jsonl.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(compact_slow_payload(payload, candidate_path), ensure_ascii=False, sort_keys=True) + "\n")
+        candidate_summaries.append(compact_slow_payload(payload, candidate_path))
+        all_ranking_rows.extend(ranking_rows(payload, candidate_path))
+
+    distance_evidence = distance_evidence_feedback(candidate_payloads)
+    rankings = ranking.rank_slow_rows(all_ranking_rows)
+    write_results_csv(results_csv_path, slow_csv_rows(rankings))
+    rankings_path.write_text(
+        json.dumps(
+            {
+                "schema": "slow_rankings",
+                "schema_version": SLOW_SCHEMA_VERSION,
+                "rank_by": "per_logical_per_round_with_per_logical_block_ci",
+                "ci_z": float(verification.ler_ci_z),
+                "rankings": rankings,
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    distance_evidence_path.write_text(
+        json.dumps(
+            {
+                "schema": "slow_distance_evidence",
+                "schema_version": SLOW_SCHEMA_VERSION,
+                "method": "exact_distance_isd_then_ler_slope_estimate",
+                "exact_code_distance_status": summarize_evidence_status(distance_evidence, "exact_code_distance_status"),
+                "exact_d_circ_status": summarize_evidence_status(distance_evidence, "exact_d_circ_status"),
+                "d_circ_isd_upper_bound_status": summarize_evidence_status(distance_evidence, "d_circ_isd_upper_bound_status"),
+                "d_circ_ext_status": summarize_evidence_status(distance_evidence, "d_circ_ext_status"),
+                "ver1_reference": {
+                    "fit": "log10(per_logical_per_round) vs log10(p), weighted by sqrt(total_failures)",
+                    "slope_offset": VER1_LER_SLOPE_OFFSET,
+                    "minimum_failures_per_point": VER1_D_CIRC_MIN_ERRORS,
+                    "minimum_points": VER1_D_CIRC_MIN_POINTS,
+                },
+                "evidence": distance_evidence,
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    slow_feedback = build_slow_feedback(
+        queue_path=str(queue_path),
+        hardware=hardware_value(hardware),
+        rankings=rankings,
+        candidate_payloads=candidate_payloads,
+        distance_evidence=distance_evidence,
+    )
+    slow_feedback_path.write_text(
+        json.dumps(slow_feedback, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    slow_parent_specs_path.write_text(
+        json.dumps(slow_feedback["slow_parent_specs"], ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    ok_candidate_count = sum(1 for item in candidate_summaries if item.get("status") == "ok")
+    timeout_candidate_count = sum(1 for item in candidate_summaries if item.get("status") == "timeout")
+    decoder_attempt_candidate_count = sum(1 for item in candidate_payloads if has_decoder_attempt(item))
+    result_count = len(all_ranking_rows)
+    ok_rankings = [row for row in rankings if row.get("status") == "ok"]
+    ok_result_count = len(ok_rankings)
+    summary = {
+        "schema": "slow_queue_summary",
+        "schema_version": SLOW_SCHEMA_VERSION,
+        "status": slow_queue_status(
+            record_count=len(records),
+            timeout_candidate_count=timeout_candidate_count,
+            decoder_attempt_candidate_count=decoder_attempt_candidate_count,
+            ok_result_count=ok_result_count,
+        ),
+        "queue_path": str(queue_path),
+        "out_dir": str(out_path),
+        "hardware": hardware_value(hardware),
+        "candidate_count": len(records),
+        "ok_candidate_count": ok_candidate_count,
+        "timeout_candidate_count": timeout_candidate_count,
+        "decoder_attempt_candidate_count": decoder_attempt_candidate_count,
+        "result_count": result_count,
+        "ok_result_count": ok_result_count,
+        "runtime_s": time.perf_counter() - start,
+        "artifact_paths": {
+            "run_config": str(run_config_path),
+            "results_jsonl": str(results_jsonl),
+            "results_csv": str(results_csv_path),
+            "rankings": str(rankings_path),
+            "distance_evidence": str(distance_evidence_path),
+            "slow_feedback": str(slow_feedback_path),
+            "slow_parent_specs": str(slow_parent_specs_path),
+            "summary": str(summary_path),
+            "candidates_dir": str(candidate_dir),
+        },
+        "best": ok_rankings[0] if ok_rankings else None,
+        "slow_parent_count": len(slow_feedback["slow_parent_specs"]),
+        "candidates": candidate_summaries,
+    }
+    summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return summary
+
+
+def evaluate_queue_with_jobs(
+    records: list[dict[str, Any]],
+    *,
+    verification: VerificationConfig,
+    hardware: HardwareTarget | str | None,
+    seed: int,
+    batch_size: int,
+    prefer_coloring: bool,
+    workers: int,
+    shot_shards: int,
+    deformation_mode: str | None = None,
+    racing: RacingConfig | None = None,
+    racing_thresholds: RacingThresholds | None = None,
+) -> list[dict[str, Any]]:
+    """Fine-grained execution: flatten all candidates into decode/distance
+    jobs, run them through one global pool, reassemble candidate payloads with
+    the exact schema of the serial path.
+
+    With ``racing`` enabled (03 §8) the pre-registered batch-size shard stream
+    replaces ``shot_shards``: each candidate consumes pilot shards first, then
+    one batch shard per round until the pure ``racing_decision`` (static
+    threshold snapshot, cumulative counts only) stops it. The decision runs on
+    the PRIMARY decoder's per-logical-per-round (A5) CI; all configured
+    decoders and both bases consume the same shards in lockstep. The resident
+    baseline uses the same stream with thresholds disabled (straight to
+    shots_confirm)."""
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    job_verification = without_relaybp_parallel(verification)
+    decoder_names = [decoder_name(decoder) for decoder in verification.decoders]
+    configured_timeout_s = float(verification.circuit_timeout_s)
+    timeout_s = configured_timeout_s if configured_timeout_s > 0.0 else None
+
+    # ---- per-candidate prepare (cheap, in-process) -------------------------
+    contexts: list[dict[str, Any]] = []
+    for index, record in enumerate(records):
+        program_id = str(record.get("program_id") or f"promotion_{index + 1:04d}")
+        start = time.perf_counter()
+        payload: dict[str, Any] = {
+            "schema": "slow_verification_run",
+            "schema_version": SLOW_SCHEMA_VERSION,
+            "isolation": "subprocess_jobs",
+            "program_id": program_id,
+            "status": "started",
+            "seed": int(seed) + index * 1_000_000,
+            "hardware": hardware_value(hardware),
+            "verification": verification.to_dict(),
+            "promotion_record": record,
+            "results": [],
+        }
+        candidate_input = record_to_slow_payload_input(record, program_id=program_id)
+        if "error" in candidate_input:
+            payload["status"] = "input_error"
+            payload["failure_reason"] = candidate_input["error"]
+            payload["runtime_s"] = time.perf_counter() - start
+            contexts.append({"payload": payload, "ready": True})
+            continue
+        spec = candidate_input["spec"]
+        candidate_deformation = (
+            resolve_deformation_mode(None, record)
+            if record.get("deformation_mode") is not None or record.get("deformation") is not None
+            else deformation_mode
+        )
+        payload["spec"] = spec
+        payload["deformation_mode"] = candidate_deformation or "none"
+        structural = structural_check_spec(
+            program_id,
+            spec,
+            require_positive_k=True,
+            deformation_mode=candidate_deformation,
+        )
+        fast = evaluate_proxy(
+            spec,
+            iters=int(verification.proxy_iters),
+            deformation_mode=candidate_deformation,
+        )
+        payload["structural"] = structural.to_dict()
+        payload["fast"] = fast
+        if not structural.valid:
+            payload["status"] = "structural_reject"
+            payload["runtime_s"] = time.perf_counter() - start
+            contexts.append({"payload": payload, "ready": True})
+            continue
+        try:
+            compiled = build_compiled_code(
+                spec,
+                program_id=program_id,
+                deformation_mode=candidate_deformation,
+            )
+            payload["compiled_code"] = compiled_code_metadata(compiled)
+            payload["matrices"] = {
+                "hx": np.asarray(compiled.hx, dtype=np.uint8).astype(int).tolist(),
+                "hz": np.asarray(compiled.hz, dtype=np.uint8).astype(int).tolist(),
+            }
+        except Exception as exc:
+            payload["status"] = "build_error"
+            payload["failure_reason"] = str(exc)
+            payload["runtime_s"] = time.perf_counter() - start
+            contexts.append({"payload": payload, "ready": True})
+            continue
+        d_hint = int_or_none(fast.get("d")) if isinstance(fast, dict) else None
+        contexts.append(
+            {
+                "payload": payload,
+                "ready": False,
+                "spec": spec,
+                "family": compiled.family,
+                "candidate_hash": str(structural.code_hash or record.get("code_hash") or program_id),
+                "d_hint": d_hint,
+                "k": structural.k or 0,
+                "rounds": select_memory_rounds(rounds=verification.rounds, d_hint=d_hint),
+                "candidate_seed": int(seed) + index * 1_000_000,
+                "deformation_mode": candidate_deformation,
+                "prepare_s": time.perf_counter() - start,
+            }
+        )
+
+    # ---- interleaved pool: EVERY candidate's jobs in one pool --------------
+    # Per candidate/noise-point: ONE build job (build the DEM once -> pickle),
+    # plus ONE distance
+    # job (ISD ~90s, single-core); when the build lands, its decode jobs are
+    # submitted, split per (decoder, basis, shard) -> each loads the pickle and
+    # runs ~900s (well under circuit_timeout_s), no rebuild and no 6-decoder
+    # bundle (the old build-once-per-shard bundle overran the 1h timeout on big
+    # codes; see PROGRESS L6). One candidate's slow distance/relaybp jobs overlap
+    # other candidates' decode, so the cores stay saturated. Candidates are
+    # assembled + logged ([slow]) as their last job lands, so results appear one
+    # by one. Bit-identical to the legacy run_shard_request path (same seeds +
+    # exact pickled probs; verify_pkl.py).
+    from concurrent.futures import FIRST_COMPLETED, wait
+
+    verification_dict = job_verification.to_dict()
+    first_noise_value = float(verification.noise.values[0])
+    racing_mode = bool(racing and racing.enabled)
+    if racing_mode:
+        race_shard_shots = racing_shard_stream(racing)
+        pilot_shards = racing_pilot_shards(racing)
+        n_shards = len(race_shard_shots)
+        shard_shots = race_shard_shots  # request sizing below
+        shard_max_errors = None  # caps are enforced at round boundaries
+    else:
+        n_shards = shot_shards
+        shard_shots = shard_partition(int(verification.shots), shot_shards)
+        shard_max_errors = (
+            None
+            if verification.max_errors is None
+            else max(1, -(-int(verification.max_errors) // shot_shards))
+        )
+
+    def _run_job(request: dict[str, Any]) -> dict[str, Any] | None:
+        parsed, meta = run_worker_request(request, timeout_s=timeout_s)
+        if parsed is None and not meta.get("timeout"):
+            return {"status": "subprocess_error", "failure_reason": meta.get("stderr_tail", "")[-300:]}
+        return parsed
+
+    # Build the DEM ONCE per (candidate, noise point) -> pickle; every decode job loads it
+    # and runs a single (decoder, basis, shard) unit, so each job stays small
+    # (well under circuit_timeout_s) while the expensive build happens once. The
+    # GLOBAL (decoder, basis) indices are passed explicitly so the per-unit seed
+    # matches the build-per-job path exactly (bit-identical for same seed/shards).
+    # The dem_dir doubles as the cross-process SEC synthesis cache: the first
+    # job to need a candidate's ranked schedule writes it, the rest load it.
+    dem_dir = tempfile.mkdtemp(prefix="omniqec_dem_")
+    # basis_index is the GLOBAL position (X=0, Z=1) so the per-unit seed is the
+    # same whether a run decodes one basis or both -> a Z-only run's Z results
+    # are bit-identical to a both-basis run's Z results.
+    _BASIS_INDEX = {"X": 0, "Z": 1}
+    bases = tuple(verification.bases)
+    unit_index = [
+        {"decoder": d.value, "basis": basis, "decoder_index": di, "basis_index": _BASIS_INDEX[basis]}
+        for di, d in enumerate(decoder_names)
+        for basis in bases
+    ]
+
+    pending: dict[int, int] = {}
+    matrices_paths: dict[tuple[int, int], str] = {}
+    for ctx_index, ctx in enumerate(contexts):
+        if ctx["ready"]:
+            continue
+        if racing_mode:
+            record = ctx["payload"].get("promotion_record") or {}
+            ctx["race"] = {
+                "consumed": 0,
+                "outstanding": 0,
+                "done": False,
+                "stopped_by": None,
+                "confirmed": False,
+                "stages": [],
+                "is_baseline": bool(record.get("is_baseline")),
+            }
+        # outstanding jobs before assembly = 1 distance + one build per noise point; each
+        # build, when it lands, adds its own decode jobs to this count.
+        pending[ctx_index] = 1 + len(verification.noise.values)
+        for noise_index in range(len(verification.noise.values)):
+            noise_hash = verification.noise.point(noise_index).config_hash
+            matrices_paths[(ctx_index, noise_index)] = dem_bundle_path(
+                dem_dir,
+                family=ctx["family"],
+                candidate_hash=ctx["candidate_hash"],
+                noise_hash=noise_hash,
+                noise_index=noise_index,
+            )
+
+    by_ctx: dict[int, dict[str, Any]] = {i: {"distance": None, "decode": {}} for i in pending}
+
+    def _assemble(ctx_index: int) -> None:
+        ctx = contexts[ctx_index]
+        payload = ctx["payload"]
+        slot = by_ctx[ctx_index]
+        distance = slot["distance"] if isinstance(slot["distance"], dict) else {}
+        exact_distance = {
+            "schema": "exact_distance_evidence",
+            "schema_version": SLOW_SCHEMA_VERSION,
+            "code": distance.get("code")
+            or {"schema": "exact_code_distance_evidence", "status": "not_available", "d_exact": None, "certified": False},
+            "circuit": distance.get("circuit")
+            or {"schema": "exact_circuit_distance_evidence", "status": "not_available", "d_circ_exact": None, "certified": False},
+            "circuit_isd": distance.get("circuit_isd")
+            or {"schema": "isd_dem_circuit_distance_evidence", "status": "not_available", "d_circ_isd_upper_bound": None, "certified": False},
+            "circuit_ext": distance.get("circuit_ext") or sec_ext_evidence(None),
+        }
+        # A failed distance job (e.g. circuit_error) carries the diagnostic
+        # the sub-dicts don't; surface it instead of dropping it.
+        if distance.get("status") not in (None, "ok"):
+            exact_distance["status"] = distance.get("status")
+            if distance.get("failure_reason"):
+                exact_distance["failure_reason"] = distance.get("failure_reason")
+        runtime = float(ctx.get("prepare_s") or 0.0)
+        race = ctx.get("race")
+        # Racing: only the consumed prefix of the pre-registered stream exists;
+        # merging the full stream would misread unconsumed shards as timeouts.
+        merge_upto = (race["consumed"] if race else n_shards) or n_shards
+        for noise_index, _noise_value in enumerate(verification.noise.values):
+            noise_point = verification.noise.point(noise_index)
+            for decoder in decoder_names:
+                basis_payloads = {
+                    basis: merge_shard_results(
+                        slot["decode"].get((noise_index, decoder.value, basis), [None] * n_shards)[:merge_upto],
+                        decoder=decoder.value,
+                    )
+                    for basis in bases
+                }
+                runtime += sum(float(basis_payloads[b].get("runtime_s") or 0.0) for b in bases)
+                decoder_payload = {
+                    "status": "started",
+                    **noise_result_fields(noise_point),
+                    "decoder": decoder.value,
+                    "sampling_source": "noisy_circuit",
+                    "rounds": int(ctx["rounds"]),
+                    "basis": basis_payloads,
+                    "combined": combine_basis_ler_results(
+                        basis_payloads,
+                        rounds=int(ctx["rounds"]),
+                        k=int(ctx["k"]),
+                        ci_z=float(verification.ler_ci_z),
+                    ),
+                }
+                decoder_payload["status"] = (
+                    "ok" if decoder_payload["combined"].get("block_ler") is not None else "incomplete"
+                )
+                if race is not None:
+                    decoder_payload["stopped_by"] = race["stopped_by"]
+                payload["results"].append(decoder_payload)
+        if race is not None:
+            payload["racing"] = {
+                "stopped_by": race["stopped_by"],
+                "confirmed": race["confirmed"],
+                "shards_consumed": race["consumed"],
+                "shard_shots": int(racing.batch),
+                # Actual decoded shots (min across bases); the requested
+                # stream prefix is kept separately for diagnosis.
+                "shots_per_basis": race.get(
+                    "shots_actual", sum(race_shard_shots[: race["consumed"]])
+                ),
+                "shots_requested": sum(race_shard_shots[: race["consumed"]]),
+                "is_baseline_arm": race["is_baseline"],
+                "thresholds": (
+                    racing_thresholds.to_dict() if racing_thresholds is not None else None
+                ),
+                "stages": race["stages"],
+            }
+        payload["exact_distance"] = exact_distance
+        annotate_slow_checks(payload, verification=verification)
+        ok_any = any(result.get("status") == "ok" for result in payload["results"])
+        build_error = slot.get("build_error")
+        if ok_any:
+            payload["status"] = "ok"
+        elif isinstance(build_error, dict):
+            # The build stage failed: surface its real status + reason instead
+            # of letting the empty decode slots masquerade as shard timeouts.
+            payload["status"] = str(build_error.get("status") or "build_error")
+            if build_error.get("failure_reason"):
+                payload["failure_reason"] = str(build_error["failure_reason"])
+        elif any(
+            "timeout" in (status or "")
+            for result in payload["results"]
+            for b in bases
+            for status in (result.get("basis") or {}).get(b, {}).get("shard_statuses", [])
+        ):
+            payload["status"] = "timeout"
+        else:
+            payload["status"] = "no_valid_results"
+        payload["runtime_s"] = runtime
+        payload["job_config"] = {"workers": int(workers), "shot_shards": int(shot_shards)}
+        best = best_combined_result(payload)
+        _fast = payload.get("fast") or {}
+        _struct = payload.get("structural") or {}
+        _n = _fast.get("n") or _struct.get("n_data")
+        _k = _fast.get("k") or _struct.get("k")
+        _d = _fast.get("d")
+        _fam = (payload.get("spec") or {}).get("family") or _fast.get("family") or "?"
+        print(
+            f"  [slow] {payload['program_id']} [[{_n},{_k},{_d}]] {_fam} {payload['status']} "
+            f"plpr={best.get('per_logical_per_round')} by={best.get('decoder')}",
+            flush=True,
+        )
+
+    def _decode_jobs_for(
+        ci: int,
+        noise_index: int,
+        build_outcome: dict[str, Any],
+        shards: range | list[int] | None = None,
+    ) -> list[dict[str, Any]]:
+        rounds_x = int(build_outcome["rounds_x"])
+        rounds_z = int(build_outcome["rounds_z"])
+        base_seed = int(contexts[ci]["candidate_seed"]) + noise_index * 10_000
+        out: list[dict[str, Any]] = []
+        for shard in (range(n_shards) if shards is None else shards):
+            if shard_shots[shard] <= 0:
+                continue
+            for unit in unit_index:
+                out.append({
+                    "ctx": ci, "kind": "shard", "noise_index": noise_index, "shard": shard,
+                    "request": {
+                        "mode": "shard_dem", "matrices_path": matrices_paths[(ci, noise_index)],
+                        "noise_value": float(verification.noise.values[noise_index]),
+                        "noise_index": noise_index,
+                        "shard": shard, "shot_shards": n_shards,
+                        "shots": int(shard_shots[shard]), "max_errors": shard_max_errors,
+                        "base_seed": base_seed, "rounds_x": rounds_x, "rounds_z": rounds_z,
+                        "units": [unit], "batch_size": int(batch_size),
+                        "verification": verification_dict,
+                    },
+                })
+        return out
+
+    def _cleanup_pickles(ci: int) -> None:
+        for noise_index in range(len(verification.noise.values)):
+            mp = matrices_paths.get((ci, noise_index))
+            if mp and os.path.exists(mp):
+                try:
+                    os.remove(mp)
+                except OSError:
+                    pass
+
+    pool = ThreadPoolExecutor(max_workers=max(1, int(workers)))
+    fut_to_job: dict[Any, dict[str, Any]] = {}
+    try:
+        # Seed the pool with each candidate's build + distance jobs; decode jobs
+        # are submitted as each build lands (dynamic, so the pool never blocks on
+        # a barrier and the long single-core distance jobs overlap other work).
+        for ctx_index, ctx in enumerate(contexts):
+            if ctx["ready"]:
+                continue
+            fut_to_job[pool.submit(_run_job, {
+                "mode": "distance_job", "spec": ctx["spec"],
+                "noise_value": first_noise_value, "noise_index": 0,
+                "d_hint": ctx["d_hint"], "prefer_coloring": bool(prefer_coloring),
+                "deformation_mode": ctx.get("deformation_mode"),
+                "synth_cache_dir": dem_dir,
+                "verification": verification_dict,
+            })] = {"ctx": ctx_index, "kind": "distance"}
+            for noise_index in range(len(verification.noise.values)):
+                fut_to_job[pool.submit(_run_job, {
+                    "mode": "build_dem", "spec": ctx["spec"],
+                    "noise_value": float(verification.noise.values[noise_index]),
+                    "noise_index": noise_index,
+                    "d_hint": ctx["d_hint"], "prefer_coloring": bool(prefer_coloring),
+                    "deformation_mode": ctx.get("deformation_mode"),
+                    "matrices_path": matrices_paths[(ctx_index, noise_index)],
+                    "synth_cache_dir": dem_dir,
+                    "verification": verification_dict,
+                })] = {"ctx": ctx_index, "kind": "build", "noise_index": noise_index}
+
+        def _submit_race_shards(ci: int, shards: list[int]) -> None:
+            ctx = contexts[ci]
+            race = ctx["race"]
+            new_jobs = _decode_jobs_for(ci, 0, ctx["build_outcome"], shards)
+            race["consumed"] += len(shards)
+            race["outstanding"] += len(new_jobs)
+            pending[ci] += len(new_jobs)
+            for nj in new_jobs:
+                nf = pool.submit(_run_job, nj["request"])
+                fut_to_job[nf] = nj
+                pending_futs.add(nf)
+
+        def _race_round_decision(ci: int) -> None:
+            """Round boundary: all outstanding decode jobs landed. Pure decision
+            on cumulative counts of the consumed prefix (order-independent)."""
+
+            ctx = contexts[ci]
+            race = ctx["race"]
+            slot = by_ctx[ci]
+            primary = decoder_names[0]
+            consumed = race["consumed"]
+            merged = {
+                basis: merge_shard_results(
+                    slot["decode"].get((0, primary.value, basis), [None] * n_shards)[:consumed],
+                    decoder=primary.value,
+                )
+                for basis in bases
+            }
+            combined = combine_basis_ler_results(
+                merged,
+                rounds=int(ctx["rounds"]),
+                k=int(ctx["k"]),
+                ci_z=float(verification.ler_ci_z),
+            )
+            plpr_ci = combined.get("per_logical_per_round_ci")
+            shots_requested = sum(race_shard_shots[:consumed])
+            # Confirm/pilot bookkeeping must count DECODED shots: a timed-out
+            # or crashed shard contributes zero real shots, and counting the
+            # requested stream prefix would mark "confirmed" short of
+            # shots_confirm. min across bases = every basis reached the bar.
+            shots_used = min(int(merged[b].get("shots") or 0) for b in bases)
+            race["shots_actual"] = shots_used
+            decision = racing_decision(
+                shots=shots_used,
+                basis_failures={b: int(merged[b].get("failures") or 0) for b in bases},
+                plpr_ci_low=(plpr_ci[0] if plpr_ci else None),
+                config=racing,
+                thresholds=None if race["is_baseline"] else racing_thresholds,
+            )
+            race["stages"].append(
+                {
+                    "shards_consumed": consumed,
+                    "shots_per_basis": shots_used,
+                    "shots_requested": shots_requested,
+                    "failures": {b: int(merged[b].get("failures") or 0) for b in bases},
+                    "per_logical_per_round": combined.get("per_logical_per_round"),
+                    "per_logical_block_ci": combined.get("per_logical_block_ci"),
+                    "plpr_ci": plpr_ci,
+                    "action": decision["action"],
+                    "stopped_by": decision["stopped_by"],
+                }
+            )
+            if decision["action"] == "continue" and consumed < n_shards:
+                _submit_race_shards(ci, [consumed])
+            elif decision["action"] == "continue":
+                # Pre-registered stream exhausted below the confirm bar: only
+                # possible when shards failed/timed out (actual decoded shots
+                # lag the requested prefix). Stop and surface it — the old
+                # behavior indexed past the stream and crashed the queue.
+                race["done"] = True
+                race["stopped_by"] = "stream_exhausted"
+                race["confirmed"] = False
+            else:
+                race["done"] = True
+                race["stopped_by"] = decision["stopped_by"]
+                race["confirmed"] = decision["confirmed"]
+
+        pending_futs = set(fut_to_job.keys())
+        while pending_futs:
+            done, pending_futs = wait(pending_futs, return_when=FIRST_COMPLETED)
+            for fut in done:
+                j = fut_to_job.pop(fut)
+                outcome = fut.result()
+                ci = j["ctx"]
+                slot = by_ctx[ci]
+                if j["kind"] == "distance":
+                    slot["distance"] = outcome
+                    pending[ci] -= 1
+                elif j["kind"] == "build":
+                    if isinstance(outcome, dict) and outcome.get("status") == "ok":
+                        if racing_mode:
+                            contexts[ci]["build_outcome"] = outcome
+                            pending[ci] -= 1
+                            _submit_race_shards(ci, list(range(pilot_shards)))
+                            if pending[ci] == 0:  # zero-job edge: assemble below
+                                _assemble(ci)
+                                _cleanup_pickles(ci)
+                            continue
+                        new_jobs = _decode_jobs_for(ci, j["noise_index"], outcome)
+                        pending[ci] += len(new_jobs)
+                        for nj in new_jobs:
+                            nf = pool.submit(_run_job, nj["request"])
+                            fut_to_job[nf] = nj
+                            pending_futs.add(nf)
+                    else:
+                        # Keep the diagnostic: without it the missing decode
+                        # cells read as shard timeouts, so a physics verdict
+                        # (schedule_catastrophic) or a worker crash (OOM,
+                        # import error) would be reported as an
+                        # infrastructure timeout with no failure_reason.
+                        slot["build_error"] = (
+                            outcome
+                            if isinstance(outcome, dict)
+                            else {
+                                "status": "timeout",
+                                "failure_reason": "build_dem worker timed out",
+                            }
+                        )
+                    pending[ci] -= 1
+                else:  # shard decode
+                    results = (outcome or {}).get("results") if isinstance(outcome, dict) else None
+                    for decoder in decoder_names:
+                        for basis in bases:
+                            cell = (results or {}).get(decoder.value, {}).get(basis) if results else None
+                            if cell is not None:
+                                slot["decode"].setdefault(
+                                    (j["noise_index"], decoder.value, basis), [None] * n_shards
+                                )[j["shard"]] = cell
+                    pending[ci] -= 1
+                    if racing_mode:
+                        race = contexts[ci]["race"]
+                        race["outstanding"] -= 1
+                        if race["outstanding"] == 0 and not race["done"]:
+                            _race_round_decision(ci)
+                if pending[ci] == 0:
+                    _assemble(ci)
+                    _cleanup_pickles(ci)
+    finally:
+        pool.shutdown()
+        shutil.rmtree(dem_dir, ignore_errors=True)
+
+    return [ctx["payload"] for ctx in contexts]

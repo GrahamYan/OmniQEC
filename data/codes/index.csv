@@ -1,0 +1,299 @@
+code_hash,code_hash8,family,n,k,d,w,tables,n_appearances
+57cd30c23489137e782a012a,57cd30c2,BB,30,2,5,4,Table IX;tab_fig4a_cross;tab_champion_stats,3
+05e3f76cd67a99b7ce559403,05e3f76c,BB,30,2,5,4,Table IX,1
+19251cdee406e95bcb062743,19251cde,BB,28,2,5,4,Table IX,1
+7661b7cb2deca0dcaaa10d0f,7661b7cb,BB,30,2,5,4,Table IX;tab_fig4a_cross;tab_champion_stats,3
+226e127b70bf3e106f5785a3,226e127b,BB,30,2,5,4,Table IX;Table X;tab_fig4a_cross;tab_champion_stats,4
+0c0e4676214aadd82aa7efb6,0c0e4676,BB,28,2,5,4,Table IX,1
+9168127ce804b53ef8f9d8ee,9168127c,BB,30,2,6,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+bb892e121d7cf8b2bb796312,bb892e12,BB,30,2,5,6,Table IX,1
+c521fc7a6b63b88ba9114b2c,c521fc7a,LP Abelian,30,2,5,6,Table IX,1
+8008ca630f59f0bbf7b041d5,8008ca63,BB,48,2,6,4,Table IX;tab_fig4a_cross;tab_champion_stats;tab_ablation,4
+eec5cc399abd6ea4be2ffa35,eec5cc39,LP Abelian,48,4,7,5,Table IX;tab_ablation,2
+8f953b443fbec230cccad352,8f953b44,BB,48,2,6,4,Table IX;tab_ablation,2
+0bf5b3b1f958f179633c08ee,0bf5b3b1,BB,48,2,6,4,Table IX;tab_fig4a_cross;tab_champion_stats,3
+976369b02317aab683d145c5,976369b0,BB,46,2,6,4,Table IX,1
+6700491d0308631debc4ac58,6700491d,BB,48,2,6,4,Table IX,1
+ef861bb32360e1fd80739bf3,ef861bb3,LP Abelian,48,2,6,4,Table IX;Table X;tab_fig4a_cross;tab_champion_stats;tab_ablation,5
+87350a7225f426bc41e848b9,87350a72,LP Abelian,46,2,6,4,Table IX;Table X;tab_fig4c_fixed_weight;tab_ablation,4
+0e320cde8f4083e28198e146,0e320cde,LP Abelian,48,2,6,4,Table IX,1
+dddf818de826a7ccd89693b9,dddf818d,BB,72,4,8,5,Table IX;tab_fig4a_cross;tab_champion_stats,3
+e58e5e779a5c8ee8ade175a1,e58e5e77,BB,72,4,8,5,Table IX,1
+0fd22eda196d1d490d60457a,0fd22eda,LP Abelian,72,4,10,6,Table IX,1
+40df88e9189ff7f38dc0fda4,40df88e9,BB,72,4,8,5,Table IX;tab_fig4a_cross;tab_champion_stats,3
+8e8ada5dfb53b68d4aa7d440,8e8ada5d,LP Abelian,72,2,8,4,Table IX,1
+5ef5e909dbc558f98baba930,5ef5e909,LP Abelian,72,2,8,4,Table IX,1
+ed36ef11188b81a828c5a828,ed36ef11,BB,72,4,8,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+66a745c664b246205cc267b4,66a745c6,HGP,72,2,6,4,Table IX,1
+d85f62166279904f1a9a9c5c,d85f6216,BB,72,4,8,6,Table IX,1
+3c67d0c81b77c5a9bc6e1928,3c67d0c8,BB,90,4,9,5,Table IX;tab_fig4a_cross;tab_champion_stats;tab_ablation,4
+19737f6a45849e31b51b5088,19737f6a,LP Abelian,84,4,9,5,Table IX;tab_ablation,2
+f09e1f78f8ca12769f23712f,f09e1f78,BB,90,4,9,5,Table IX;tab_ablation,2
+f8bdd97f6b19a07ddde7567b,f8bdd97f,BB,90,4,9,5,Table IX;Table X;tab_fig4a_cross;tab_champion_stats,4
+7c78337e06be456b2a5a6b43,7c78337e,BB,90,4,9,5,Table IX,1
+ea275d5d9bb190eaf30ea341,ea275d5d,BB,90,4,9,5,Table IX,1
+e1ccc8012f4fc4504794c8e2,e1ccc801,LP Abelian,90,2,11,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+104c3828392266160df59b9a,104c3828,BB,88,2,12,6,Table IX,1
+f72d597488ce101aeac826be,f72d5974,LP Non-Abelian,88,2,11,6,Table IX,1
+fdc58a86a389fbea4bc2649a,fdc58a86,LP Abelian,108,4,12,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+1a73843cc9f9c1f4a5287648,1a73843c,LP Abelian,108,4,12,6,Table IX,1
+38a84e8fb50e3d1207eb93e9,38a84e8f,LP Abelian,108,4,12,6,Table IX,1
+375b9f1b787c74b6f6a2664b,375b9f1b,BB,108,4,12,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+1192498da0b9d3cc6663863e,1192498d,BB,108,4,10,5,Table IX,1
+c7c351cb7198ee636bda9082,c7c351cb,BB,108,2,14,6,Table IX,1
+2d831ee3bc1d04b2e4007d5b,2d831ee3,LP Abelian,106,2,12,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+45ad83ea766841ad42d11112,45ad83ea,LP Abelian,110,2,11,6,Table IX,1
+85f9b5e2270873b66e6f7c7e,85f9b5e2,LP Abelian,110,2,11,6,Table IX,1
+831a2b3aff5cbde3cc590fea,831a2b3a,BB,126,4,12,6,Table IX;tab_fig4a_cross;tab_champion_stats;tab_ablation,4
+b707d2efce0454e0ec58c8e0,b707d2ef,BB,120,4,12,6,Table IX;tab_ablation,2
+eee00f280cdb04aee161acfd,eee00f28,BB,126,4,12,6,Table IX;tab_ablation,2
+3fbc3c7c1574377982aa2f57,3fbc3c7c,BB,126,4,11,5,Table IX;tab_fig4a_cross;tab_champion_stats,3
+f46746bc346a0cd23388b382,f46746bc,BB,126,4,12,6,Table IX,1
+bd508a651d43765212391078,bd508a65,BB,130,2,15,6,Table IX,1
+bafb3be39e79d20352e781b2,bafb3be3,BB,126,4,12,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+633afe332ab6dddce73b0e54,633afe33,BB,126,4,14,6,Table IX,1
+6a00328d13527d292123fbeb,6a00328d,BB,126,4,12,6,Table IX,1
+3786d18d773006a29327958d,3786d18d,BB,144,4,16,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+833de770ec8dfd27a7ef5ac4,833de770,BB,140,6,14,6,Table IX,1
+07bd3d949e67ddc6c2f88dff,07bd3d94,BB,144,4,14,6,Table IX,1
+efac54e487dc388c1556524d,efac54e4,BB,140,6,14,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+260f78da71f6257b67cf02d1,260f78da,BB,140,6,12,6,Table IX,1
+22104af26de2248e378441d1,22104af2,BB,140,6,14,6,Table IX,1
+e5146726df7c9dc66f133972,e5146726,BB,144,4,14,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+b9fb53a5015529b05971f0c3,b9fb53a5,BB,144,8,12,6,Table IX,1
+c8425ccab992ac6bf301e77b,c8425cca,BB,144,4,12,6,Table IX,1
+85e263aa4f4cd78b341fd30a,85e263aa,BB,156,4,14,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+727fd20d50b1042a5d2277ef,727fd20d,BB,154,6,14,6,Table IX,1
+265feff29fd8a11e7d0c92bd,265feff2,BB,154,6,16,6,Table IX,1
+7efc7125758f96bb34f75cd8,7efc7125,LP Abelian,154,6,14,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+226822bb24abec62613c8e2a,226822bb,BB,160,4,15,6,Table IX,1
+5c717e7cb82498bae95e94bb,5c717e7c,LP Abelian,144,6,14,6,Table IX,1
+c9334f1cb46934d59afa4f3c,c9334f1c,BB,154,6,12,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+27de238b24d54884a1339628,27de238b,BB,154,6,14,6,Table IX,1
+943567c03b96b4bf6598c09c,943567c0,BB,154,6,14,6,Table IX,1
+356c10301a09abc15b6fd65e,356c1030,BB,180,8,14,6,Table IX;Table X;tab_fig4a_cross;tab_champion_stats,5
+7f9fca46cb647c0d05b3f1d7,7f9fca46,BB,180,4,18,6,Table IX,1
+4623ee37b6912ef1af8d78c6,4623ee37,BB,180,4,12,6,Table IX,1
+fffe0bb8db1980a2ee3c3c3c,fffe0bb8,BB,180,8,12,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+98f8e86b07e61bdd4ef37df2,98f8e86b,BB,180,8,12,6,Table IX;Table X,2
+06e5651fb21096c34d323e2b,06e5651f,BB,162,4,16,6,Table IX,1
+e4062596396f0c47b43c2a2b,e4062596,BB,180,4,16,6,Table IX;tab_fig4a_cross;tab_champion_stats,3
+5bd823a2af2b8a3867c09408,5bd823a2,BB,180,8,16,6,Table IX;Table X,2
+e2a7f412c3c37584dea6e764,e2a7f412,BB,30,2,5,4,Table X;tab_fig4a_cross;tab_champion_stats,3
+cf0c7ce7fb35687f0774be78,cf0c7ce7,BB,30,2,5,4,Table X,1
+783846806c2e801c4eaa8a0d,78384680,BB,28,2,5,4,Table X,1
+1eed00b96dc33227451e8b1b,1eed00b9,BB,30,2,5,4,Table X,1
+246fd44f5593126465a75dfe,246fd44f,BB,28,2,5,4,Table X,1
+35035bc9472639eb265780df,35035bc9,LP Abelian,30,2,6,6,Table X;tab_fig4a_cross;tab_champion_stats,3
+44625f6e52a1be03106554b3,44625f6e,LP Abelian,30,2,5,6,Table X,1
+f128248fc1e937d21530c50d,f128248f,LP Abelian,30,2,6,6,Table X,1
+5537403710f1fe2d2506220f,55374037,LP Non-Abelian,48,2,6,4,Table X;tab_fig4a_cross;tab_champion_stats;tab_ablation,4
+fe0700424ce01061f3b4831d,fe070042,BB,48,2,6,4,Table X;tab_fig4a_cross;tab_champion_stats,3
+aa77e9b449d87c454bfba786,aa77e9b4,LP Abelian,46,2,6,4,Table X,1
+69d7a77e70059449f22f3b14,69d7a77e,BB,48,2,6,4,Table X,1
+0695118bc9410f2902c107e9,0695118b,BB,46,2,6,4,Table X;tab_fig4a_cross;tab_champion_stats,3
+0a78c44d1599138d80c1c750,0a78c44d,BB,48,2,6,4,Table X,1
+83d716a07978493c9ec4884d,83d716a0,BB,48,2,6,4,Table X,1
+f22f46d0ab48e6cb9f480a5b,f22f46d0,LP Abelian,72,2,8,4,Table X;tab_fig4a_cross;tab_champion_stats,3
+c0557e662e9cf56cb2d73e33,c0557e66,BB,72,2,6,4,Table X,1
+09d880565f5eb52c50bed0ea,09d88056,LP Abelian,72,2,8,4,Table X,1
+7249011e68fe5c7efbf066ed,7249011e,BB,72,2,8,4,Table X;tab_fig4a_cross;tab_champion_stats,3
+6d8cbe56e4a1255d8b1d3c55,6d8cbe56,BB,72,2,8,4,Table X,1
+ed37e8e89075772f9319c9d7,ed37e8e8,BB,68,2,8,4,Table X,1
+acd4a14c0291cb816f445b0c,acd4a14c,LP Abelian,72,2,8,4,Table X;tab_fig4a_cross;tab_champion_stats,3
+069159b29cd643a43667267e,069159b2,LP Abelian,70,2,7,4,Table X,1
+487ff9f4736214d0e4fdb147,487ff9f4,LP Abelian,68,2,7,4,Table X,1
+b8d3fa134301ef54cacaa8a4,b8d3fa13,LP Abelian,90,2,9,4,Table X;tab_fig4a_cross;tab_champion_stats;tab_ablation,4
+b56a00ab4bd2e1284d902607,b56a00ab,LP Abelian,90,4,9,5,Table X;tab_ablation,2
+62797e1874ab34cbed6f52b0,62797e18,BB,90,4,9,5,Table X;tab_ablation,2
+a36ab5683f5727613935c086,a36ab568,LP Abelian,90,4,9,5,Table X;tab_fig4a_cross;tab_champion_stats,3
+1f01e94875401d5ac1059371,1f01e948,BB,88,2,9,4,Table X,1
+4a8a39aff9064eb9c31f4ac4,4a8a39af,LP Abelian,88,2,8,4,Table X;tab_fig4a_cross;tab_champion_stats,3
+ef26ea76d32d0dac2a2a52fc,ef26ea76,BB,90,4,10,6,Table X,1
+17efb79c058fff5477ec1646,17efb79c,BB,84,4,10,6,Table X,1
+2072784f2c384f1bb6a16930,2072784f,LP Abelian,108,4,12,6,Table X;tab_fig4a_cross;tab_champion_stats,3
+42b57bee743819934855237f,42b57bee,BB,108,4,12,6,Table X,1
+a7a04b6621f37668b48db6a5,a7a04b66,LP Abelian,110,2,14,6,Table X,1
+0bc0fb709b7ae5cc473cc9e8,0bc0fb70,BB,108,4,10,5,Table X;tab_fig4a_cross;tab_champion_stats,3
+7c276d6276f012a00b9b0e96,7c276d62,BB,108,4,9,5,Table X,1
+4e40ebf2da93bcf68e05878a,4e40ebf2,BB,108,4,12,6,Table X,1
+8e2e01b9c2177adfb634cd8f,8e2e01b9,LP Abelian,110,2,10,4,Table X;tab_fig4a_cross;tab_champion_stats,3
+e49247e4e3bafe905d820e37,e49247e4,LP Abelian,108,2,9,4,Table X,1
+a38ccff8bcb91b35eb6facae,a38ccff8,LP Abelian,100,2,10,4,Table X,1
+c4d395077a314064c21b79cb,c4d39507,LP Abelian,126,4,11,5,Table X;tab_fig4a_cross;tab_champion_stats;tab_ablation,4
+46cffbc07bf31fcd325eac94,46cffbc0,LP Abelian,126,4,12,6,Table X;tab_ablation,2
+4b18df7cf094602984ba99b0,4b18df7c,BB,126,4,12,6,Table X;tab_ablation,2
+736a7fb652a08d405a1ff14e,736a7fb6,BB,126,4,11,5,Table X;tab_fig4a_cross;tab_champion_stats,3
+b08b430ffa48b07b7c905d40,b08b430f,BB,126,4,10,5,Table X,1
+a0ad2bd8876717d6c8eb8529,a0ad2bd8,BB,120,4,10,5,Table X,1
+ba4670de5818084750f925f3,ba4670de,BB,126,6,12,6,Table X;tab_fig4a_cross;tab_champion_stats,3
+6702fac2ba0d2e61a7c6dd8f,6702fac2,BB,126,4,10,5,Table X,1
+bb41f253fc21ab32df753da6,bb41f253,BB,126,4,12,6,Table X,1
+57afa30b93e162ecabe39122,57afa30b,BB,144,4,14,6,Table X;tab_fig4a_cross;tab_champion_stats,3
+77db33cf6227faa79c1a131a,77db33cf,BB,144,4,12,5,Table X,1
+45ad96c018982e6583240c33,45ad96c0,LP Abelian,144,4,16,6,Table X,1
+c87dd8fc54acbea127a34085,c87dd8fc,BB,144,4,12,5,Table X;tab_fig4a_cross;tab_champion_stats,3
+0fc68194b4386d32550e5d7c,0fc68194,LP Abelian,144,4,14,6,Table X,1
+90f6b97acb08141b92811cef,90f6b97a,LP Abelian,126,4,11,5,Table X,1
+368ac5186a361ba35db80620,368ac518,BB,144,4,10,5,Table X;tab_fig4a_cross;tab_champion_stats,3
+855b5940dc1c123037165794,855b5940,BB,144,2,14,6,Table X,1
+c0c5a948f7bf67e8424b6c9c,c0c5a948,LP Non-Abelian,114,4,10,5,Table X,1
+8285575ae39782717fb449c3,8285575a,BB,160,4,12,6,Table X;tab_fig4a_cross;tab_champion_stats,3
+41f3725993660230d1f215aa,41f37259,BB,160,4,14,6,Table X,1
+55d93f0b5551ce0a22ab4fc0,55d93f0b,BB,160,6,12,6,Table X,1
+18fda1fb102cfd68f4fb4925,18fda1fb,BB,156,4,14,6,Table X;tab_fig4a_cross;tab_champion_stats,3
+d2d889aaf93bcc3a3fd2ae3f,d2d889aa,BB,156,4,14,6,Table X,1
+83b29473fa7c2154ce138756,83b29473,BB,156,4,11,5,Table X,1
+e66b016dccb0d80c56d84548,e66b016d,BB,156,4,14,6,Table X;tab_fig4a_cross;tab_champion_stats,3
+dbd95a8a6c4b6cfa368fe323,dbd95a8a,BB,150,4,14,6,Table X,1
+36ad1cf2c2694115948e722f,36ad1cf2,BB,156,4,16,6,Table X,1
+1ba4214a3903500f79a467db,1ba4214a,BB,180,4,18,6,Table X;tab_fig4a_cross;tab_champion_stats,3
+047b31f2eb994b5c241e950f,047b31f2,LP Abelian,180,4,16,6,Table X,1
+10c81d7e5f219cbc92d65597,10c81d7e,LP Abelian,180,4,16,6,Table X;tab_fig4a_cross;tab_champion_stats,3
+4b092e037dd2093cba3ec7d3,4b092e03,LP Abelian,180,4,16,6,Table X,1
+91cfb616ef72090c98783562,91cfb616,BB,168,6,14,6,Table X;tab_fig4a_cross;tab_champion_stats,3
+bbdcc97038e34a35fb168630,bbdcc970,BB,168,4,16,6,Table X,1
+4f8755d6f6fe0e9cce1df612,4f8755d6,BB,30,2,5,4,tab_bo_memory_top3,1
+bc1ee6da4849428f3b44911e,bc1ee6da,BB,30,2,6,6,tab_bo_memory_top3,1
+d7d3022e2d875532e0411874,d7d3022e,BB,30,2,5,6,tab_bo_memory_top3,1
+4b1425e03a494ab5e5b2756d,4b1425e0,BB,48,2,6,4,tab_bo_memory_top3,1
+41b9edc209e73b287419b181,41b9edc2,BB,48,2,6,4,tab_bo_memory_top3,1
+c7a5a7f920d618bd90e1411f,c7a5a7f9,BB,48,2,6,4,tab_bo_memory_top3,1
+6cb8b71bc4159cbb48c6d63a,6cb8b71b,BB,70,2,7,4,tab_bo_memory_top3,1
+4bee8edd28ed02e1df940f04,4bee8edd,BB,72,2,6,4,tab_bo_memory_top3,1
+5827b82078573541a048f54c,5827b820,BB,72,2,8,4,tab_bo_memory_top3,1
+7cc0c0b6bb9c2042558dd2b8,7cc0c0b6,BB,90,2,8,4,tab_bo_memory_top3,1
+7ce5d0a959d1bee2701aebd3,7ce5d0a9,BB,84,2,7,4,tab_bo_memory_top3,1
+38d3bfd7ca3ebf01a5436250,38d3bfd7,BB,86,2,9,4,tab_bo_memory_top3,1
+eeaa327b0312c3b6402f4fa5,eeaa327b,BB,110,2,11,6,tab_bo_memory_top3,1
+585c3effdb77e7e2344761cd,585c3eff,BB,110,2,11,6,tab_bo_memory_top3,1
+b5cccfbc0d094305d1d15404,b5cccfbc,BB,110,2,13,6,tab_bo_memory_top3,1
+0bc89cda3fe0831ab93fc3a8,0bc89cda,BB,126,2,12,6,tab_bo_memory_top3,1
+1e1dee6dae79daefff2ba638,1e1dee6d,BB,130,2,13,6,tab_bo_memory_top3,1
+07a6112e0493a5c81ee169ee,07a6112e,BB,130,2,13,6,tab_bo_memory_top3,1
+150a86247c167dec5c24c4c9,150a8624,BB,132,4,12,5,tab_bo_memory_top3,1
+029be9ac18c55a306aa40832,029be9ac,BB,142,2,14,6,tab_bo_memory_top3,1
+3c4b46ccb22afc7d0a34987a,3c4b46cc,BB,144,4,10,5,tab_bo_memory_top3,1
+77886000a0e7f9f7f9773ce9,77886000,BB,160,2,14,6,tab_bo_memory_top3,1
+c6b4da2e461e7ffa075c7f42,c6b4da2e,BB,152,2,14,6,tab_bo_memory_top3,1
+1526d5caa69f3513b23730e1,1526d5ca,BB,156,4,12,5,tab_bo_memory_top3,1
+df262071b9acabf347740b44,df262071,BB,160,2,16,6,tab_bo_memory_top3,1
+c0afa6c0384cff93652dc637,c0afa6c0,BB,180,4,18,7,tab_bo_memory_top3,1
+e9b4f10af0097688498de375,e9b4f10a,BB,160,2,15,6,tab_bo_memory_top3,1
+0590f8eb69daa245b2ab1030,0590f8eb,BB,26,2,5,4,tab_bo_cnot_top3,1
+2ee347e7d1bc50b212f97615,2ee347e7,BB,30,4,5,5,tab_bo_cnot_top3,1
+4785b62220db6d0ceccc5e6f,4785b622,BB,30,2,5,6,tab_bo_cnot_top3,1
+9de863f85691d15dacb3afdf,9de863f8,BB,48,2,6,4,tab_bo_cnot_top3,1
+3b0eac2a57da7fb85e6a3025,3b0eac2a,BB,46,2,6,4,tab_bo_cnot_top3,1
+10464b724005fbf19d0e17ab,10464b72,BB,48,2,6,4,tab_bo_cnot_top3,1
+e5aa650fc2396d4bf32851cc,e5aa650f,BB,72,2,8,4,tab_bo_cnot_top3,1
+30c51de43403653eb804ac8f,30c51de4,BB,70,2,7,4,tab_bo_cnot_top3,1
+056b98ffc2ef84e5ac03c7a4,056b98ff,BB,72,2,8,4,tab_bo_cnot_top3,1
+0ba96700023c6ad36a2ffaee,0ba96700,BB,88,2,9,4,tab_bo_cnot_top3,1
+66a0399faa1ead7ce398716b,66a0399f,BB,90,2,9,4,tab_bo_cnot_top3,1
+c942ee4452bafd30a13d97ba,c942ee44,BB,84,2,7,4,tab_bo_cnot_top3,1
+d7bd26579a2e470e7b322b56,d7bd2657,BB,110,2,11,6,tab_bo_cnot_top3,1
+c4775f1f250c86977fb418ad,c4775f1f,BB,108,2,9,4,tab_bo_cnot_top3,1
+92a167a683c2779b1770d683,92a167a6,BB,110,2,11,6,tab_bo_cnot_top3,1
+d624982738bf0974705dd391,d6249827,BB,122,2,13,6,tab_bo_cnot_top3,1
+7265ed4846a6098ce4358e2b,7265ed48,BB,128,2,14,6,tab_bo_cnot_top3,1
+d28f563ee8baa8130c0ee2d6,d28f563e,BB,126,2,13,6,tab_bo_cnot_top3,1
+7588a1d9a51724f3edff65bf,7588a1d9,BB,130,2,13,6,tab_bo_cnot_top3,1
+ec9179003b9d4f67bea63367,ec917900,BB,140,2,14,6,tab_bo_cnot_top3,1
+d75a312d8a006e0ed07cf816,d75a312d,BB,128,2,10,4,tab_bo_cnot_top3,1
+e0fa1c1dd53aaf29eb4b2feb,e0fa1c1d,BB,158,2,13,6,tab_bo_cnot_top3,1
+0fe35dfdea157dc2ade1bbff,0fe35dfd,BB,146,2,14,6,tab_bo_cnot_top3,1
+1495037c15ea95202b1dbe03,1495037c,BB,148,2,15,6,tab_bo_cnot_top3,1
+cd461722360e3f4dda7ae878,cd461722,BB,160,2,14,6,tab_bo_cnot_top3,1
+86f33a7b2321c6f394441dee,86f33a7b,BB,168,2,13,6,tab_bo_cnot_top3,1
+d3b057247954a6cd28c79aa2,d3b05724,BB,178,2,16,6,tab_bo_cnot_top3,1
+a290b81352282159f4e9d478,a290b813,BB,48,2,6,4,tab_fig4c_fixed_weight,1
+3d101b4c7b40d8109950d661,3d101b4c,BB,48,2,6,4,tab_fig4c_fixed_weight,1
+0e3c3b00aad8124ec3ee22cd,0e3c3b00,BB,48,4,7,5,tab_fig4c_fixed_weight,1
+0c6f439f36f3e8e43a655d7d,0c6f439f,LP Abelian,48,4,6,5,tab_fig4c_fixed_weight,1
+0df0b27225ec5b40b85e4b59,0df0b272,LP Abelian,48,4,6,5,tab_fig4c_fixed_weight,1
+7f2c2087cf85de4025a51796,7f2c2087,BB,48,2,8,6,tab_fig4c_fixed_weight,1
+26600e9f63dcdeed3328af39,26600e9f,BB,48,2,8,6,tab_fig4c_fixed_weight,1
+3254fa0567763796e4dc1fd8,3254fa05,BB,48,2,8,6,tab_fig4c_fixed_weight,1
+9ab48c952a86cca36cbebaf5,9ab48c95,BB,48,4,8,7,tab_fig4c_fixed_weight,1
+3d2ac1de7913add080214e8f,3d2ac1de,BB,48,4,6,7,tab_fig4c_fixed_weight,1
+2f14f12c24994fb72d548437,2f14f12c,BB,48,4,8,7,tab_fig4c_fixed_weight,1
+08c13ec55caef82cac99a80f,08c13ec5,BB,72,2,8,4,tab_fig4c_fixed_weight,1
+24ca65353c5ad25e08ed4eaf,24ca6535,BB,72,2,8,4,tab_fig4c_fixed_weight,1
+73f1d7a816291305f69355f9,73f1d7a8,BB,72,2,8,4,tab_fig4c_fixed_weight,1
+30a2b56ebf29a95c7cd5c5d2,30a2b56e,BB,72,4,8,5,tab_fig4c_fixed_weight,1
+b3da0558e918f53705598396,b3da0558,BB,72,4,6,5,tab_fig4c_fixed_weight,1
+5855336769d2f61a74e18d5b,58553367,BB,72,4,8,5,tab_fig4c_fixed_weight,1
+4521c60166adffe04a7f4812,4521c601,BB,72,4,8,6,tab_fig4c_fixed_weight,1
+4d944ceac6fdbdf5792c5598,4d944cea,BB,72,4,8,6,tab_fig4c_fixed_weight,1
+088ffb5da872bee5632957ac,088ffb5d,BB,72,4,10,6,tab_fig4c_fixed_weight,1
+007c5e474eaaf2edd93be1af,007c5e47,LP Abelian,72,4,10,7,tab_fig4c_fixed_weight,1
+0109ba34ac8eb579894804f8,0109ba34,BB,72,4,11,7,tab_fig4c_fixed_weight,1
+f720474a8a8f06499f989927,f720474a,LP Abelian,72,4,10,7,tab_fig4c_fixed_weight,1
+1c2111eb1675e53fc27e083f,1c2111eb,LP Abelian,90,2,9,4,tab_fig4c_fixed_weight,1
+af9744923e1adc640fa5e32b,af974492,BB,90,2,9,4,tab_fig4c_fixed_weight,1
+651b15aa461237888e9de9c7,651b15aa,BB,90,2,9,4,tab_fig4c_fixed_weight,1
+2d33dda154a5b23bc80db154,2d33dda1,BB,90,4,9,5,tab_fig4c_fixed_weight,1
+2a2dd1e9c3896e5dc9f3ed0e,2a2dd1e9,BB,84,4,9,5,tab_fig4c_fixed_weight,1
+ae0b880966b3b480328e5e3a,ae0b8809,BB,90,4,9,5,tab_fig4c_fixed_weight,1
+3a746b9b8da1101a167f4edb,3a746b9b,LP Abelian,90,4,12,6,tab_fig4c_fixed_weight,1
+2cbb8763c22df3d5ebe03945,2cbb8763,LP Abelian,90,4,10,6,tab_fig4c_fixed_weight,1
+b1ba774a5e4128cfe1c87855,b1ba774a,LP Abelian,90,4,10,6,tab_fig4c_fixed_weight,1
+586557c4bcc9dee70a6eae75,586557c4,BB,90,8,10,7,tab_fig4c_fixed_weight,1
+93b54907b139d2c4966c921b,93b54907,BB,90,4,12,7,tab_fig4c_fixed_weight,1
+54b0ae85cf007136b97d78f6,54b0ae85,LP Abelian,90,4,12,7,tab_fig4c_fixed_weight,1
+4d57b0f035c5da494df2897a,4d57b0f0,BB,48,4,7,5,tab_ablation,1
+00411c8b1e4bf21bf3692b7c,00411c8b,BB,48,4,8,6,tab_ablation,1
+7f199d7456b5226f800e41fd,7f199d74,BB,48,2,9,6,tab_ablation,1
+0900b95fc163028e7876ced0,0900b95f,BB,48,4,8,6,tab_ablation,1
+db8c3002c8e5badf108510f0,db8c3002,LP Non-Abelian,42,4,5,5,tab_ablation,1
+26f0ccebf8494c3aa3d4aceb,26f0cceb,BB,48,8,6,7,tab_ablation,1
+3ba136b5af584930dc6f1fcc,3ba136b5,BB,42,2,6,4,tab_ablation,1
+3a951953f74a6041834506c0,3a951953,BB,44,2,6,4,tab_ablation,1
+f1f4904090db7dd403dd63f9,f1f49040,BB,40,2,6,4,tab_ablation,1
+d1974fabeaec31d567cdaeff,d1974fab,LP Abelian,84,4,7,5,tab_ablation,1
+8adee0db897a2b34be88ac92,8adee0db,BB,90,4,12,7,tab_ablation,1
+3c6319868cbce60d0e8c999a,3c631986,BB,72,12,6,6,tab_ablation;tab_reference_codes,3
+1b048d92d43a3664f970f505,1b048d92,BB,90,8,10,6,tab_ablation,1
+252380933b2bfdba7e926558,25238093,LP Non-Abelian,84,4,6,5,tab_ablation,1
+7c2ee9a27eaea47030fe5df1,7c2ee9a2,BB,90,10,10,8,tab_ablation,1
+c49498f1eae2819cee72a6fd,c49498f1,BB,90,4,9,5,tab_ablation,1
+32619be39b3c77c166142dfa,32619be3,BB,86,2,9,4,tab_ablation,1
+78b29cb592b048e8b08acc79,78b29cb5,BB,90,2,9,6,tab_ablation,1
+4a2e3144c3a3756a40b0b968,4a2e3144,BB,126,4,15,7,tab_ablation,1
+ae2925f1be9965e58f55650e,ae2925f1,LP Non-Abelian,140,28,8,9,tab_ablation,1
+0dea04cba2cb82bcf9766f49,0dea04cb,BB,130,2,17,8,tab_ablation,1
+e1d0ca2401407136fbeeff5e,e1d0ca24,BB,108,8,10,6,tab_ablation,1
+052f025c02f60341baeea6be,052f025c,BB,128,12,12,8,tab_ablation,1
+d4a588e0bc5a7013c5fbc7e5,d4a588e0,LP Abelian,135,29,5,8,tab_ablation,1
+6a8b300cdfcdcf248003be50,6a8b300c,BB,122,2,11,6,tab_ablation,1
+c1cd2a62de26ff91237c77ea,c1cd2a62,BB,106,2,13,6,tab_ablation,1
+0960c3aa7a8c802659843283,0960c3aa,BB,130,2,13,6,tab_ablation,1
+03129b08e16d72da7b2f23dc,03129b08,LP Non-Abelian,48,2,7,5,tab_ablation,1
+5c38f50b7effc17a80d7ca15,5c38f50b,LP Non-Abelian,48,4,6,5,tab_ablation,1
+0263f4eeef5b1e943eff3714,0263f4ee,BB,48,2,8,6,tab_ablation,1
+38f5dd9b9d9ac54facefae59,38f5dd9b,BB,48,2,6,4,tab_ablation,1
+9133c929d8dbf78838463ab4,9133c929,LP Abelian,48,4,6,5,tab_ablation,1
+0706911ac75212208a34ecb0,0706911a,BB,48,2,8,6,tab_ablation,1
+b10f672e7966efe5d0e3aa99,b10f672e,BB,46,2,6,4,tab_ablation,1
+598fe425f95272fee9024114,598fe425,LP Abelian,48,2,6,4,tab_ablation,1
+2f92b3991bfcf2abf1196945,2f92b399,LP Non-Abelian,48,2,6,5,tab_ablation,1
+37b5b74e03d988f42c8fb63e,37b5b74e,LP Abelian,90,2,9,4,tab_ablation,1
+0125f0dadeeec711c9c07bf3,0125f0da,LP Abelian,90,4,9,5,tab_ablation,1
+3eb4776bbdec862d32072940,3eb4776b,BB,84,2,12,6,tab_ablation,1
+308a38d0344aa5501d06339e,308a38d0,BB,90,4,9,5,tab_ablation,1
+e3704e2d90053618880a67b5,e3704e2d,LP Abelian,88,2,11,6,tab_ablation,1
+444a28c5b9d5d9b5a1297c91,444a28c5,HGP,84,2,6,4,tab_ablation,1
+74c8d8be71e6ef40d131e1d7,74c8d8be,BB,84,4,7,5,tab_ablation,1
+cdce41d9c7e1227316940a6e,cdce41d9,BB,84,2,7,4,tab_ablation,1
+c4e11f914952c015059e0116,c4e11f91,LP Non-Abelian,84,2,6,4,tab_ablation,1
+9cfd0221d2979c786d0b8dad,9cfd0221,BB,126,2,15,6,tab_ablation,1
+950098bd09fa7cb1c3af9a8c,950098bd,LP Non-Abelian,126,4,9,5,tab_ablation,1
+111f34a238d0ca38ebde1af2,111f34a2,HGP,128,2,8,4,tab_ablation,1
+89a51f35ef271a8083dc8c6a,89a51f35,BB,126,2,15,6,tab_ablation,1
+02584c93014fe65a2972304b,02584c93,BB,128,2,8,4,tab_ablation,1
+3487240427636dd59a56e3d5,34872404,BB,98,6,12,6,tab_ablation,1
+f4aeabbb28853c755515745a,f4aeabbb,BB,120,4,11,5,tab_ablation,1
+d1562c4d507e32d43a18351c,d1562c4d,BB,124,2,12,6,tab_ablation,1
+9e39932e5a98e84a090ed9e8,9e39932e,BB,122,2,13,6,tab_ablation,1
+39b6b714cacaebbaf8c8814a,39b6b714,BB,144,12,12,6,tab_reference_codes,2

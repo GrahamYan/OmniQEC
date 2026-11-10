@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Fig.3 stage 0, phase A on one NSCC node: hpc/cnot_pilot.py over the Fig.2
+# b98 candidate pool (docs/fig3_cnot_pilot_candidates_b98.json), idle vs one
+# transversal CNOT, 6 + 6 rounds, Fig.2's SEC / noise / telescoping decoder.
+# No LLM, no network. Submit (project from the command line):
+#   qsub -P <PROJECT> -v TREE=<deployed tree> omniqec_agentic/hpc/nscc_cnot_pilot.pbs
+# Optional -v: OUT, SHOTS (per basis per experiment, 25000), SHARDS (40),
+# WORKERS (124), ONLY (comma-separated labels), SOURCE_CONFIG, RESUME=1 (reuse builds,
+# skip finished shards), HEAVY_W + HEAVY_SHOTS (codes with check weight >= HEAVY_W get
+# HEAVY_SHOTS per basis), EXPERIMENTS (idle,cnot), CNOT_EVERY_ROUND=1, CNOT_NOISE_SCALE,
+# SYNTH_CACHE (reuse a run's _synth_cache), EXCLUDE_W (skip codes with w >= this), CNOT_ROUNDS (e.g. 3+6+9),
+# CANDIDATES (default the b98 pool; docs/fig3_stage3_candidates_b98.json for hidle/hcnot).
+# EXPERIMENTS: idle+cnot | idle3+fanout | ghzidle+ghz | idle1+teleport | hidle+hcnot ('+' joins several in one job,
+# likewise ONLY=label1+label2+...;
+# -v splits on commas). RB / RA = QEC rounds before the first / after the last operation (default 6 / 6;
+# the round-number sensitivity sweep r = 6, 2, 1 of the brief).
+#PBS -q normal
+#PBS -N omni_cnot_pilot
+#PBS -l select=1:ncpus=128:mem=220gb
+#PBS -l walltime=08:00:00
+#PBS -j oe
+
+set -euo pipefail
+
+module load miniforge3/23.10
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate omniqec2
+module load gcc 2>/dev/null || echo "module load gcc unavailable; relying on the gcc on PATH" >&2
+
+TREE="${TREE:-$HOME/OmniQEC}"
+OUT="${OUT:-$TREE/runs/cnot_pilot_b98}"
+SHOTS="${SHOTS:-25000}"
+SHARDS="${SHARDS:-40}"
+WORKERS="${WORKERS:-124}"
+ONLY="${ONLY:-}"
+ONLY="${ONLY//+/,}"
+SOURCE_CONFIG="${SOURCE_CONFIG:-$TREE/fig2_b98_final_slow_run_config.json}"
+RESUME="${RESUME:-0}"
+HEAVY_W="${HEAVY_W:-0}"
+HEAVY_SHOTS="${HEAVY_SHOTS:-2500}"
+EXPERIMENTS="${EXPERIMENTS:-idle,cnot}"
+EXPERIMENTS="${EXPERIMENTS//+/,}"
+RB="${RB:-6}"
+RA="${RA:-6}"
+CNOT_EVERY_ROUND="${CNOT_EVERY_ROUND:-0}"
+CNOT_ROUNDS="${CNOT_ROUNDS:-}"
+CNOT_NOISE_SCALE="${CNOT_NOISE_SCALE:-1.0}"
+SYNTH_CACHE="${SYNTH_CACHE:-}"
+EXCLUDE_W="${EXCLUDE_W:-0}"
+CANDIDATES="${CANDIDATES:-omniqec_agentic/docs/fig3_cnot_pilot_candidates_b98.json}"
+
+cd "$TREE"
+export PYTHONPATH="$TREE:$TREE/third_party/telescoping-decoder"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$TREE/runs/.cache}"
+export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+mkdir -p "$OUT" "$XDG_CACHE_HOME"
+
+# telescoping S3 kernels: compile once before any worker exists
+python -m telescoping_decoder.build || { echo "telescoping kernel prebuild failed" >&2; exit 4; }
+
+echo "[cnot_pilot] $(date '+%F %T') host=$(hostname) tree=$TREE out=$OUT rb=$RB ra=$RA shots=$SHOTS shards=$SHARDS workers=$WORKERS only=${ONLY:-all} resume=$RESUME heavy_w=$HEAVY_W heavy_shots=$HEAVY_SHOTS experiments=$EXPERIMENTS every_round=$CNOT_EVERY_ROUND cnot_rounds=${CNOT_ROUNDS:-none} cnot_noise_scale=$CNOT_NOISE_SCALE exclude_w=$EXCLUDE_W candidates=$CANDIDATES"
+python -m omniqec_agentic.hpc.cnot_pilot \
+  --candidates "$CANDIDATES" \
+  --source-config "$SOURCE_CONFIG" --out "$OUT" \
+  --rounds-before "$RB" --rounds-after "$RA" --shots "$SHOTS" --shards "$SHARDS" --workers "$WORKERS" \
+  --heavy-w "$HEAVY_W" --heavy-shots "$HEAVY_SHOTS" --experiments "$EXPERIMENTS" \
+  --cnot-noise-scale "$CNOT_NOISE_SCALE" --exclude-w "$EXCLUDE_W" ${SYNTH_CACHE:+--synth-cache "$SYNTH_CACHE"} \
+  $([ "$CNOT_EVERY_ROUND" = 1 ] && echo --cnot-every-round) ${CNOT_ROUNDS:+--cnot-rounds "$CNOT_ROUNDS"} \
+  ${ONLY:+--only "$ONLY"} $([ "$RESUME" = 1 ] && echo --resume) 2>&1 | tee -a "$OUT/pilot.log"
+echo "[cnot_pilot] $(date '+%F %T') done"

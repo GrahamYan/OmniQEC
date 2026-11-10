@@ -1,0 +1,51 @@
+#!/bin/bash
+#PBS -q normal
+#PBS -N omni_fixed
+#PBS -l select=1:ncpus=128:mem=100gb
+#PBS -l walltime=24:00:00
+#PBS -j oe
+# Fixed-code measurements (2026-10-23): several plan items (conditions) in ONE job, run one
+# after the other by hpc/fixed_code_measure.py; a condition whose result.json already says ok
+# is skipped, so a job that hits walltime is simply resubmitted with the same keys file.
+# No LLM, no campaign state, no credentials. The project is NOT in this file: pass it on the
+# command line (-P <project>), together with the variables:
+#   qsub -P <PROJECT> -l walltime=HH:00:00 \
+#     -v REPO_ROOT=<TREE>,PLAN=$HOME/fixed_code/plans/fig4_ab_plan.json,KEYS_FILE=$HOME/fixed_code/keys/fig4_ab_01.txt,\
+#OUT_ROOT=<SCRATCH>/fixed_code/fig4_ab,PROTOCOL_ROOTS=$HOME/fixed_code/protocols,XDG_CACHE_HOME=<SCRATCH>/fixed_code/.cache \
+#     <TREE>/omniqec_agentic/hpc/nscc_fixed_code_measure.pbs
+# Optional: WORKERS (default ncpus-1), SHOT_SHARDS, DECODE_SHOT_BUDGET_S (re-run of a timed-out
+# condition), CONDA_ENV (default omniqec2), FORCE=1 (re-measure finished keys).
+set -u
+: "${REPO_ROOT:?}" "${PLAN:?}" "${KEYS_FILE:?}" "${OUT_ROOT:?}" "${PROTOCOL_ROOTS:?}"
+module load miniforge3/23.10
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate "${CONDA_ENV:-omniqec2}"
+module load gcc 2>/dev/null || echo "module load gcc unavailable; relying on the gcc on PATH" >&2
+ALLOCATED_CPUS="${NCPUS:-$(nproc)}"
+WORKERS="${WORKERS:-$((ALLOCATED_CPUS - 1))}"
+export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+export OMNIQEC_TOTAL_MEM_BYTES="${OMNIQEC_TOTAL_MEM_BYTES:-$((100 * 1024 * 1024 * 1024))}"
+export OMNIQEC_WORKER_RSS_BYTES="${OMNIQEC_WORKER_RSS_BYTES:-$((768 * 1024 * 1024))}"
+export OMNIQEC_SEC_WORKERS="${OMNIQEC_SEC_WORKERS:-$(( WORKERS / 4 ))}"
+export OMNIQEC_PERSISTENT_WORKERS="${OMNIQEC_PERSISTENT_WORKERS:-1}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$OUT_ROOT/.cache}"
+# the package AND the vendored decoder must be importable by every decode subprocess
+export PYTHONPATH="$REPO_ROOT:$REPO_ROOT/third_party/telescoping-decoder${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONUNBUFFERED=1
+cd "$REPO_ROOT" || exit 2
+mkdir -p "$XDG_CACHE_HOME" "$OUT_ROOT"
+python -m omniqec_agentic.cli check-slow-deps >/dev/null || { echo "check-slow-deps FAILED" >&2; exit 4; }
+python -m telescoping_decoder.build || { echo "telescoping S3 kernel prebuild FAILED" >&2; exit 4; }
+echo "=========================================================================="
+echo "job=${PBS_JOBID:-manual} node=$(hostname) cpus=$ALLOCATED_CPUS workers=$WORKERS"
+echo "plan=$PLAN keys=$KEYS_FILE ($(grep -c . "$KEYS_FILE") keys) out_root=$OUT_ROOT"
+echo "repo=$REPO_ROOT ($(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || cat "$REPO_ROOT/COMMIT" 2>/dev/null || echo no-git))"
+echo "=========================================================================="
+ROOT_ARGS=(); IFS=: read -ra _roots <<< "$PROTOCOL_ROOTS"; for r in "${_roots[@]}"; do ROOT_ARGS+=(--protocol-root "$r"); done
+python -m omniqec_agentic.hpc.fixed_code_measure --plan "$PLAN" --keys-file "$KEYS_FILE" "${ROOT_ARGS[@]}" \
+  --out-root "$OUT_ROOT" --workers "$WORKERS" \
+  ${SHOT_SHARDS:+--shot-shards "$SHOT_SHARDS"} ${DECODE_SHOT_BUDGET_S:+--decode-shot-budget-s "$DECODE_SHOT_BUDGET_S"} \
+  ${FORCE:+--force}
+rc=$?
+echo "[fixed] $(date '+%F %T') keys=$KEYS_FILE rc=$rc"
+exit $rc

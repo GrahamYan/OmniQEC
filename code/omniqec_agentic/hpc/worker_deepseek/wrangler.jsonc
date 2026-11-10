@@ -1,0 +1,35 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "omniqec-deepseek",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-20",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  "vars": {
+    // Where the gateway forwards to. DeepSeek accepts both the bare host and
+    // the /v1 prefix; the Worker sets the full path itself.
+    // Default upstream: what the provider-less path (/{token}/v1/...) hits.
+    // Kept as DeepSeek so existing DEEPSEEK_BASE_URL values never change.
+    "UPSTREAM_ORIGIN": "https://api.deepseek.com",
+    // Explicit per-provider upstreams, selected by a path segment:
+    //   /{token}/deepseek/v1/chat/completions
+    //   /{token}/openai/v1/chat/completions
+    // Point UPSTREAM_OPENAI at an OpenAI-compatible origin: the official
+    // "https://api.openai.com", or a relay such as "https://api.bltcy.ai".
+    "UPSTREAM_DEEPSEEK": "https://api.deepseek.com",
+    "UPSTREAM_OPENAI": "https://api.openai.com",
+    // Placeholder: the real value is supplied at deploy time by
+    // hpc/start_cliproxy_tunnel.sh, because the tunnel hostname is ephemeral.
+    "UPSTREAM_CLIPROXY": "https://cliproxy-not-configured.invalid",
+    // One key reaches every vendor, and each call reports its real charge —
+    // which is what the cost_usd column records.
+    "UPSTREAM_OPENROUTER": "https://openrouter.ai/api",
+    // Model-name translation for the /openrouter path ONLY (the Worker scopes
+    // it there): campaigns must keep requesting the protocol-frozen name, but
+    // OpenRouter wants vendor-prefixed ids.
+    "MODEL_MAP": "{\"gpt-5.6-sol\":\"openai/gpt-5.6-sol\"}"
+  }
+  // GATEWAY_TOKEN is a SECRET, never a var:
+  //   npx wrangler secret put GATEWAY_TOKEN
+}

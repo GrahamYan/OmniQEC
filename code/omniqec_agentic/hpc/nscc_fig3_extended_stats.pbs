@@ -1,0 +1,45 @@
+#!/bin/bash
+#PBS -P <PROJECT>
+#PBS -q normal
+#PBS -N omni_f3ext
+#PBS -l select=1:ncpus=128:mem=100gb
+#PBS -l walltime=06:00:00
+#PBS -j oe
+# Fig.3 extended statistics (2026-10-15): ONE chosen gate-task code, more shots, the formal
+# final-stage measurement path (hpc/fig2_extended_stats.py; the task comes from the source
+# run's protocol snapshot, verification.task = cnot_dense). Same environment as
+# nscc_fig2_extended_stats.pbs. SCRIPT may point outside the tree (the running chains'
+# tree is never edited); REPO_ROOT only provides the package on PYTHONPATH.
+# The #PBS -P line is a placeholder: pass the project with qsub -P <PROJECT>.
+#   qsub -P <PROJECT> -l walltime=HH:00:00 -v REPO_ROOT=<TREE>,SCRIPT=<copy of fig2_extended_stats.py>,PLAN=<fig3_extended_stats_plan.json>,KEY=b220_gptsub_b52c5f1b,OUT_ROOT=<SCRATCH>/fig3_ext,RUNS_ROOTS=<SCRATCH>/fig3_runs nscc_fig3_extended_stats.pbs
+set -u
+: "${REPO_ROOT:?}" "${PLAN:?}" "${KEY:?}" "${OUT_ROOT:?}" "${RUNS_ROOTS:?}"
+SCRIPT="${SCRIPT:-$REPO_ROOT/omniqec_agentic/hpc/fig2_extended_stats.py}"
+module load miniforge3/23.10
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate omniqec2
+module load gcc 2>/dev/null || echo "module load gcc unavailable; relying on the gcc on PATH" >&2
+ALLOCATED_CPUS="${NCPUS:-$(nproc)}"
+WORKERS="${WORKERS:-$((ALLOCATED_CPUS - 1))}"
+export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+export OMNIQEC_TOTAL_MEM_BYTES="${OMNIQEC_TOTAL_MEM_BYTES:-$((100 * 1024 * 1024 * 1024))}"
+export OMNIQEC_WORKER_RSS_BYTES="${OMNIQEC_WORKER_RSS_BYTES:-$((768 * 1024 * 1024))}"
+export OMNIQEC_SEC_WORKERS="${OMNIQEC_SEC_WORKERS:-$(( WORKERS / 4 ))}"
+export OMNIQEC_PERSISTENT_WORKERS="${OMNIQEC_PERSISTENT_WORKERS:-1}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$REPO_ROOT/runs/.cache}"
+export PYTHONPATH="$REPO_ROOT${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONUNBUFFERED=1
+cd "$REPO_ROOT" || exit 2
+mkdir -p "$XDG_CACHE_HOME" "$OUT_ROOT"
+python -m omniqec_agentic.cli check-slow-deps >/dev/null || { echo "check-slow-deps FAILED" >&2; exit 4; }
+python -m telescoping_decoder.build || { echo "telescoping S3 kernel prebuild FAILED" >&2; exit 4; }
+echo "=========================================================================="
+echo "job=${PBS_JOBID:-manual} node=$(hostname) cpus=$ALLOCATED_CPUS workers=$WORKERS key=$KEY"
+echo "plan=$PLAN out_root=$OUT_ROOT repo=$REPO_ROOT ($(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo no-git)) script=$SCRIPT"
+echo "=========================================================================="
+ROOT_ARGS=(); IFS=: read -ra _roots <<< "$RUNS_ROOTS"; for r in "${_roots[@]}"; do ROOT_ARGS+=(--runs-root "$r"); done
+python "$SCRIPT" --plan "$PLAN" --key "$KEY" "${ROOT_ARGS[@]}" --out-root "$OUT_ROOT" --workers "$WORKERS" \
+  ${SHOTS_OVERRIDE:+--shots-override "$SHOTS_OVERRIDE"}
+rc=$?
+echo "[ext] $(date '+%F %T') key=$KEY rc=$rc"
+exit $rc

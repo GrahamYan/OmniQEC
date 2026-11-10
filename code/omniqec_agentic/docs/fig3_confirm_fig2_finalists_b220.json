@@ -1,0 +1,817 @@
+[
+ {
+  "label": "lp_ab_fdc58a86",
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0,
+       0,
+       0
+      ],
+      [
+       1,
+       1,
+       0
+      ],
+      [
+       0,
+       0,
+       2
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       1,
+       0,
+       1
+      ],
+      [
+       0,
+       1,
+       4
+      ],
+      [
+       0,
+       0,
+       3
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     2,
+     3,
+     9
+    ]
+   }
+  },
+  "code_hash8": "fdc58a86",
+  "d_search": 12,
+  "family": "lp_abelian",
+  "n": 108,
+  "k": 4,
+  "w": 6,
+  "source": "fig2_final:Claude",
+  "fig2_plpr": 7.5006552873180254e-06,
+  "fig2_plpr_ci": [
+   3.0761801182999093e-06,
+   1.8327188827438334e-05
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "lp_ab_1a73843c",
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       1
+      ],
+      [
+       20
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       7
+      ],
+      [
+       32
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     54
+    ]
+   }
+  },
+  "code_hash8": "1a73843c",
+  "d_search": 12,
+  "family": "lp_abelian",
+  "n": 108,
+  "k": 4,
+  "w": 6,
+  "source": "fig2_final:Claude",
+  "fig2_plpr": 1.1668365637040878e-05,
+  "fig2_plpr_ci": [
+   5.7263013272246255e-06,
+   2.4012436187659247e-05
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "lp_ab_38a84e8f",
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0,
+       0
+      ],
+      [
+       1,
+       0
+      ],
+      [
+       0,
+       2
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0,
+       1
+      ],
+      [
+       3,
+       2
+      ],
+      [
+       5,
+       4
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     6,
+     9
+    ]
+   }
+  },
+  "code_hash8": "38a84e8f",
+  "d_search": 12,
+  "family": "lp_abelian",
+  "n": 108,
+  "k": 4,
+  "w": 6,
+  "source": "fig2_final:Claude",
+  "fig2_plpr": 1.2501805565223734e-05,
+  "fig2_plpr_ci": [
+   6.2045678587141495e-06,
+   2.520103755554448e-05
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "bb_375b9f1b",
+  "spec": {
+   "A": [
+    [
+     0,
+     8
+    ],
+    [
+     1,
+     10
+    ],
+    [
+     1,
+     15
+    ]
+   ],
+   "B": [
+    [
+     0,
+     13
+    ],
+    [
+     0,
+     15
+    ],
+    [
+     1,
+     23
+    ]
+   ],
+   "ell": 2,
+   "family": "bb",
+   "m": 27
+  },
+  "code_hash8": "375b9f1b",
+  "d_search": 12,
+  "family": "bb",
+  "n": 108,
+  "k": 4,
+  "w": 6,
+  "source": "fig2_final:DeepSeek",
+  "fig2_plpr": 1.4168983504037058e-05,
+  "fig2_plpr_ci": [
+   7.325007651104443e-06,
+   2.7414932282199267e-05
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "bb_1192498d",
+  "spec": {
+   "A": [
+    [
+     1,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     5,
+     5
+    ]
+   ],
+   "B": [
+    [
+     3,
+     2
+    ],
+    [
+     0,
+     0
+    ]
+   ],
+   "ell": 6,
+   "family": "bb",
+   "m": 9
+  },
+  "code_hash8": "1192498d",
+  "d_search": 10,
+  "family": "bb",
+  "n": 108,
+  "k": 4,
+  "w": 5,
+  "source": "fig2_final:DeepSeek",
+  "fig2_plpr": 1.5836225374377122e-05,
+  "fig2_plpr_ci": [
+   8.47380899160477e-06,
+   2.9600593324019542e-05
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "bb_c7c351cb",
+  "spec": {
+   "A": [
+    [
+     1,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     5,
+     1
+    ],
+    [
+     5,
+     5
+    ]
+   ],
+   "B": [
+    [
+     2,
+     3
+    ],
+    [
+     1,
+     2
+    ]
+   ],
+   "ell": 6,
+   "family": "bb",
+   "m": 9
+  },
+  "code_hash8": "c7c351cb",
+  "d_search": 14,
+  "family": "bb",
+  "n": 108,
+  "k": 2,
+  "w": 6,
+  "source": "fig2_final:DeepSeek",
+  "fig2_plpr": 1.714528216556488e-05,
+  "fig2_plpr_ci": [
+   8.222881549224681e-06,
+   3.7042413629007065e-05
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "bb_48ebb23a",
+  "spec": {
+   "A": [
+    [
+     3,
+     2
+    ],
+    [
+     5,
+     8
+    ],
+    [
+     0,
+     1
+    ]
+   ],
+   "B": [
+    [
+     1,
+     1
+    ],
+    [
+     3,
+     3
+    ]
+   ],
+   "ell": 6,
+   "family": "bb",
+   "m": 9
+  },
+  "code_hash8": "48ebb23a",
+  "d_search": 9,
+  "family": "bb",
+  "n": 108,
+  "k": 4,
+  "w": 5,
+  "source": "fig2_final:DeepSeek",
+  "fig2_plpr": 1.7503531181017884e-05,
+  "fig2_plpr_ci": [
+   9.646971994348164e-06,
+   3.176202057630917e-05
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "bb_005e9c4f",
+  "spec": {
+   "A": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     1,
+     5
+    ]
+   ],
+   "B": [
+    [
+     1,
+     3
+    ],
+    [
+     0,
+     7
+    ],
+    [
+     1,
+     14
+    ]
+   ],
+   "ell": 2,
+   "family": "bb",
+   "m": 27
+  },
+  "code_hash8": "005e9c4f",
+  "d_search": 12,
+  "family": "bb",
+  "n": 108,
+  "k": 4,
+  "w": 6,
+  "source": "fig2_final:Claude",
+  "fig2_plpr": 1.750419839641193e-05,
+  "fig2_plpr_ci": [
+   9.869161619047162e-06,
+   3.1541170228077675e-05
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "lp_ab_2d831ee3",
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       1
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       9
+      ],
+      [
+       22
+      ],
+      [
+       34
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     53
+    ]
+   }
+  },
+  "code_hash8": "2d831ee3",
+  "d_search": 12,
+  "family": "lp_abelian",
+  "n": 106,
+  "k": 2,
+  "w": 6,
+  "source": "fig2_final:GPT",
+  "fig2_plpr": 1.833533226758277e-05,
+  "fig2_plpr_ci": [
+   8.244629395970371e-06,
+   4.1229836942213716e-05
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "lp_ab_45ad83ea",
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       1
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       7
+      ],
+      [
+       23
+      ],
+      [
+       36
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     55
+    ]
+   }
+  },
+  "code_hash8": "45ad83ea",
+  "d_search": 11,
+  "family": "lp_abelian",
+  "n": 110,
+  "k": 2,
+  "w": 6,
+  "source": "fig2_final:GPT",
+  "fig2_plpr": 2.1670066113865794e-05,
+  "fig2_plpr_ci": [
+   1.0755209328916493e-05,
+   4.538865413838966e-05
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "lp_ab_85f9b5e2",
+  "spec": {
+   "A": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       1
+      ]
+     ]
+    ]
+   ],
+   "B": [
+    [
+     [
+      [
+       0
+      ],
+      [
+       8
+      ],
+      [
+       24
+      ],
+      [
+       37
+      ]
+     ]
+    ]
+   ],
+   "family": "lp_abelian",
+   "group": {
+    "factors": [
+     55
+    ]
+   }
+  },
+  "code_hash8": "85f9b5e2",
+  "d_search": 11,
+  "family": "lp_abelian",
+  "n": 110,
+  "k": 2,
+  "w": 6,
+  "source": "fig2_final:GPT",
+  "fig2_plpr": 2.500358824530924e-05,
+  "fig2_plpr_ci": [
+   1.2476300596198087e-05,
+   5.033450600544498e-05
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "bb_0a555b4c",
+  "spec": {
+   "A": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "B": [
+    [
+     3,
+     2
+    ],
+    [
+     5,
+     7
+    ]
+   ],
+   "ell": 6,
+   "family": "bb",
+   "m": 9
+  },
+  "code_hash8": "0a555b4c",
+  "d_search": 9,
+  "family": "bb",
+  "n": 108,
+  "k": 2,
+  "w": 6,
+  "source": "fig2_final:GPT",
+  "fig2_plpr": 4.0008869427676785e-05,
+  "fig2_plpr_ci": [
+   2.2904482430585738e-05,
+   6.991650016774376e-05
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "bb_31272656",
+  "spec": {
+   "A": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     3,
+     4
+    ]
+   ],
+   "B": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     5
+    ],
+    [
+     1,
+     8
+    ],
+    [
+     3,
+     10
+    ]
+   ],
+   "ell": 5,
+   "family": "bb",
+   "m": 11
+  },
+  "code_hash8": "31272656",
+  "d_search": 15,
+  "family": "bb",
+  "n": 110,
+  "k": 2,
+  "w": 8,
+  "source": "fig2_final:GPT",
+  "fig2_plpr": 0.0009692161418198841,
+  "fig2_plpr_ci": [
+   0.0008742690890251037,
+   0.0010743866983931039
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ },
+ {
+  "label": "bb_5a9614af",
+  "spec": {
+   "A": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     3,
+     5
+    ]
+   ],
+   "B": [
+    [
+     2,
+     2
+    ],
+    [
+     1,
+     4
+    ],
+    [
+     3,
+     9
+    ],
+    [
+     2,
+     11
+    ]
+   ],
+   "ell": 4,
+   "family": "bb",
+   "m": 12
+  },
+  "code_hash8": "5a9614af",
+  "d_search": 6,
+  "family": "bb",
+  "n": 96,
+  "k": 12,
+  "w": 8,
+  "source": "fig2_final:GPT",
+  "fig2_plpr": 0.0019723927369071914,
+  "fig2_plpr_ci": [
+   0.0019063017987259734,
+   0.0020406090044901015
+  ],
+  "task_plpr": null,
+  "task_plpr_ci": null,
+  "stage": "final",
+  "roles": [
+   "fig2_finalist"
+  ]
+ }
+]

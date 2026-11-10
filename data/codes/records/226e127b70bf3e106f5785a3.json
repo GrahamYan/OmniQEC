@@ -1,0 +1,136 @@
+{
+ "code_hash": "226e127b70bf3e106f5785a3",
+ "code_hash8": "226e127b",
+ "family": "BB",
+ "n": 30,
+ "k": 2,
+ "d": 5,
+ "w": 4,
+ "parameters_printed_in_tables": true,
+ "construction": {
+  "G": "C15",
+  "A": "y^7 + y^13",
+  "B": "y^14 + y^10",
+  "as_printed_in": ["Table IX", "Table X"],
+  "spec": {
+   "A": [[0, 7], [0, 13]],
+   "B": [[0, 14], [0, 10]],
+   "ell": 1,
+   "family": "bb",
+   "m": 15
+  }
+ },
+ "parity_check_matrices": {
+  "Hx": {
+   "shape": [15, 30],
+   "row_supports": [
+    [7, 13, 25, 29],
+    [8, 14, 15, 26],
+    [0, 9, 16, 27],
+    [1, 10, 17, 28],
+    [2, 11, 18, 29],
+    [3, 12, 15, 19],
+    [4, 13, 16, 20],
+    [5, 14, 17, 21],
+    [0, 6, 18, 22],
+    [1, 7, 19, 23],
+    [2, 8, 20, 24],
+    [3, 9, 21, 25],
+    [4, 10, 22, 26],
+    [5, 11, 23, 27],
+    [6, 12, 24, 28]
+   ]
+  },
+  "Hz": {
+   "shape": [15, 30],
+   "row_supports": [
+    [1, 5, 17, 23],
+    [2, 6, 18, 24],
+    [3, 7, 19, 25],
+    [4, 8, 20, 26],
+    [5, 9, 21, 27],
+    [6, 10, 22, 28],
+    [7, 11, 23, 29],
+    [8, 12, 15, 24],
+    [9, 13, 16, 25],
+    [10, 14, 17, 26],
+    [0, 11, 18, 27],
+    [1, 12, 19, 28],
+    [2, 13, 20, 29],
+    [3, 14, 15, 21],
+    [0, 4, 16, 22]
+   ]
+  }
+ },
+ "appearances": [
+  {
+   "table": "Table IX",
+   "task": "Memory",
+   "N": 60,
+   "backend_or_method": "DeepSeek",
+   "rank": 2,
+   "p_LER": "8.99e-04",
+   "p_LER_value": 0.000899,
+   "pooled": false,
+   "upper_bound": false,
+   "ci95": [0.000798, 0.00101],
+   "ci95_printed_in_table": false,
+   "p_LER_printed_in_table": true
+  },
+  {
+   "table": "Table X",
+   "task": "CNOT",
+   "N": 60,
+   "backend_or_method": "DeepSeek",
+   "rank": 1,
+   "p_LER": "1.12e-03",
+   "p_LER_value": 0.00112,
+   "pooled": false,
+   "upper_bound": false,
+   "ci95": [0.00103, 0.0012],
+   "ci95_printed_in_table": false,
+   "p_LER_printed_in_table": true
+  },
+  {
+   "table": "tab_fig4a_cross",
+   "task": "CNOT",
+   "N": 60,
+   "backend_or_method": "DeepSeek",
+   "rank": 1,
+   "p_LER_by_task": {
+    "Memory": {
+     "p_LER": "8.99e-04",
+     "p_LER_value": 0.000899,
+     "pooled": false,
+     "upper_bound": false,
+     "ci95": [0.000798, 0.00101],
+     "ci95_printed_in_table": true,
+     "p_LER_printed_in_table": true
+    },
+    "CNOT": {
+     "p_LER": "1.12e-03",
+     "p_LER_value": 0.00112,
+     "pooled": false,
+     "upper_bound": false,
+     "ci95": [0.00103, 0.0012],
+     "ci95_printed_in_table": true,
+     "p_LER_printed_in_table": true
+    }
+   }
+  },
+  {
+   "table": "tab_champion_stats",
+   "task": "CNOT",
+   "N": 60,
+   "backend_or_method": "DeepSeek",
+   "rank": 1,
+   "p_LER": "1.12e-03",
+   "p_LER_value": 0.00112,
+   "pooled": false,
+   "upper_bound": false,
+   "ci95": [0.00103, 0.0012],
+   "ci95_printed_in_table": true,
+   "p_LER_printed_in_table": true
+  }
+ ]
+}

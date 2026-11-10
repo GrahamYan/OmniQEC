@@ -1,0 +1,78 @@
+\begingroup
+\SetTblrTemplate{head}{normal}
+\SetTblrTemplate{foot}{normal}
+\DefTblrTemplate{caption-tag}{default}{\tablename\hspace{\fontdimen2\font}\thetable}
+\DefTblrTemplate{caption-sep}{default}{.\hspace{\fontdimen2\font}}
+\SetTblrStyle{caption,capcont}{font=\normalfont\small\rmfamily}
+\SetTblrTemplate{caption}{plain}
+\SetTblrTemplate{capcont}{plain}
+\footnotesize
+\nolinenumbers
+\begin{longtblr}[
+caption={Reciprocal evaluation of the champion codes from the quantum-memory and transversal logical-CNOT experiments. For each qubit budget and LLM backend, the memory champion and the CNOT champion are both evaluated under the two tasks. $p_{\mathrm{LER}}$ is reported per logical qubit per extraction round and normalized over $k$ logical qubits for memory and $2k$ for CNOT. The 95\% intervals propagate the basis-wise Wilson score intervals with $z=1.96$. Bold marks the lower $p_{\mathrm{LER}}$ of the two champions in each task. $\dagger$ denotes a $p_{\mathrm{LER}}$ pooled over several measurements; other values come from one measurement.},
+label={tab:fig4a-cross-evaluation},
+]{
+width=\linewidth,
+colspec={X[0.50,c] X[0.95,l] X[1.10,l] X[0.95,c] X[1.70,l] X[0.30,c] X[1.30,c] X[1.85,c] X[1.30,c] X[1.85,c]},
+colsep=2pt, rowsep=3pt,
+cells={valign=m},
+row{1}={font=\bfseries}, rowhead=1,
+hline{1,2,Z}={0.5pt},
+}
+$N$ & Backend & Objective & $n,k,d$ & Family & $w$ & Memory $p_{\mathrm{LER}}$ & Memory 95\% interval & CNOT $p_{\mathrm{LER}}$ & CNOT 95\% interval \\
+60 & Claude & Memory & $30,2,5$ & BB & 4 & $8.83\times10^{-4}$ & $[7.82,\,9.96]\times10^{-4}$ & $\mathbf{1.12\times10^{-3}}$ & $[1.03,\,1.20]\times10^{-3}$ \\
+60 & Claude & CNOT & $30,2,5$ & BB & 4 & $\mathbf{8.79\times10^{-4}}$ & $[7.79,\,9.92]\times10^{-4}$ & $\mathbf{1.12\times10^{-3}}$ & $[1.04,\,1.21]\times10^{-3}$ \\
+60 & DeepSeek & Memory & $30,2,5$ & BB & 4 & $\mathbf{8.81\times10^{-4}}$ & $[7.81,\,9.94]\times10^{-4}$ & $1.13\times10^{-3}$ & $[1.04,\,1.21]\times10^{-3}$ \\
+60 & DeepSeek & CNOT & $30,2,5$ & BB & 4 & $8.99\times10^{-4}$ & $[7.98,\,10.1]\times10^{-4}$ & $\mathbf{1.12\times10^{-3}}$ & $[1.03,\,1.20]\times10^{-3}$ \\
+60 & GPT & Memory & $30,2,6$ & BB & 6 & $\mathbf{2.94\times10^{-3}}$ & $[2.75,\,3.14]\times10^{-3}$ & $\mathbf{4.17\times10^{-3}}$ & $[4.00,\,4.34]\times10^{-3}$ \\
+60 & GPT & CNOT & $30,2,6$ & LP Abelian & 6 & $3.22\times10^{-3}$ & $[3.02,\,3.43]\times10^{-3}$ & $4.42\times10^{-3}$ & $[4.25,\,4.59]\times10^{-3}$ \\
+98 & Claude & Memory & $48,2,6$ & BB & 4 & $\mathbf{3.14\times10^{-4}}$ & $[2.57,\,3.84]\times10^{-4}$ & $4.25\times10^{-4}$ & $[3.76,\,4.81]\times10^{-4}$ \\
+98 & Claude & CNOT & $48,2,6$ & LP Non-Abelian & 4 & $3.19\times10^{-4}$ & $[2.61,\,3.89]\times10^{-4}$ & $\mathbf{3.72\times10^{-4}}$ & $[3.26,\,4.24]\times10^{-4}$ \\
+98 & DeepSeek & Memory & $48,2,6$ & BB & 4 & $2.85\times10^{-4}$ & $[2.31,\,3.53]\times10^{-4}$ & $\mathbf{3.48\times10^{-4}}$ & $[3.04,\,3.99]\times10^{-4}$ \\
+98 & DeepSeek & CNOT & $48,2,6$ & BB & 4 & $\mathbf{2.69\times10^{-4}}$ & $[2.16,\,3.34]\times10^{-4}$ & $3.74\times10^{-4}$ & $[3.28,\,4.26]\times10^{-4}$ \\
+98 & GPT & Memory & $48,2,6$ & LP Abelian & 4 & $3.24\times10^{-4}$ & $[2.66,\,3.95]\times10^{-4}$ & $3.88\times10^{-4}$ & $[3.41,\,4.41]\times10^{-4}$ \\
+98 & GPT & CNOT & $46,2,6$ & BB & 4 & $\mathbf{2.92\times10^{-4}}$ & $[2.37,\,3.60]\times10^{-4}$ & $\mathbf{3.84\times10^{-4}}$ & $[3.38,\,4.37]\times10^{-4}$ \\
+144 & Claude & Memory & $72,4,8$ & BB & 5 & $\mathbf{6.84\times10^{-5}}$ & $[5.04,\,9.27]\times10^{-5}$ & $1.59\times10^{-4}$ & $[1.38,\,1.82]\times10^{-4}$ \\
+144 & Claude & CNOT & $72,2,8$ & LP Abelian & 4 & $1.07\times10^{-4}$ & $[0.756,\,1.51]\times10^{-4}$ & $\mathbf{1.31\times10^{-4}}$ & $[1.05,\,1.63]\times10^{-4}$ \\
+144 & DeepSeek & Memory & $72,4,8$ & BB & 5 & $\mathbf{8.93\times10^{-5}}$ & $[6.83,\,11.7]\times10^{-5}$ & $1.89\times10^{-4}$ & $[1.66,\,2.15]\times10^{-4}$ \\
+144 & DeepSeek & CNOT & $72,2,8$ & BB & 4 & ${1.03\times10^{-4}}^{\dagger}$ & $[0.839,\,1.26]\times10^{-4}$ & $\mathbf{1.10\times10^{-4}}$ & $[0.866,\,1.40]\times10^{-4}$ \\
+144 & GPT & Memory & $72,4,8$ & BB & 6 & $1.70\times10^{-4}$ & $[1.40,\,2.07]\times10^{-4}$ & $3.79\times10^{-4}$ & $[3.46,\,4.15]\times10^{-4}$ \\
+144 & GPT & CNOT & $72,2,8$ & LP Abelian & 4 & ${\mathbf{8.45\times10^{-5}}}^{\dagger}$ & $[6.75,\,10.6]\times10^{-5}$ & $\mathbf{1.35\times10^{-4}}$ & $[1.09,\,1.68]\times10^{-4}$ \\
+180 & Claude & Memory & $90,4,9$ & BB & 5 & ${\mathbf{2.99\times10^{-5}}}^{\dagger}$ & $[2.51,\,3.56]\times10^{-5}$ & ${\mathbf{6.07\times10^{-5}}}^{\dagger}$ & $[5.33,\,6.91]\times10^{-5}$ \\
+180 & Claude & CNOT & $90,2,9$ & LP Abelian & 4 & ${5.03\times10^{-5}}^{\dagger}$ & $[4.02,\,6.31]\times10^{-5}$ & ${6.39\times10^{-5}}^{\dagger}$ & $[5.33,\,7.67]\times10^{-5}$ \\
+180 & DeepSeek & Memory & $90,4,9$ & BB & 5 & ${\mathbf{2.93\times10^{-5}}}^{\dagger}$ & $[2.46,\,3.50]\times10^{-5}$ & $7.01\times10^{-5}$ & $[5.68,\,8.66]\times10^{-5}$ \\
+180 & DeepSeek & CNOT & $90,4,9$ & LP Abelian & 5 & ${2.99\times10^{-5}}^{\dagger}$ & $[2.51,\,3.56]\times10^{-5}$ & ${\mathbf{6.07\times10^{-5}}}^{\dagger}$ & $[5.33,\,6.91]\times10^{-5}$ \\
+180 & GPT & Memory & $90,2,11$ & LP Abelian & 6 & ${\mathbf{6.36\times10^{-5}}}^{\dagger}$ & $[5.37,\,7.53]\times10^{-5}$ & $1.80\times10^{-4}$ & $[1.50,\,2.17]\times10^{-4}$ \\
+180 & GPT & CNOT & $88,2,8$ & LP Abelian & 4 & ${9.27\times10^{-5}}^{\dagger}$ & $[7.85,\,10.9]\times10^{-5}$ & ${\mathbf{1.15\times10^{-4}}}^{\dagger}$ & $[1.00,\,1.32]\times10^{-4}$ \\
+220 & Claude & Memory & $108,4,12$ & LP Abelian & 6 & ${\mathbf{1.20\times10^{-5}}}^{\dagger}$ & $[0.968,\,1.50]\times10^{-5}$ & ${\mathbf{3.38\times10^{-5}}}^{\dagger}$ & $[2.84,\,4.02]\times10^{-5}$ \\
+220 & Claude & CNOT & $108,4,12$ & LP Abelian & 6 & ${1.38\times10^{-5}}^{\dagger}$ & $[1.12,\,1.69]\times10^{-5}$ & ${3.81\times10^{-5}}^{\dagger}$ & $[3.36,\,4.33]\times10^{-5}$ \\
+220 & DeepSeek & Memory & $108,4,12$ & BB & 6 & ${\mathbf{1.19\times10^{-5}}}^{\dagger}$ & $[0.954,\,1.48]\times10^{-5}$ & ${3.55\times10^{-5}}^{\dagger}$ & $[3.00,\,4.20]\times10^{-5}$ \\
+220 & DeepSeek & CNOT & $108,4,10$ & BB & 5 & ${1.39\times10^{-5}}^{\dagger}$ & $[1.13,\,1.70]\times10^{-5}$ & ${\mathbf{2.93\times10^{-5}}}^{\dagger}$ & $[2.53,\,3.39]\times10^{-5}$ \\
+220 & GPT & Memory & $106,2,12$ & LP Abelian & 6 & ${\mathbf{2.39\times10^{-5}}}^{\dagger}$ & $[1.92,\,2.98]\times10^{-5}$ & ${\mathbf{5.84\times10^{-5}}}^{\dagger}$ & $[4.84,\,7.05]\times10^{-5}$ \\
+220 & GPT & CNOT & $110,2,10$ & LP Abelian & 4 & ${3.76\times10^{-5}}^{\dagger}$ & $[3.02,\,4.69]\times10^{-5}$ & ${5.85\times10^{-5}}^{\dagger}$ & $[5.05,\,6.79]\times10^{-5}$ \\
+260 & Claude & Memory & $126,4,12$ & BB & 6 & ${\mathbf{5.64\times10^{-6}}}^{\dagger}$ & $[4.47,\,7.11]\times10^{-6}$ & ${1.39\times10^{-5}}^{\dagger}$ & $[1.21,\,1.60]\times10^{-5}$ \\
+260 & Claude & CNOT & $126,4,11$ & LP Abelian & 5 & ${5.98\times10^{-6}}^{\dagger}$ & $[4.82,\,7.41]\times10^{-6}$ & ${\mathbf{1.28\times10^{-5}}}^{\dagger}$ & $[1.06,\,1.54]\times10^{-5}$ \\
+260 & DeepSeek & Memory & $126,4,11$ & BB & 5 & ${\mathbf{5.98\times10^{-6}}}^{\dagger}$ & $[4.82,\,7.41]\times10^{-6}$ & ${\mathbf{1.28\times10^{-5}}}^{\dagger}$ & $[1.06,\,1.54]\times10^{-5}$ \\
+260 & DeepSeek & CNOT & $126,4,11$ & BB & 5 & ${6.41\times10^{-6}}^{\dagger}$ & $[5.21,\,7.90]\times10^{-6}$ & ${1.41\times10^{-5}}^{\dagger}$ & $[1.18,\,1.69]\times10^{-5}$ \\
+260 & GPT & Memory & $126,4,12$ & BB & 6 & ${\mathbf{5.04\times10^{-6}}}^{\dagger}$ & $[3.94,\,6.44]\times10^{-6}$ & ${\mathbf{1.68\times10^{-5}}}^{\dagger}$ & $[1.46,\,1.93]\times10^{-5}$ \\
+260 & GPT & CNOT & $126,6,12$ & BB & 6 & ${7.35\times10^{-6}}^{\dagger}$ & $[5.96,\,9.07]\times10^{-6}$ & ${2.18\times10^{-5}}^{\dagger}$ & $[1.94,\,2.45]\times10^{-5}$ \\
+288 & Claude & Memory & $144,4,16$ & BB & 6 & ${\mathbf{2.44\times10^{-6}}}^{\dagger}$ & $[1.91,\,3.12]\times10^{-6}$ & ${7.85\times10^{-6}}^{\dagger}$ & $[6.59,\,9.37]\times10^{-6}$ \\
+288 & Claude & CNOT & $144,4,14$ & BB & 6 & ${2.75\times10^{-6}}^{\dagger}$ & $[2.14,\,3.53]\times10^{-6}$ & ${\mathbf{6.19\times10^{-6}}}^{\dagger}$ & $[5.10,\,7.52]\times10^{-6}$ \\
+288 & DeepSeek & Memory & $140,6,14$ & BB & 6 & ${\mathbf{3.80\times10^{-6}}}^{\dagger}$ & $[2.98,\,4.84]\times10^{-6}$ & ${\mathbf{1.09\times10^{-5}}}^{\dagger}$ & $[0.903,\,1.32]\times10^{-5}$ \\
+288 & DeepSeek & CNOT & $144,4,12$ & BB & 5 & ${6.45\times10^{-6}}^{\dagger}$ & $[5.13,\,8.10]\times10^{-6}$ & ${1.11\times10^{-5}}^{\dagger}$ & $[0.956,\,1.28]\times10^{-5}$ \\
+288 & GPT & Memory & $144,4,14$ & BB & 6 & ${\mathbf{2.04\times10^{-6}}}^{\dagger}$ & $[1.59,\,2.63]\times10^{-6}$ & ${\mathbf{7.47\times10^{-6}}}^{\dagger}$ & $[6.38,\,8.78]\times10^{-6}$ \\
+288 & GPT & CNOT & $144,4,10$ & BB & 5 & ${8.86\times10^{-6}}^{\dagger}$ & $[6.87,\,11.4]\times10^{-6}$ & ${1.99\times10^{-5}}^{\dagger}$ & $[1.78,\,2.22]\times10^{-5}$ \\
+320 & Claude & Memory & $156,4,14$ & BB & 6 & ${\mathbf{1.61\times10^{-6}}}^{\dagger}$ & $[1.24,\,2.09]\times10^{-6}$ & ${\mathbf{5.94\times10^{-6}}}^{\dagger}$ & $[5.09,\,6.97]\times10^{-6}$ \\
+320 & Claude & CNOT & $160,4,12$ & BB & 6 & ${3.99\times10^{-6}}^{\dagger}$ & $[2.99,\,5.33]\times10^{-6}$ & $1.08\times10^{-5}$ & $[0.637,\,1.85]\times10^{-5}$ \\
+320 & DeepSeek & Memory & $154,6,14$ & LP Abelian & 6 & ${1.70\times10^{-6}}^{\dagger}$ & $[1.31,\,2.20]\times10^{-6}$ & ${5.64\times10^{-6}}^{\dagger}$ & $[4.51,\,7.07]\times10^{-6}$ \\
+320 & DeepSeek & CNOT & $156,4,14$ & BB & 6 & ${\mathbf{1.35\times10^{-6}}}^{\dagger}$ & $[1.02,\,1.79]\times10^{-6}$ & ${\mathbf{4.80\times10^{-6}}}^{\dagger}$ & $[4.06,\,5.70]\times10^{-6}$ \\
+320 & GPT & Memory & $154,6,12$ & BB & 6 & ${3.19\times10^{-6}}^{\dagger}$ & $[2.63,\,3.87]\times10^{-6}$ & ${9.11\times10^{-6}}^{\dagger}$ & $[7.39,\,11.3]\times10^{-6}$ \\
+320 & GPT & CNOT & $156,4,14$ & BB & 6 & ${\mathbf{1.65\times10^{-6}}}^{\dagger}$ & $[1.26,\,2.16]\times10^{-6}$ & ${\mathbf{4.29\times10^{-6}}}^{\dagger}$ & $[3.57,\,5.15]\times10^{-6}$ \\
+360 & Claude & Memory & $180,8,14$ & BB & 6 & ${\mathbf{5.54\times10^{-7}}}^{\dagger}$ & $[4.34,\,7.07]\times10^{-7}$ & ${2.58\times10^{-6}}^{\dagger}$ & $[2.10,\,3.18]\times10^{-6}$ \\
+360 & Claude & CNOT & $180,4,18$ & BB & 6 & ${7.11\times10^{-7}}^{\dagger}$ & $[5.34,\,9.47]\times10^{-7}$ & ${\mathbf{1.71\times10^{-6}}}^{\dagger}$ & $[1.37,\,2.15]\times10^{-6}$ \\
+360 & DeepSeek & Memory & $180,8,12$ & BB & 6 & ${\mathbf{7.13\times10^{-7}}}^{\dagger}$ & $[5.53,\,9.19]\times10^{-7}$ & ${3.25\times10^{-6}}^{\dagger}$ & $[2.75,\,3.86]\times10^{-6}$ \\
+360 & DeepSeek & CNOT & $180,4,16$ & LP Abelian & 6 & ${7.32\times10^{-7}}^{\dagger}$ & $[5.45,\,9.84]\times10^{-7}$ & ${\mathbf{2.12\times10^{-6}}}^{\dagger}$ & $[1.73,\,2.60]\times10^{-6}$ \\
+360 & GPT & Memory & $180,4,16$ & BB & 6 & ${\mathbf{6.70\times10^{-7}}}^{\dagger}$ & $[5.30,\,8.47]\times10^{-7}$ & ${\mathbf{1.90\times10^{-6}}}^{\dagger}$ & $[1.57,\,2.30]\times10^{-6}$ \\
+360 & GPT & CNOT & $168,6,14$ & BB & 6 & ${8.55\times10^{-7}}^{\dagger}$ & $[6.48,\,11.3]\times10^{-7}$ & ${2.59\times10^{-6}}^{\dagger}$ & $[2.23,\,3.00]\times10^{-6}$ \\
+\end{longtblr}
+\endgroup

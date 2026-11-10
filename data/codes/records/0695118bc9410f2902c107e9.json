@@ -1,0 +1,138 @@
+{
+ "code_hash": "0695118bc9410f2902c107e9",
+ "code_hash8": "0695118b",
+ "family": "BB",
+ "n": 46,
+ "k": 2,
+ "d": 6,
+ "w": 4,
+ "parameters_printed_in_tables": true,
+ "construction": {
+  "G": "C23",
+  "A": "1 + y",
+  "B": "1 + y^5",
+  "as_printed_in": ["Table X"],
+  "spec": {
+   "A": [[0, 0], [0, 1]],
+   "B": [[0, 0], [0, 5]],
+   "ell": 1,
+   "family": "bb",
+   "m": 23
+  }
+ },
+ "parity_check_matrices": {
+  "Hx": {
+   "shape": [23, 46],
+   "row_supports": [
+    [0, 1, 23, 28],
+    [1, 2, 24, 29],
+    [2, 3, 25, 30],
+    [3, 4, 26, 31],
+    [4, 5, 27, 32],
+    [5, 6, 28, 33],
+    [6, 7, 29, 34],
+    [7, 8, 30, 35],
+    [8, 9, 31, 36],
+    [9, 10, 32, 37],
+    [10, 11, 33, 38],
+    [11, 12, 34, 39],
+    [12, 13, 35, 40],
+    [13, 14, 36, 41],
+    [14, 15, 37, 42],
+    [15, 16, 38, 43],
+    [16, 17, 39, 44],
+    [17, 18, 40, 45],
+    [18, 19, 23, 41],
+    [19, 20, 24, 42],
+    [20, 21, 25, 43],
+    [21, 22, 26, 44],
+    [0, 22, 27, 45]
+   ]
+  },
+  "Hz": {
+   "shape": [23, 46],
+   "row_supports": [
+    [0, 18, 23, 45],
+    [1, 19, 23, 24],
+    [2, 20, 24, 25],
+    [3, 21, 25, 26],
+    [4, 22, 26, 27],
+    [0, 5, 27, 28],
+    [1, 6, 28, 29],
+    [2, 7, 29, 30],
+    [3, 8, 30, 31],
+    [4, 9, 31, 32],
+    [5, 10, 32, 33],
+    [6, 11, 33, 34],
+    [7, 12, 34, 35],
+    [8, 13, 35, 36],
+    [9, 14, 36, 37],
+    [10, 15, 37, 38],
+    [11, 16, 38, 39],
+    [12, 17, 39, 40],
+    [13, 18, 40, 41],
+    [14, 19, 41, 42],
+    [15, 20, 42, 43],
+    [16, 21, 43, 44],
+    [17, 22, 44, 45]
+   ]
+  }
+ },
+ "appearances": [
+  {
+   "table": "Table X",
+   "task": "CNOT",
+   "N": 98,
+   "backend_or_method": "GPT",
+   "rank": 1,
+   "p_LER": "3.84e-04",
+   "p_LER_value": 0.000384,
+   "pooled": false,
+   "upper_bound": false,
+   "ci95": [0.000338, 0.000437],
+   "ci95_printed_in_table": false,
+   "p_LER_printed_in_table": true
+  },
+  {
+   "table": "tab_fig4a_cross",
+   "task": "CNOT",
+   "N": 98,
+   "backend_or_method": "GPT",
+   "rank": 1,
+   "p_LER_by_task": {
+    "Memory": {
+     "p_LER": "2.92e-04",
+     "p_LER_value": 0.000292,
+     "pooled": false,
+     "upper_bound": false,
+     "ci95": [0.000237, 0.00036],
+     "ci95_printed_in_table": true,
+     "p_LER_printed_in_table": true
+    },
+    "CNOT": {
+     "p_LER": "3.84e-04",
+     "p_LER_value": 0.000384,
+     "pooled": false,
+     "upper_bound": false,
+     "ci95": [0.000338, 0.000437],
+     "ci95_printed_in_table": true,
+     "p_LER_printed_in_table": true
+    }
+   }
+  },
+  {
+   "table": "tab_champion_stats",
+   "task": "CNOT",
+   "N": 98,
+   "backend_or_method": "GPT",
+   "rank": 1,
+   "p_LER": "3.84e-04",
+   "p_LER_value": 0.000384,
+   "pooled": false,
+   "upper_bound": false,
+   "ci95": [0.000338, 0.000437],
+   "ci95_printed_in_table": true,
+   "p_LER_printed_in_table": true
+  }
+ ]
+}
