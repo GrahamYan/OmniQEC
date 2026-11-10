@@ -1,24 +1,34 @@
-# OmniQEC research preview
+# OmniQEC
 
-This is a local-only static preview for the OmniQEC manuscript. It includes the
-paper homepage, processed manuscript figures, a downloadable manuscript
-preview, and a paper-grounded AI reading assistant with an offline mock mode.
+Project page: <https://grahamyan.github.io/OmniQEC/>
 
-No Git remote, commit, push, GitHub Pages setting, Workers AI connection, or
-Cloudflare deployment is created by this project.
+## Repository layout
 
-## Start the local preview
+```text
+webpage/   Project homepage, deployed to GitHub Pages by .github/workflows/deploy.yml
+code/      Source code
+data/      Data
+```
 
-Open one terminal at the project root:
+## Webpage
+
+The webpage includes the paper homepage, processed manuscript figures, a
+downloadable manuscript preview, and a paper-grounded AI reading assistant with
+an offline mock mode. Every push to `main` redeploys `webpage/` to GitHub Pages.
+
+### Local preview
+
+Open one terminal at the repository root:
 
 ```bash
+cd webpage
 python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
 Open a second terminal:
 
 ```bash
-cd paper-assistant-worker
+cd webpage/paper-assistant-worker
 npm install
 npm run dev
 ```
@@ -29,9 +39,9 @@ The default assistant is deterministic and fully local. It performs keyword and
 term-weighted retrieval over curated OmniQEC manuscript excerpts and never calls
 a model.
 
-## Validate
+### Validate
 
-From `paper-assistant-worker/`:
+From `webpage/paper-assistant-worker/`:
 
 ```bash
 npm run typecheck

@@ -1,7 +1,7 @@
-paper-assistant-worker/node_modules/
-paper-assistant-worker/.wrangler/
-paper-assistant-worker/dist/
-paper-assistant-worker/coverage/
-paper-assistant-worker/.dev.vars
-paper-assistant-worker/.env*
+webpage/paper-assistant-worker/node_modules/
+webpage/paper-assistant-worker/.wrangler/
+webpage/paper-assistant-worker/dist/
+webpage/paper-assistant-worker/coverage/
+webpage/paper-assistant-worker/.dev.vars
+webpage/paper-assistant-worker/.env*
 tmp/
